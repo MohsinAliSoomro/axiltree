@@ -14,9 +14,7 @@ export async function login(formData: FormData) {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   };
-  console.log("Login data received:", data);
   const { error } = await supabase.auth.signInWithPassword(data);
-  console.log("Supabase signInWithPassword response error:", error);
   if (error) {
     redirect("/error");
   }
@@ -25,28 +23,21 @@ export async function login(formData: FormData) {
   redirect("/account");
 }
 
-export async function signup(formData: FormData) {
+export async function siginWithGoogle(formData: FormData) {
   const supabase = await createClient();
 
   // type-casting here for convenience
   // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider:"google",
     options: {
-      data: {
-        email: formData.get("email") as string,
-        full_name: "New User",
-      },
+      redirectTo: "http://localhost:3000/auth/callback",
     },
-  };
-  console.log("Signup data received:", data);
-  const { error } = await supabase.auth.signUp(data);
-  console.log("Supabase signUp response error:", error);
-  if (error) {
-    redirect(`/error?message=${encodeURIComponent(error.message)}`);
+  });
+  if (data.url) {
+    redirect(data.url); // use the redirect API for your server framework
   }
 
   revalidatePath("/", "layout");
-  redirect("/verification");
+  redirect("/account");
 }

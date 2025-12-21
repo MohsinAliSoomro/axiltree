@@ -1,6 +1,6 @@
 "use client";
 
-import { login, signup } from "./actions";
+import { login ,siginWithGoogle} from "./actions";
 import {
   Container,
   Paper,
@@ -17,8 +17,6 @@ import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  // Combine errors for display
-
   return (
     <Center h="100vh" bg="gray.0">
       <Container size="xs">
@@ -32,14 +30,17 @@ export default function LoginPage() {
                 Log in to your account or create a new one
               </Text>
             </div>
-
-            {/* Show error if any */}
-            {/* {errorMessage && (
-              <Alert color="red" title="Error" radius="md">
-                {errorMessage}
-              </Alert>
-            )} */}
-
+            <form>
+               <Button
+                  formAction={siginWithGoogle}
+                  type="submit"
+                  leftSection={<LogIn size={18} />}
+                  variant="gradient"
+                  size="md"
+                >
+                  Log In with Google
+                </Button>
+            </form>
             <form>
               <Stack gap="md">
                 <TextInput
