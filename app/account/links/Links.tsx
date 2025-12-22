@@ -30,11 +30,14 @@ import {
   IconBrandTiktok,
   IconBrandTwitter,
   IconBrandFacebook,
+  IconFileTypographyFilled,
+  IconFileTypography,
 } from "@tabler/icons-react";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
 import { User } from "@supabase/supabase-js";
 import { themesArray } from "@/app/utils/theme";
+import { Footprints } from "lucide-react";
 
 const SOCIALS = [
   {
@@ -55,14 +58,57 @@ const SOCIALS = [
     icon: <IconBrandFacebook size={16} />,
   },
 ];
+export const fontOptions = [
+  {
+    value: "inter",
+    label: "Inter (Clean & Modern)",
+    css: "var(--font-inter)",
+  },
+  {
+    value: "poppins",
+    label: "Poppins (Stylish)",
+    css: "var(--font-poppins)",
+  },
+  {
+    value: "space",
+    label: "Space Mono (Techy)",
+    css: "var(--font-space)",
+  },
+  {
+    value: "quicksand",
+    label: "Quicksand (Friendly)",
+    css: "var(--font-quicksand)",
+  },
+  {
+    value: "amarna",
+    label: "Amarna (Elegant)",
+    css: "var(--font-amarna)",
+  },
+  {
+    value: "delius",
+    label: "Delius (Handwritten)",
+    css: "var(--font-delius)",
+  },
+  {
+    value: "borel",
+    label: "Borel (Playful)",
+    css: "var(--font-borel)",
+  },
+  {
+    value: "iceland",
+    label: "Iceland (Futuristic)",
+    css: "var(--font-iceland)",
+  },
+];
 
-const themes = themesArray
+const themes = themesArray;
 
 export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [profile, setProfile] = useState<any>(null);
   const [links, setLinks] = useState<any>([]);
   const [newLink, setNewLink] = useState({ title: "", url: "" });
   const [selectedTheme, setSelectedTheme] = useState("default");
+  const [selectedFont, setSelectedFont] = useState("inter");
   const supabase = createClient();
   useEffect(() => {
     loadData();
@@ -92,6 +138,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     if (profileData) {
       setProfile(profileData);
       setSelectedTheme(profileData.theme || "default");
+      setSelectedFont(profileData.font || "inter");
     }
 
     // Load links
@@ -207,6 +254,10 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     setSelectedTheme(theme);
     await updateProfile("theme", theme);
   };
+  const updateFont = async (font: any) => {
+    setSelectedFont(font);
+    await updateProfile("font", font);
+  };
 
   const currentTheme =
     themes.find((t) => t.value === selectedTheme) || themes[0];
@@ -256,6 +307,25 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         value={profile?.bio || ""}
                         onChange={(e) => updateProfile("bio", e.target.value)}
                         minRows={2}
+                      />
+                    </Stack>
+                  </Paper>
+                  <Paper shadow="sm" p="md" withBorder mt="sm">
+                    <Group mb="md">
+                      <IconFileTypography size={20} />
+                      <Text fw={600}>Font </Text>
+                    </Group>
+
+                    <Stack gap="sm">
+                      <Select
+                        label="Profile Font"
+                        placeholder="Choose a font"
+                        data={fontOptions.map((f) => ({
+                          value: f.value,
+                          label: f.label,
+                        }))}
+                        value={selectedFont}
+                        onChange={updateFont}
                       />
                     </Stack>
                   </Paper>
@@ -412,7 +482,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
           </Grid.Col>
 
           {/* Right Side - Mobile Preview */}
-          <Grid.Col span={{ base: 12, md: 4 }}>
+          <Grid.Col span={{ base: 12, md: 4 }} ff={`var(--font-${selectedFont}), sans-serif`}>
             <Box pos="sticky" style={{ top: 20 }}>
               <Paper shadow="sm" p="md" withBorder>
                 <Group mb="md">

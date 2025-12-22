@@ -15,6 +15,7 @@ export default function ProfileView({
 
   return (
     <Box
+      ff={`var(--font-${profile?.font || "inter"}), sans-serif`}
       style={{
         minHeight: "100vh",
         background: theme.bg,

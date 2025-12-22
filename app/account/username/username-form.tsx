@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import { TextInput, Button, Stack, Paper, Title } from "@mantine/core";
+import { TextInput, Button, Stack, Paper, Title, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Save, Check, X, Info } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -22,7 +22,7 @@ export default function UsernameForm({
 }) {
   const [username, setUsername] = useState(currentUsername);
   const [state, formAction] = useFormState(updateUsernameAction, initialState);
-
+  console.log("Form state:", state);
   useEffect(() => {
     if (!state.message) return;
 
@@ -62,7 +62,19 @@ export default function UsernameForm({
         <form action={formAction}>
           <Stack>
             <Title order={3}>Update Username</Title>
-
+            {state.message && (
+              <Text
+                c={
+                  state.status === "success"
+                    ? "green"
+                    : state.status === "info"
+                    ? "yellow"
+                    : "red"
+                }
+              >
+                {state?.message}
+              </Text>
+            )}
             <input type="hidden" name="userId" value={user.id} />
 
             <TextInput

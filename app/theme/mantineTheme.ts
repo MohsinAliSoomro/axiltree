@@ -2,6 +2,7 @@
 import { createTheme } from '@mantine/core';
 
 export const mantineTheme = createTheme({
+   fontFamily: "var(--font-quicksand), sans-serif",
   /** Yeh default gradient poore app mein variant="gradient" pe use hoga */
   defaultGradient: {
     from: 'grape.5',   // starting color (Mantine ke built-in colors ya custom)

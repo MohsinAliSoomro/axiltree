@@ -45,7 +45,7 @@ export default function AppShellLayout({
               color="white"
             />
             <Title order={4} c="white">
-              My App
+              AxilTree
             </Title>
           </Group>
         </Group>
@@ -53,9 +53,21 @@ export default function AppShellLayout({
 
       {/* 📚 NAVBAR */}
       <AppShell.Navbar p="md">
-        <NavLink label="Profile" leftSection={<Home size={18} />} href="/account" />
-        <NavLink label="Username" leftSection={<Home size={18} />} href="/account/username" />
-        <NavLink label="Links" leftSection={<User size={18} />} href="/account/links" />
+        <NavLink
+          label="Profile"
+          leftSection={<Home size={18} />}
+          href="/account"
+        />
+        <NavLink
+          label="Username"
+          leftSection={<Home size={18} />}
+          href="/account/username"
+        />
+        <NavLink
+          label="Links"
+          leftSection={<User size={18} />}
+          href="/account/links"
+        />
         <NavLink label="Settings" leftSection={<Settings size={18} />} />
         <form action="/auth/signout" method="post">
           <Button
