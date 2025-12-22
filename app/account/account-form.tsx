@@ -65,8 +65,6 @@ export default function AccountForm({ user }: { user: User | null }) {
     const { data, error: uploadError } = await supabase.storage
       .from("avatars")
       .upload(filePath, avatarFile, { upsert: true });
-    console.log("Upload data:", data);
-    console.log("Upload error:", uploadError);
     if (uploadError) {
       notifications.show({
         title: "Upload failed",

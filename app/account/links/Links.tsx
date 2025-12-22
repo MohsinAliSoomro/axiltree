@@ -16,8 +16,6 @@ import {
   ActionIcon,
   Box,
   Card,
-  Title,
-  ColorPicker,
   Badge,
 } from "@mantine/core";
 import {
@@ -28,87 +26,34 @@ import {
   IconUser,
   IconPalette,
   IconDeviceMobile,
+  IconBrandInstagram,
+  IconBrandTiktok,
+  IconBrandTwitter,
+  IconBrandFacebook,
 } from "@tabler/icons-react";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
+import { User } from "@supabase/supabase-js";
 
-// Mock Supabase client - Replace with actual Supabase setup
-const createMockSupabase = () => {
-  let mockData = {
-    profile: {
-      id: "1",
-      username: "johndoe",
-      display_name: "John Doe",
-      bio: "Digital Creator | Tech Enthusiast",
-      avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-      theme: "default",
-    },
-    links: [
-      {
-        id: "1",
-        title: "My Website",
-        url: "https://example.com",
-        position: 0,
-        is_active: true,
-      },
-      {
-        id: "2",
-        title: "Instagram",
-        url: "https://instagram.com",
-        position: 1,
-        is_active: true,
-      },
-      {
-        id: "3",
-        title: "YouTube Channel",
-        url: "https://youtube.com",
-        position: 2,
-        is_active: true,
-      },
-    ],
-  };
-
-  return {
-    from: (table: any) => ({
-      select: () => ({
-        eq: () => ({
-          single: async () => ({ data: mockData.profile, error: null }),
-          order: () => Promise.resolve({ data: mockData.links, error: null }),
-        }),
-      }),
-      update: (data: any) => ({
-        eq: async () => {
-          mockData.profile = { ...mockData.profile, ...data };
-          return { data: mockData.profile, error: null };
-        },
-      }),
-      insert: async (data: any) => {
-        const newLink = { ...data[0], id: Date.now().toString() };
-        mockData.links.push(newLink);
-        return { data: [newLink], error: null };
-      },
-      delete: () => ({
-        eq: async (field: any, value: any) => {
-          mockData.links = mockData.links.filter((l) => l.id !== value);
-          return { error: null };
-        },
-      }),
-      upsert: async (data: any) => {
-        data.forEach((item: any) => {
-          const index = mockData.links.findIndex((l) => l.id === item.id);
-          if (index !== -1) {
-            mockData.links[index] = item;
-          }
-        });
-        return { error: null };
-      },
-    }),
-    channel: () => ({
-      on: () => ({ subscribe: () => ({}) }),
-      subscribe: () => ({}),
-    }),
-  };
-};
+const SOCIALS = [
+  {
+    label: "Instagram",
+    value: "Instagram",
+    icon: <IconBrandInstagram size={16} />,
+  },
+  { label: "TikTok", value: "TikTok", icon: <IconBrandTiktok size={16} /> },
+  { label: "Twitter", value: "Twitter", icon: <IconBrandTwitter size={16} /> },
+  {
+    label: "Facebook",
+    value: "Facebook",
+    icon: <IconBrandFacebook size={16} />,
+  },
+  {
+    label: "Whatsapp",
+    value: "Whatsapp",
+    icon: <IconBrandFacebook size={16} />,
+  },
+];
 
 const themes = [
   {
@@ -170,13 +115,11 @@ const themes = [
 ];
 
 export default function LinkTreeDashboard({ user }: { user: User | null }) {
-  // console.log("LinkTreeDashboard user:", user);
-  const [profile, setProfile] = useState(null);
-  const [links, setLinks] = useState([]);
+  const [profile, setProfile] = useState<any>(null);
+  const [links, setLinks] = useState<any>([]);
   const [newLink, setNewLink] = useState({ title: "", url: "" });
   const [selectedTheme, setSelectedTheme] = useState("default");
   const supabase = createClient();
-
   useEffect(() => {
     loadData();
 
@@ -200,9 +143,8 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     const { data: profileData } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", user.id)
+      .eq("id", user?.id)
       .single();
-
     if (profileData) {
       setProfile(profileData);
       setSelectedTheme(profileData.theme || "default");
@@ -212,25 +154,28 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     const { data: linksData } = await supabase
       .from("links")
       .select("*")
-      .eq("profile_id", "1")
+      .eq("profile_id", user?.id)
       .order("position");
 
     if (linksData) {
-      setLinks(linksData);
+      setLinks(linksData as any);
     }
   };
-  console.log({ profile });
   const handleRealtimeUpdate = (payload: any) => {
     if (payload.eventType === "INSERT") {
-      setLinks((prev) =>
+      setLinks((prev: any) =>
         [...prev, payload.new].sort((a, b) => a.position - b.position)
       );
     } else if (payload.eventType === "UPDATE") {
-      setLinks((prev) =>
-        prev.map((link) => (link.id === payload.new.id ? payload.new : link))
+      setLinks((prev: any) =>
+        prev.map((link: any) =>
+          link.id === payload.new.id ? payload.new : link
+        )
       );
     } else if (payload.eventType === "DELETE") {
-      setLinks((prev) => prev.filter((link) => link.id !== payload.old.id));
+      setLinks((prev: any) =>
+        prev.filter((link: any) => link.id !== payload.old.id)
+      );
     }
   };
 
@@ -241,8 +186,8 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    const updatedLinks = items.map((link, index) => ({
-      ...link,
+    const updatedLinks: any = items.map((link, index) => ({
+      ...(link as any),
       position: index,
     }));
 
@@ -252,27 +197,57 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     await supabase.from("links").upsert(updatedLinks);
   };
 
+  const validateUrl = (social: string, url: string) => {
+    if (!url) return false;
+    try {
+      const parsed = new URL(url);
+      switch (social) {
+        case "Instagram":
+          return parsed.hostname.includes("instagram.com");
+        case "TikTok":
+          return parsed.hostname.includes("tiktok.com");
+        case "Twitter":
+          return parsed.hostname.includes("x.com");
+        case "Facebook":
+          return parsed.hostname.includes("facebook.com");
+        case "Whatsapp":
+          return (
+            parsed.hostname.includes("wa.me") ||
+            parsed.hostname.includes("whatsapp.com")
+          );
+        default:
+          return false;
+      }
+    } catch {
+      return false;
+    }
+  };
   const addLink = async () => {
     if (!newLink.title || !newLink.url) return;
-
+    if (!validateUrl(newLink.title, newLink.url)) {
+      alert("Please enter a valid URL for the selected social network.");
+      return;
+    }
     const linkData = {
-      profile_id: "1",
+      profile_id: user?.id,
       title: newLink.title,
       url: newLink.url,
       position: links.length,
       is_active: true,
     };
-
-    const { data } = await supabase.from("links").insert([linkData]);
+    const { data, error } = await supabase
+      .from("links")
+      .insert([linkData])
+      .select("*");
     if (data) {
-      setLinks([...links, data[0]]);
+      setLinks([...links, data[0]] as any);
       setNewLink({ title: "", url: "" });
     }
   };
 
   const deleteLink = async (id: any) => {
     await supabase.from("links").delete().eq("id", id);
-    setLinks(links.filter((link) => link?.id !== id));
+    setLinks(links.filter((link: any) => link?.id !== id));
   };
 
   const updateProfile = async (field: any, value: any) => {
@@ -281,7 +256,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     await supabase
       .from("profiles")
       .update({ [field]: value })
-      .eq("id", "1");
+      .eq("id", user?.id);
   };
 
   const updateTheme = async (theme: any) => {
@@ -295,85 +270,93 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   return (
     <AppShellLayout>
       <Container size="xl" py="md">
-        <Title order={1} mb="xl" ta="center">
-          LinkTree Dashboard
-        </Title>
-
         <Grid gutter="lg">
           {/* Left Side - Editor */}
-          <Grid.Col span={{ base: 12, md: 6 }}>
+          <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap="md">
-              {/* Profile Section */}
-              <Paper shadow="sm" p="md" withBorder>
-                <Group mb="md">
-                  <IconUser size={20} />
-                  <Text fw={600}>Profile Information</Text>
-                </Group>
+              <Grid>
+                <Grid.Col span={{ base: 12, md: 8 }}>
+                  <Paper shadow="sm" p="md" withBorder>
+                    <Group mb="md">
+                      <IconUser size={20} />
+                      <Text fw={600}>Profile Information</Text>
+                    </Group>
 
-                <Stack gap="sm">
-                  <Group>
-                    <Avatar src={profile?.avatar_url} size="lg" radius="xl" />
-                    <Stack gap={4} style={{ flex: 1 }}>
-                      <TextInput
-                        placeholder="Display Name"
-                        value={profile?.full_name || ""}
-                        onChange={(e) =>
-                          updateProfile("full_name", e.target.value)
-                        }
-                      />
-                      <TextInput
-                        placeholder="@username"
-                        value={profile?.username || ""}
-                        onChange={(e) =>
-                          updateProfile("username", e.target.value)
-                        }
+                    <Stack gap="sm">
+                      <Group>
+                        <Avatar
+                          src={profile?.avatar_url}
+                          size="lg"
+                          radius="xl"
+                        />
+                        <Stack gap={4} style={{ flex: 1 }}>
+                          <TextInput
+                            placeholder="Display Name"
+                            value={profile?.full_name || ""}
+                            onChange={(e) =>
+                              updateProfile("full_name", e.target.value)
+                            }
+                          />
+                          <TextInput
+                            placeholder="@username"
+                            value={profile?.username || ""}
+                            onChange={(e) =>
+                              updateProfile("username", e.target.value)
+                            }
+                          />
+                        </Stack>
+                      </Group>
+
+                      <Textarea
+                        placeholder="Bio"
+                        value={profile?.bio || ""}
+                        onChange={(e) => updateProfile("bio", e.target.value)}
+                        minRows={2}
                       />
                     </Stack>
-                  </Group>
+                  </Paper>
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, md: 4 }}>
+                  {/* Theme Selection */}
+                  <Paper shadow="sm" p="md" withBorder>
+                    <Group mb="md">
+                      <IconPalette size={20} />
+                      <Text fw={600}>Theme</Text>
+                    </Group>
 
-                  <Textarea
-                    placeholder="Bio"
-                    value={profile?.bio || ""}
-                    onChange={(e) => updateProfile("bio", e.target.value)}
-                    minRows={2}
-                  />
-                </Stack>
-              </Paper>
-
-              {/* Theme Selection */}
-              <Paper shadow="sm" p="md" withBorder>
-                <Group mb="md">
-                  <IconPalette size={20} />
-                  <Text fw={600}>Theme</Text>
-                </Group>
-
-                <Select
-                  data={themes.map((t) => ({ value: t.value, label: t.label }))}
-                  value={selectedTheme}
-                  onChange={updateTheme}
-                  mb="md"
-                />
-
-                <Group gap="xs">
-                  {themes.map((theme) => (
-                    <Box
-                      key={theme.value}
-                      onClick={() => updateTheme(theme.value)}
-                      style={{
-                        width: 40,
-                        height: 40,
-                        background: theme.bg,
-                        borderRadius: 8,
-                        cursor: "pointer",
-                        border:
-                          selectedTheme === theme.value
-                            ? "3px solid #228be6"
-                            : "2px solid #ddd",
-                      }}
+                    <Select
+                      data={themes.map((t) => ({
+                        value: t.value,
+                        label: t.label,
+                      }))}
+                      value={selectedTheme}
+                      onChange={updateTheme}
+                      mb="md"
                     />
-                  ))}
-                </Group>
-              </Paper>
+
+                    <Group gap="xs">
+                      {themes.map((theme) => (
+                        <Box
+                          key={theme.value}
+                          onClick={() => updateTheme(theme.value)}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            background: theme.bg,
+                            borderRadius: 8,
+                            cursor: "pointer",
+                            border:
+                              selectedTheme === theme.value
+                                ? "3px solid #228be6"
+                                : "2px solid #ddd",
+                          }}
+                        />
+                      ))}
+                    </Group>
+                  </Paper>
+                </Grid.Col>
+              </Grid>
+              {/* Profile Section */}
 
               {/* Add Link Section */}
               <Paper shadow="sm" p="md" withBorder>
@@ -383,22 +366,30 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                 </Group>
 
                 <Stack gap="sm">
-                  <TextInput
-                    placeholder="Link Title"
+                  <Select
+                    label="Social Network"
+                    placeholder="Select social network"
+                    data={SOCIALS.map((s) => ({
+                      value: s.value,
+                      label: s.label,
+                      icon: s.icon,
+                    }))}
                     value={newLink.title}
-                    onChange={(e) =>
-                      setNewLink({ ...newLink, title: e.target.value })
+                    onChange={(value: any) =>
+                      setNewLink({ ...newLink, title: value })
                     }
-                    leftSection={<IconLink size={16} />}
                   />
+
                   <TextInput
-                    placeholder="URL"
+                    label="URL"
+                    placeholder="Enter link URL"
                     value={newLink.url}
                     onChange={(e) =>
-                      setNewLink({ ...newLink, url: e.target.value })
+                      setNewLink({ ...newLink, url: e.currentTarget.value })
                     }
                     leftSection={<IconLink size={16} />}
                   />
+
                   <Button onClick={addLink} fullWidth>
                     Add Link
                   </Button>
@@ -421,7 +412,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         {...provided.droppableProps}
                         ref={provided.innerRef}
                       >
-                        {links.map((link, index) => (
+                        {links.map((link: any, index: number) => (
                           <Draggable
                             key={link.id}
                             draggableId={link.id}
@@ -477,7 +468,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
           </Grid.Col>
 
           {/* Right Side - Mobile Preview */}
-          <Grid.Col span={{ base: 12, md: 6 }}>
+          <Grid.Col span={{ base: 12, md: 4 }}>
             <Box pos="sticky" style={{ top: 20 }}>
               <Paper shadow="sm" p="md" withBorder>
                 <Group mb="md">
@@ -521,7 +512,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                       </Stack>
 
                       <Stack gap="sm" style={{ width: "100%" }} mt="md">
-                        {links.map((link) => (
+                        {links.map((link: any) => (
                           <Button
                             key={link?.id}
                             component="a"

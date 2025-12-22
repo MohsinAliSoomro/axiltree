@@ -6,5 +6,7 @@ export default async function Account() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+
   return <LinkTreeDashboard user={user} />;
 }

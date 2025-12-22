@@ -16,7 +16,6 @@ export default async function LandingPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  console.log("Landing page user:", user);
   return (
     <div
       style={{
