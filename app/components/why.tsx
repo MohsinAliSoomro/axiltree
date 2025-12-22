@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Card, Grid, Stack, Text } from "@mantine/core";
 import { Sparkles, Users, Zap } from "lucide-react";
 
@@ -29,8 +29,7 @@ export default function Why() {
               Easy Setup
             </Text>
             <Text c="dimmed" size="sm">
-              5 minutes mein ready. Code ki zarurat nahi, sirf click karo aur
-              live ho jao.
+              Ready in 5 minutes. No code needed — just click and go live.
             </Text>
           </Stack>
         </Card>
@@ -60,8 +59,8 @@ export default function Why() {
               Beautiful Design
             </Text>
             <Text c="dimmed" size="sm">
-              Professional themes jo mobile par perfect dikhti hain. Customize
-              bhi kar sakte ho.
+              Professional themes that look perfect on mobile. Fully
+              customizable.
             </Text>
           </Stack>
         </Card>
@@ -91,8 +90,8 @@ export default function Why() {
               Track Analytics
             </Text>
             <Text c="dimmed" size="sm">
-              Dekho kitne log click kar rahe hain. Apne best links ko identify
-              karo.
+              See how many people are clicking. Identify your best-performing
+              links.
             </Text>
           </Stack>
         </Card>

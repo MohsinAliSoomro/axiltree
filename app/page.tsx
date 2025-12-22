@@ -24,7 +24,7 @@ export default function LandingPage() {
           <Group gap="xs">
             <Camera size={28} color="#E4405F" />
             <Text size="xl" fw={700} style={{ color: "#262626" }}>
-              LinkHub
+              AxilTree
             </Text>
           </Group>
           <Button
@@ -53,15 +53,14 @@ export default function LandingPage() {
                 maxWidth: "600px",
               }}
             >
-              Instagram Bio Mein Ek Link Se Sab Kuch Share Karo
+              Share all your important links with one bio link
             </Title>
             <Text
               size="lg"
               c="dimmed"
               style={{ maxWidth: "500px", lineHeight: 1.6 }}
             >
-              Apne followers ko sabhi links ek jagah dikhao. Free mein shuru
-              karo, minutes mein setup ho jaye.
+              All your links, one place. Start free. Set up in minutes.
             </Text>
           </Stack>
 
@@ -147,10 +146,9 @@ export default function LandingPage() {
       <Container size="lg" style={{ padding: "4rem 1rem" }}>
         <Stack gap="xl">
           <Title order={2} ta="center" fw={700} size="2rem">
-            Kyun Choose Karein?
+            Why Choose?
           </Title>
           <Why />
-          {/*  */}
         </Stack>
       </Container>
 
@@ -158,25 +156,25 @@ export default function LandingPage() {
       <Container size="md" style={{ padding: "4rem 1rem" }}>
         <Stack gap="xl">
           <Title order={2} ta="center" fw={700} size="2rem">
-            Kaise Kaam Karta Hai
+            How It Works
           </Title>
 
           <Stack gap="lg">
             {[
               {
                 num: "1",
-                title: "Sign Up Karo",
-                desc: "Apna account banao - email ya social login se",
+                title: "Sign Up",
+                desc: "Create your account using email or social login",
               },
               {
                 num: "2",
-                title: "Links Add Karo",
-                desc: "Apni sabhi important links ek jagah add karo",
+                title: "Add Links",
+                desc: "Add all your important links in one place",
               },
               {
                 num: "3",
-                title: "Share Karo",
-                desc: "Apna unique link Instagram bio mein lagao!",
+                title: "Share",
+                desc: "Put your unique link in your Instagram bio!",
               },
             ].map((step, i) => (
               <Card
@@ -243,7 +241,7 @@ export default function LandingPage() {
             </Text>
           </Group>
           <Text ta="center" size="xs" c="dimmed" style={{ marginTop: "1rem" }}>
-            © 2024 LinkHub. All rights reserved.
+            © 2024 AxilTree. All rights reserved.
           </Text>
         </Container>
       </div>
