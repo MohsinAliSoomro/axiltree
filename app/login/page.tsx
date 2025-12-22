@@ -1,5 +1,4 @@
 "use client";
-
 import { login ,siginWithGoogle} from "./actions";
 import {
   Container,
@@ -36,7 +35,7 @@ export default function LoginPage() {
                   type="submit"
                   leftSection={<LogIn size={18} />}
                   variant="gradient"
-                  size="md"
+                  fullWidth
                 >
                   Log In with Google
                 </Button>
@@ -67,7 +66,6 @@ export default function LoginPage() {
                   type="submit"
                   leftSection={<LogIn size={18} />}
                   variant="gradient"
-                  size="md"
                 >
                   Log In
                 </Button>
@@ -78,7 +76,6 @@ export default function LoginPage() {
               href="/signup"
               leftSection={<UserPlus size={18} />}
               variant="gradient"
-              size="md"
             >
               Sign Up
             </Button>
@@ -93,10 +90,7 @@ export default function LoginPage() {
               </Anchor>
             </Text>
 
-            {/* Optional: Use your CustomButton instead */}
-            {/* <CustomButton loading={loginPending} icon={<LogIn size={18} />} fullWidth>
-              Log In
-            </CustomButton> */}
+      
           </Stack>
         </Paper>
       </Container>

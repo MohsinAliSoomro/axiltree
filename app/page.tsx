@@ -9,8 +9,14 @@ import {
 } from "@mantine/core";
 import { Camera } from "lucide-react";
 import Why from "./components/why";
+import { createClient } from "./lib/supabase/server";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  console.log("Landing page user:", user);
   return (
     <div
       style={{
@@ -32,9 +38,9 @@ export default function LandingPage() {
             color="dark"
             size="sm"
             component="a"
-            href="/login"
+            href={user ? "/account" : "/login"}
           >
-            Login
+            {user ? "Account" : "Login"}
           </Button>
         </Group>
       </Container>
