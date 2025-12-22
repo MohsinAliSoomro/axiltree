@@ -34,6 +34,7 @@ import {
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
 import { User } from "@supabase/supabase-js";
+import { themesArray } from "@/app/utils/theme";
 
 const SOCIALS = [
   {
@@ -55,64 +56,7 @@ const SOCIALS = [
   },
 ];
 
-const themes = [
-  {
-    value: "default",
-    label: "Default",
-    bg: "#ffffff",
-    text: "#000000",
-    button: "#000000",
-    buttonText: "#ffffff",
-  },
-  {
-    value: "dark",
-    label: "Dark Mode",
-    bg: "#1a1a1a",
-    text: "#ffffff",
-    button: "#ffffff",
-    buttonText: "#000000",
-  },
-  {
-    value: "gradient",
-    label: "Gradient",
-    bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    text: "#ffffff",
-    button: "#ffffff",
-    buttonText: "#667eea",
-  },
-  {
-    value: "ocean",
-    label: "Ocean",
-    bg: "#e0f7ff",
-    text: "#003d5c",
-    button: "#0077b6",
-    buttonText: "#ffffff",
-  },
-  {
-    value: "sunset",
-    label: "Sunset",
-    bg: "#fff5e6",
-    text: "#d64545",
-    button: "#ff6b6b",
-    buttonText: "#ffffff",
-  },
-  {
-    value: "forest",
-    label: "Forest",
-    bg: "#f0f7f4",
-    text: "#1b4332",
-    button: "#2d6a4f",
-    buttonText: "#ffffff",
-  },
-  {
-    value: "neon",
-    label: "Neon",
-    bg: "#0a0a0a",
-    text: "#00ff88",
-    button: "#00ff88",
-    buttonText: "#000000",
-  },
-];
+const themes = themesArray
 
 export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [profile, setProfile] = useState<any>(null);
