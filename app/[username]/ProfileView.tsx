@@ -1,5 +1,4 @@
 "use client";
-
 import { Container, Stack, Avatar, Text, Button, Box } from "@mantine/core";
 import { themesObject } from "../utils/theme";
 
@@ -25,7 +24,7 @@ export default function ProfileView({
     >
       <Container size="xs">
         <Stack align="center" gap="md">
-          <Avatar src={profile?.avatar_url} size={100} radius="xl" />
+          <Avatar src={profile?.avatar_url} size={100} radius="xl"  />
           <Stack gap={8} align="center">
             <Text size="xl" fw={700}>
               {profile?.display_name || "Name"}

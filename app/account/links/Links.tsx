@@ -291,6 +291,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                             onChange={(e) =>
                               updateProfile("full_name", e.target.value)
                             }
+                            disabled
                           />
                           <TextInput
                             placeholder="@username"
@@ -298,6 +299,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                             onChange={(e) =>
                               updateProfile("username", e.target.value)
                             }
+                            disabled
                           />
                         </Stack>
                       </Group>
