@@ -10,6 +10,7 @@ import {
   Iceland
 } from "next/font/google";
 import "@mantine/core/styles.css";
+import '@mantine/charts/styles.css';
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { mantineTheme } from "./theme/mantineTheme";
 
