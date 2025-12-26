@@ -196,3 +196,7 @@ CREATE TRIGGER set_updated_at_links
 CREATE TRIGGER set_updated_at_themes
   BEFORE UPDATE ON public.themes
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- Add animation column to profiles table (for animation feature)
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS animation TEXT DEFAULT 'none';
