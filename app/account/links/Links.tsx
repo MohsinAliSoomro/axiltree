@@ -231,10 +231,10 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
   const supabase = createClient();
+
   useEffect(() => {
     loadData();
 
-    // Setup real-time subscription
     const channel = supabase
       .channel("links-changes")
       .on(
@@ -274,6 +274,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setLinks(linksData as any);
     }
   };
+  
   const handleRealtimeUpdate = (payload: any) => {
     if (payload.eventType === "INSERT") {
       setLinks((prev: any) =>

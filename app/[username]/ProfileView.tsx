@@ -1,6 +1,8 @@
 "use client";
 import { Container, Stack, Avatar, Text, Button, Box } from "@mantine/core";
 import { themesObject } from "../utils/theme";
+import { createClient } from "../lib/supabase/client";
+import { fetchLocation } from "../utils/location";
 
 export default function ProfileView({
   profile,
@@ -11,7 +13,20 @@ export default function ProfileView({
 }) {
   //@ts-ignore
   const theme = themesObject[profile?.theme] || themes.default;
-
+  const client = createClient();
+  const handleClick = async (link: any) => {
+    try {
+      const location = await fetchLocation();
+      await client.from("analytics").insert({
+        link_id: link.id,
+        action: "click",
+        country: location?.location?.country?.name,
+        ipAddress: location?.ip || "",
+      });
+    } catch (error) {
+      console.error("Failed to open link:", error);
+    }
+  };
   return (
     <Box
       ff={`var(--font-${profile?.font || "inter"}), sans-serif`}
@@ -24,7 +39,7 @@ export default function ProfileView({
     >
       <Container size="xs">
         <Stack align="center" gap="md">
-          <Avatar src={profile?.avatar_url} size={100} radius="xl"  />
+          <Avatar src={profile?.avatar_url} size={100} radius="xl" />
           <Stack gap={8} align="center">
             <Text size="xl" fw={700}>
               {profile?.display_name || "Name"}
@@ -42,6 +57,7 @@ export default function ProfileView({
               <Button
                 key={link.id}
                 component="a"
+                onClick={() => handleClick(link)}
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"

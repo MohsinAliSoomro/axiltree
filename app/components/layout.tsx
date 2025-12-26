@@ -68,6 +68,11 @@ export default function AppShellLayout({
           leftSection={<User size={18} />}
           href="/account/links"
         />
+          <NavLink
+          label="Analytics"
+          leftSection={<User size={18} />}
+          href="/account/analytics"
+        />
         <NavLink label="Settings" leftSection={<Settings size={18} />} />
         <form action="/auth/signout" method="post">
           <Button
