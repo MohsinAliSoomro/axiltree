@@ -37,8 +37,11 @@ import {
 } from "@tabler/icons-react";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
+import UsernameThemeSelector from "../../components/UsernameThemeSelector";
 import { User } from "@supabase/supabase-js";
 import { themesArray } from "@/app/utils/theme";
+import { animationOptions, getAnimationVariants } from "@/app/utils/animations";
+import { usernameThemes } from "@/app/utils/usernameThemes";
 import { Footprints } from "lucide-react";
 
 const SOCIALS = [
@@ -105,124 +108,6 @@ export const fontOptions = [
 
 const themes = themesArray;
 
-// Animation options
-const animationOptions = [
-  {
-    value: "none",
-    label: "None",
-    icon: "⚪",
-    description: "No Animation",
-  },
-  {
-    value: "fade",
-    label: "Fade In",
-    icon: "✨",
-    description: "Fade In",
-  },
-  {
-    value: "slide-up",
-    label: "Slide Up",
-    icon: "⬆️",
-    description: "Slide Up",
-  },
-  {
-    value: "slide-down",
-    label: "Slide Down",
-    icon: "⬇️",
-    description: "Slide Down",
-  },
-  {
-    value: "slide-left",
-    label: "Slide Left",
-    icon: "⬅️",
-    description: "Slide Left",
-  },
-  {
-    value: "slide-right",
-    label: "Slide Right",
-    icon: "➡️",
-    description: "Slide Right",
-  },
-  {
-    value: "bounce",
-    label: "Bounce",
-    icon: "🔴",
-    description: "Bounce",
-  },
-  {
-    value: "scale",
-    label: "Scale",
-    icon: "🔍",
-    description: "Scale",
-  },
-  {
-    value: "rotate",
-    label: "Rotate",
-    icon: "🔄",
-    description: "Rotate",
-  },
-  {
-    value: "flip",
-    label: "Flip",
-    icon: "🔄",
-    description: "Flip",
-  },
-  {
-    value: "zoom-in",
-    label: "Zoom In",
-    icon: "🔍",
-    description: "Zoom In",
-  },
-  {
-    value: "zoom-out",
-    label: "Zoom Out",
-    icon: "🔍",
-    description: "Zoom Out",
-  },
-  {
-    value: "shake",
-    label: "Shake",
-    icon: "📳",
-    description: "Shake",
-  },
-  {
-    value: "pulse",
-    label: "Pulse",
-    icon: "💓",
-    description: "Pulse",
-  },
-  {
-    value: "wiggle",
-    label: "Wiggle",
-    icon: "〰️",
-    description: "Wiggle",
-  },
-  {
-    value: "glow",
-    label: "Glow",
-    icon: "✨",
-    description: "Glow",
-  },
-  {
-    value: "float",
-    label: "Float",
-    icon: "☁️",
-    description: "Float",
-  },
-  {
-    value: "elastic",
-    label: "Elastic",
-    icon: "🔗",
-    description: "Elastic",
-  },
-  {
-    value: "spring",
-    label: "Spring",
-    icon: "🌱",
-    description: "Spring",
-  },
-];
-
 export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [profile, setProfile] = useState<any>(null);
   const [links, setLinks] = useState<any>([]);
@@ -230,6 +115,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedTheme, setSelectedTheme] = useState("default");
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
+  const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
   const supabase = createClient();
 
   useEffect(() => {
@@ -261,6 +147,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setSelectedTheme(profileData.theme || "default");
       setSelectedFont(profileData.font || "inter");
       setSelectedAnimation(profileData.animation || "none");
+      setSelectedUsernameTheme(profileData.username_theme || "default");
     }
 
     // Load links
@@ -387,194 +274,16 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     await updateProfile("animation", animation);
   };
 
+  const updateUsernameTheme = async (theme: any) => {
+    setSelectedUsernameTheme(theme);
+    await updateProfile("username_theme", theme);
+  };
+
   const currentTheme =
     themes.find((t) => t.value === selectedTheme) || themes[0];
-
-  // Get animation variants for framer-motion
-  const getAnimationVariants = (animationType: string) => {
-    const baseVariants = {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      transition: { duration: 0.5 },
-    };
-
-    switch (animationType) {
-      case "none":
-        return {
-          initial: { opacity: 1 },
-          animate: { opacity: 1 },
-          transition: { duration: 0 },
-        };
-      case "fade":
-        return {
-          initial: { opacity: 0 },
-          animate: { opacity: 1 },
-          transition: { duration: 0.6 },
-        };
-      case "slide-up":
-        return {
-          initial: { opacity: 0, y: 50 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] as const },
-        };
-      case "slide-down":
-        return {
-          initial: { opacity: 0, y: -50 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] as const },
-        };
-      case "slide-left":
-        return {
-          initial: { opacity: 0, x: 50 },
-          animate: { opacity: 1, x: 0 },
-          transition: { duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] as const },
-        };
-      case "slide-right":
-        return {
-          initial: { opacity: 0, x: -50 },
-          animate: { opacity: 1, x: 0 },
-          transition: { duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] as const },
-        };
-      case "bounce":
-        return {
-          initial: { opacity: 0, y: 50 },
-          animate: { opacity: 1, y: 0 },
-          transition: {
-            type: "spring" as const,
-            stiffness: 300,
-            damping: 20,
-          },
-        };
-      case "scale":
-        return {
-          initial: { opacity: 0, scale: 0.8 },
-          animate: { opacity: 1, scale: 1 },
-          transition: { duration: 0.5 },
-        };
-      case "rotate":
-        return {
-          initial: { opacity: 0, rotate: -180 },
-          animate: { opacity: 1, rotate: 0 },
-          transition: { duration: 0.6 },
-        };
-      case "flip":
-        return {
-          initial: { opacity: 0, rotateY: -90 },
-          animate: { opacity: 1, rotateY: 0 },
-          transition: { duration: 0.6 },
-        };
-      case "zoom-in":
-        return {
-          initial: { opacity: 0, scale: 0.5 },
-          animate: { opacity: 1, scale: 1 },
-          transition: { duration: 0.5 },
-        };
-      case "zoom-out":
-        return {
-          initial: { opacity: 0, scale: 1.5 },
-          animate: { opacity: 1, scale: 1 },
-          transition: { duration: 0.5 },
-        };
-      case "shake":
-        return {
-          initial: { x: 0 },
-          animate: {
-            x: [0, -10, 10, -10, 10, 0],
-            opacity: 1,
-          },
-          transition: {
-            duration: 0.5,
-            opacity: { duration: 0.3 },
-          },
-        };
-      case "pulse":
-        return {
-          initial: { opacity: 0, scale: 0.9 },
-          animate: {
-            opacity: 1,
-            scale: 1.05,
-          },
-          transition: {
-            duration: 0.6,
-            repeat: Infinity,
-            repeatType: "reverse" as const,
-            repeatDelay: 1,
-          },
-        };
-      case "wiggle":
-        return {
-          initial: { rotate: 0 },
-          animate: {
-            rotate: [0, -5, 5, -5, 5, 0],
-            opacity: 1,
-          },
-          transition: {
-            duration: 0.5,
-            opacity: { duration: 0.3 },
-          },
-        };
-      case "glow":
-        return {
-          initial: { opacity: 0, boxShadow: "0 0 0px rgba(255,255,255,0)" },
-          animate: {
-            opacity: 1,
-            boxShadow: [
-              "0 0 0px rgba(255,255,255,0)",
-              "0 0 20px rgba(255,255,255,0.5)",
-              "0 0 0px rgba(255,255,255,0)",
-            ],
-          },
-          transition: {
-            duration: 1,
-            repeat: Infinity,
-            repeatType: "reverse" as const,
-          },
-        };
-      case "float":
-        return {
-          initial: { opacity: 0, y: 0 },
-          animate: {
-            opacity: 1,
-            y: [0, -10, 0],
-          },
-          transition: {
-            duration: 2,
-            repeat: Infinity,
-            repeatType: "reverse" as const,
-            ease: [0.4, 0, 0.6, 1] as const,
-          },
-        };
-      case "elastic":
-        return {
-          initial: { opacity: 0, scale: 0 },
-          animate: {
-            opacity: 1,
-            scale: 1,
-          },
-          transition: {
-            type: "spring" as const,
-            stiffness: 200,
-            damping: 10,
-            bounce: 0.5,
-          },
-        };
-      case "spring":
-        return {
-          initial: { opacity: 0, y: 50 },
-          animate: {
-            opacity: 1,
-            y: 0,
-          },
-          transition: {
-            type: "spring" as const,
-            stiffness: 100,
-            damping: 15,
-          },
-        };
-      default:
-        return baseVariants;
-    }
-  };
+  
+  const currentUsernameTheme =
+    usernameThemes.find((t) => t.value === selectedUsernameTheme) || usernameThemes[0];
 
   return (
     <AppShellLayout>
@@ -584,7 +293,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap="md">
               <Grid>
-                <Grid.Col span={{ base: 12, md: 4 }}> 
+                <Grid.Col span={{ base: 12, md: 8 }}> 
                 {/* <Grid.Col span={{ base: 12, md: 8 }}> changes by shahzad  */}
 
                   <Paper shadow="sm" p="md" withBorder>
@@ -705,34 +414,61 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                       mb="md"
                     />
 
-                    <Group gap="xs" wrap="wrap">
-                      {animationOptions.map((animation) => (
-                        <Box
-                          key={animation.value}
-                          onClick={() => updateAnimation(animation.value)}
-                          style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 8,
-                            background: "#f8f9fa",
-                            border:
-                              selectedAnimation === animation.value
-                                ? "3px solid #228be6"
-                                : "2px solid #ddd",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "20px",
-                            transition: "all 0.2s",
-                          }}
-                          title={animation.label}
-                        >
-                          {animation.icon}
-                        </Box>
-                      ))}
-                    </Group>
+                    <Box
+                      style={{
+                        maxHeight: "240px",
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                        paddingRight: "4px",
+                      }}
+                     
+                    >
+                      <Group gap="xs" wrap="wrap">
+                        {animationOptions.map((animation) => (
+                          <Box
+                            key={animation.value}
+                            onClick={() => updateAnimation(animation.value)}
+                            style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: 8,
+                              background: "#f8f9fa",
+                              border:
+                                selectedAnimation === animation.value
+                                  ? "3px solid #228be6"
+                                  : "2px solid #ddd",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "18px",
+                              transition: "all 0.2s",
+                              overflow: "hidden",
+                              flexShrink: 0,
+                            }}
+                            title={animation.label}
+                          >
+                            <span style={{ 
+                              display: "inline-block",
+                              lineHeight: 1,
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                            }}>
+                              {animation.icon}
+                            </span>
+                          </Box>
+                        ))}
+                      </Group>
+                    </Box>
                   </Paper>
+                </Grid.Col>
+
+                {/* // User Name Theme Section // */}
+                <Grid.Col span={{ base: 12, md: 4 }}>
+                  <UsernameThemeSelector
+                    selectedTheme={selectedUsernameTheme}
+                    onThemeChange={updateUsernameTheme}
+                  />
                 </Grid.Col>
               </Grid>
               {/* Profile Section */}
@@ -877,28 +613,38 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                     }}
                   >
                     <Stack align="center" gap="md">
-                      <motion.div
-                        key={`avatar-${selectedAnimation}`}
-                        {...getAnimationVariants(selectedAnimation)}
-                      >
-                        <Avatar src={profile?.avatar_url} size={80} radius="xl" />
-                      </motion.div>
-                      <motion.div
-                        key={`name-${selectedAnimation}`}
-                        {...getAnimationVariants(selectedAnimation)}
-                      >
-                        <Stack gap={4} align="center">
-                          <Text size="xl" fw={700}>
-                            {profile?.display_name || "Your Name"}
-                          </Text>
-                          <Text size="sm" opacity={0.8}>
-                            @{profile?.username || "username"}
-                          </Text>
-                          <Text size="sm" ta="center" opacity={0.9}>
-                            {profile?.bio || "Your bio goes here"}
-                          </Text>
-                        </Stack>
-                      </motion.div>
+                      <Avatar src={profile?.avatar_url} size={80} radius="xl" />
+                      <Stack gap={4} align="center">
+                        <Text size="xl" fw={700}>
+                          {profile?.display_name || "Your Name"}
+                        </Text>
+                        <Text
+                          size="sm"
+                          opacity={0.8}
+                          style={{
+                            background: currentUsernameTheme.color.includes("gradient")
+                              ? currentUsernameTheme.color
+                              : undefined,
+                            color: currentUsernameTheme.color.includes("gradient")
+                              ? "transparent"
+                              : currentUsernameTheme.color,
+                            WebkitBackgroundClip: currentUsernameTheme.color.includes("gradient")
+                              ? "text"
+                              : undefined,
+                            WebkitTextFillColor: currentUsernameTheme.color.includes("gradient")
+                              ? "transparent"
+                              : undefined,
+                            backgroundClip: currentUsernameTheme.color.includes("gradient")
+                              ? "text"
+                              : undefined,
+                          }}
+                        >
+                          @{profile?.username || "username"}
+                        </Text>
+                        <Text size="sm" ta="center" opacity={0.9}>
+                          {profile?.bio || "Your bio goes here"}
+                        </Text>
+                      </Stack>
 
                       <Stack gap="sm" style={{ width: "100%" }} mt="md">
                         {links.map((link: any, index: number) => {
