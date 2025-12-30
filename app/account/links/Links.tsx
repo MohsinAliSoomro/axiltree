@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { motion } from "framer-motion";
 import {
   Container,
   Grid,
@@ -32,11 +33,15 @@ import {
   IconBrandFacebook,
   IconFileTypographyFilled,
   IconFileTypography,
+  IconBrandFunimation,
 } from "@tabler/icons-react";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
+import UsernameThemeSelector from "../../components/UsernameThemeSelector";
 import { User } from "@supabase/supabase-js";
 import { themesArray } from "@/app/utils/theme";
+import { animationOptions, getAnimationVariants } from "@/app/utils/animations";
+import { usernameThemes } from "@/app/utils/usernameThemes";
 import { Footprints } from "lucide-react";
 
 const SOCIALS = [
@@ -109,6 +114,8 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [newLink, setNewLink] = useState({ title: "", url: "" });
   const [selectedTheme, setSelectedTheme] = useState("default");
   const [selectedFont, setSelectedFont] = useState("inter");
+  const [selectedAnimation, setSelectedAnimation] = useState("none");
+  const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
   const supabase = createClient();
 
   useEffect(() => {
@@ -139,6 +146,8 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setProfile(profileData);
       setSelectedTheme(profileData.theme || "default");
       setSelectedFont(profileData.font || "inter");
+      setSelectedAnimation(profileData.animation || "none");
+      setSelectedUsernameTheme(profileData.username_theme || "default");
     }
 
     // Load links
@@ -260,8 +269,21 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     await updateProfile("font", font);
   };
 
+  const updateAnimation = async (animation: any) => {
+    setSelectedAnimation(animation);
+    await updateProfile("animation", animation);
+  };
+
+  const updateUsernameTheme = async (theme: any) => {
+    setSelectedUsernameTheme(theme);
+    await updateProfile("username_theme", theme);
+  };
+
   const currentTheme =
     themes.find((t) => t.value === selectedTheme) || themes[0];
+  
+  const currentUsernameTheme =
+    usernameThemes.find((t) => t.value === selectedUsernameTheme) || usernameThemes[0];
 
   return (
     <AppShellLayout>
@@ -271,7 +293,9 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap="md">
               <Grid>
-                <Grid.Col span={{ base: 12, md: 8 }}>
+                <Grid.Col span={{ base: 12, md: 8 }}> 
+                {/* <Grid.Col span={{ base: 12, md: 8 }}> changes by shahzad  */}
+
                   <Paper shadow="sm" p="md" withBorder>
                     <Group mb="md">
                       <IconUser size={20} />
@@ -371,6 +395,80 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                       ))}
                     </Group>
                   </Paper>
+                </Grid.Col>
+                {/* // Animation Section // */}
+                <Grid.Col span={{ base: 12, md: 4 }}>
+                  <Paper shadow="sm" p="md" withBorder>
+                    <Group mb="md">
+                      <IconBrandFunimation size={20} /> 
+                      <Text fw={600}>Animation</Text>
+                    </Group>
+
+                    <Select
+                      data={animationOptions.map((a) => ({
+                        value: a.value,
+                        label: a.label,
+                      }))}
+                      value={selectedAnimation}
+                      onChange={updateAnimation}
+                      mb="md"
+                    />
+
+                    <Box
+                      style={{
+                        maxHeight: "240px",
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                        paddingRight: "4px",
+                      }}
+                     
+                    >
+                      <Group gap="xs" wrap="wrap">
+                        {animationOptions.map((animation) => (
+                          <Box
+                            key={animation.value}
+                            onClick={() => updateAnimation(animation.value)}
+                            style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: 8,
+                              background: "#f8f9fa",
+                              border:
+                                selectedAnimation === animation.value
+                                  ? "3px solid #228be6"
+                                  : "2px solid #ddd",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "18px",
+                              transition: "all 0.2s",
+                              overflow: "hidden",
+                              flexShrink: 0,
+                            }}
+                            title={animation.label}
+                          >
+                            <span style={{ 
+                              display: "inline-block",
+                              lineHeight: 1,
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                            }}>
+                              {animation.icon}
+                            </span>
+                          </Box>
+                        ))}
+                      </Group>
+                    </Box>
+                  </Paper>
+                </Grid.Col>
+
+                {/* // User Name Theme Section // */}
+                <Grid.Col span={{ base: 12, md: 4 }}>
+                  <UsernameThemeSelector
+                    selectedTheme={selectedUsernameTheme}
+                    onThemeChange={updateUsernameTheme}
+                  />
                 </Grid.Col>
               </Grid>
               {/* Profile Section */}
@@ -520,7 +618,27 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         <Text size="xl" fw={700}>
                           {profile?.display_name || "Your Name"}
                         </Text>
-                        <Text size="sm" opacity={0.8}>
+                        <Text
+                          size="sm"
+                          opacity={0.8}
+                          style={{
+                            background: currentUsernameTheme.color.includes("gradient")
+                              ? currentUsernameTheme.color
+                              : undefined,
+                            color: currentUsernameTheme.color.includes("gradient")
+                              ? "transparent"
+                              : currentUsernameTheme.color,
+                            WebkitBackgroundClip: currentUsernameTheme.color.includes("gradient")
+                              ? "text"
+                              : undefined,
+                            WebkitTextFillColor: currentUsernameTheme.color.includes("gradient")
+                              ? "transparent"
+                              : undefined,
+                            backgroundClip: currentUsernameTheme.color.includes("gradient")
+                              ? "text"
+                              : undefined,
+                          }}
+                        >
                           @{profile?.username || "username"}
                         </Text>
                         <Text size="sm" ta="center" opacity={0.9}>
@@ -529,24 +647,40 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                       </Stack>
 
                       <Stack gap="sm" style={{ width: "100%" }} mt="md">
-                        {links.map((link: any) => (
-                          <Button
-                            key={link?.id}
-                            component="a"
-                            href={link?.url}
-                            target="_blank"
-                            fullWidth
-                            size="lg"
-                            radius="xl"
-                            style={{
-                              background: currentTheme.button,
-                              color: currentTheme.buttonText,
-                              border: "none",
-                            }}
-                          >
-                            {link?.title}
-                          </Button>
-                        ))}
+                        {links.map((link: any, index: number) => {
+                          const animationVariants = getAnimationVariants(selectedAnimation);
+                          // Add stagger delay for links
+                          const staggerDelay = selectedAnimation !== "none" ? index * 0.1 : 0;
+                          
+                          return (
+                            <motion.div
+                              key={`${link?.id}-${selectedAnimation}`}
+                              initial={animationVariants.initial}
+                              animate={animationVariants.animate}
+                              transition={{
+                                ...animationVariants.transition,
+                                delay: staggerDelay,
+                              }}
+                              style={{ width: "100%" }}
+                            >
+                              <Button
+                                component="a"
+                                href={link?.url}
+                                target="_blank"
+                                fullWidth
+                                size="lg"
+                                radius="xl"
+                                style={{
+                                  background: currentTheme.button,
+                                  color: currentTheme.buttonText,
+                                  border: "none",
+                                }}
+                              >
+                                {link?.title}
+                              </Button>
+                            </motion.div>
+                          );
+                        })}
                       </Stack>
                     </Stack>
                   </Box>
