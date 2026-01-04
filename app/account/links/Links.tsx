@@ -706,27 +706,9 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                           height: "280px",
                           position: "relative",
                           overflow: "hidden",
-                          boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)",
                           borderRadius: "0",
                         }}
                       >
-                        {/* Shadow overlay with mask for Linktree-like gradient fade effect */}
-                        <Box
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: "rgba(0, 0, 0, 0.15)",
-                            mask: "radial-gradient(110.26% 96% at 50% 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.01) 64.72%, rgba(0, 0, 0, 0.03) 68.55%, rgba(0, 0, 0, 0.07) 71.65%, rgba(0, 0, 0, 0.12) 74.13%, rgba(0, 0, 0, 0.18) 76.15%, rgba(0, 0, 0, 0.25) 77.82%, rgba(0, 0, 0, 0.33) 79.3%, rgba(0, 0, 0, 0.41) 80.7%, rgba(0, 0, 0, 0.5) 82.18%, rgba(0, 0, 0, 0.59) 83.85%, rgba(0, 0, 0, 0.67) 85.87%, rgba(0, 0, 0, 0.76) 88.35%, rgba(0, 0, 0, 0.85) 91.45%, rgba(0, 0, 0, 0.93) 95.28%, rgb(0, 0, 0) 100%)",
-                            WebkitMask: "radial-gradient(110.26% 96% at 50% 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.01) 64.72%, rgba(0, 0, 0, 0.03) 68.55%, rgba(0, 0, 0, 0.07) 71.65%, rgba(0, 0, 0, 0.12) 74.13%, rgba(0, 0, 0, 0.18) 76.15%, rgba(0, 0, 0, 0.25) 77.82%, rgba(0, 0, 0, 0.33) 79.3%, rgba(0, 0, 0, 0.41) 80.7%, rgba(0, 0, 0, 0.5) 82.18%, rgba(0, 0, 0, 0.59) 83.85%, rgba(0, 0, 0, 0.67) 85.87%, rgba(0, 0, 0, 0.76) 88.35%, rgba(0, 0, 0, 0.85) 91.45%, rgba(0, 0, 0, 0.93) 95.28%, rgb(0, 0, 0) 100%)",
-                            pointerEvents: "none",
-                            zIndex: 2,
-                          }}
-                        />
                         <img
                           src={profileImage}
                           alt="Profile"
@@ -736,6 +718,24 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                             objectFit: "cover",
                             display: "block",
                             position: "relative",
+                            zIndex: 0,
+                          }}
+                        />
+                        {/* Shadow overlay with mask for Linktree-like gradient fade effect */}
+                        {/* This creates the shadow effect at the bottom of the image that fades into the background */}
+                        <Box
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: typeof currentTheme?.bg === 'string' ? currentTheme.bg : "rgb(216, 146, 203)",
+                            mask: "radial-gradient(110.26% 96% at 50% 100%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.01) 4.72%, rgba(0, 0, 0, 0.03) 8.55%, rgba(0, 0, 0, 0.07) 11.65%, rgba(0, 0, 0, 0.12) 14.13%, rgba(0, 0, 0, 0.18) 16.15%, rgba(0, 0, 0, 0.25) 17.82%, rgba(0, 0, 0, 0.33) 19.3%, rgba(0, 0, 0, 0.41) 20.7%, rgba(0, 0, 0, 0.5) 22.18%, rgba(0, 0, 0, 0.59) 23.85%, rgba(0, 0, 0, 0.67) 25.87%, rgba(0, 0, 0, 0.76) 28.35%, rgba(0, 0, 0, 0.85) 31.45%, rgba(0, 0, 0, 0.93) 35.28%, rgb(0, 0, 0) 50%)",
+                            WebkitMask: "radial-gradient(254.26% 276% at 42% 82%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.01) 4.72%, rgba(0, 0, 0, 0.03) 8.55%, rgba(0, 0, 0, 0.07) 11.65%, rgba(0, 0, 0, 0.12) 14.13%, rgba(0, 0, 0, 0.18) 16.15%, rgba(0, 0, 0, 0.25) 17.82%, rgba(0, 0, 0, 0.33) 19.3%, rgba(0, 0, 0, 0.41) 20.7%, rgba(0, 0, 0, 0.5) 22.18%, rgba(0, 0, 0, 0.59) 23.85%, rgba(0, 0, 0, 0.67) 25.87%, rgba(0, 0, 0, 0.76) 28.35%, rgba(0, 0, 0, 0.85) 31.45%, rgba(0, 0, 0, 0.93) 35.28%, rgb(0, 0, 0) 50%)",
+                            pointerEvents: "none",
                             zIndex: 1,
                           }}
                         />
