@@ -200,3 +200,15 @@ CREATE TRIGGER set_updated_at_themes
 -- Add animation column to profiles table (for animation feature)
 ALTER TABLE public.profiles
 ADD COLUMN IF NOT EXISTS animation TEXT DEFAULT 'none';
+
+-- Add username_theme column to profiles table (for username theme feature)
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS username_theme TEXT DEFAULT 'default';
+
+-- Add profile_image_layout column to profiles table (for profile image layout: classic or hero)
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS profile_image_layout TEXT DEFAULT 'classic';
+
+-- Add profile_image_url column to profiles table (for hero layout profile image)
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS profile_image_url TEXT;

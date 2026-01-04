@@ -43,6 +43,7 @@ import { themesArray } from "@/app/utils/theme";
 import { animationOptions, getAnimationVariants } from "@/app/utils/animations";
 import { usernameThemes } from "@/app/utils/usernameThemes";
 import { Footprints } from "lucide-react";
+import ProfileImageLayout from "@/app/components/ProfileImageLayout";
 
 const SOCIALS = [
   {
@@ -116,6 +117,8 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
   const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImageLayout, setProfileImageLayout] = useState<"classic" | "hero">("classic");
   const supabase = createClient();
 
   useEffect(() => {
@@ -148,6 +151,11 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setSelectedFont(profileData.font || "inter");
       setSelectedAnimation(profileData.animation || "none");
       setSelectedUsernameTheme(profileData.username_theme || "default");
+      setProfileImageLayout(profileData.profile_image_layout || "classic");
+      
+      // Only set profileImage if profile_image_url exists (for Hero layout)
+      // Classic layout will use avatar_url as fallback in the preview
+      setProfileImage(profileData.profile_image_url || null);
     }
 
     // Load links
@@ -277,6 +285,56 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const updateUsernameTheme = async (theme: any) => {
     setSelectedUsernameTheme(theme);
     await updateProfile("username_theme", theme);
+  };
+
+  const handleImageSave = async (file: File | Blob) => {
+    try {
+      // Convert blob to file if needed
+      const imageFile = file instanceof File 
+        ? file 
+        : new File([file], `profile-${Date.now()}.png`, { type: "image/png" });
+
+      // Upload to Supabase storage (using existing avatars bucket)
+      const fileExt = imageFile.name.split(".").pop();
+      const fileName = `${user?.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, imageFile, { upsert: true });
+
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        return;
+      }
+
+      // Get public URL
+      const { data: publicData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const imageUrl = publicData.publicUrl;
+
+      // Update profile with image URL (both avatar_url and profile_image_url)
+      await supabase
+        .from("profiles")
+        .update({ 
+          profile_image_url: imageUrl,
+          avatar_url: imageUrl 
+        })
+        .eq("id", user?.id);
+      
+      setProfileImage(imageUrl);
+      // Update local profile state
+      setProfile({ ...profile, profile_image_url: imageUrl, avatar_url: imageUrl });
+    } catch (error) {
+      console.error("Error saving image:", error);
+    }
+  };
+
+  const handleLayoutChange = async (layout: "classic" | "hero") => {
+    setProfileImageLayout(layout);
+    await updateProfile("profile_image_layout", layout);
   };
 
   const currentTheme =
@@ -470,6 +528,21 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                     onThemeChange={updateUsernameTheme}
                   />
                 </Grid.Col>
+
+                {/* // Profile image layout section // */}
+                <Grid.Col span={{ base: 12, md: 8 }}>
+                  <Paper shadow="sm" p="md" withBorder>
+                    <Group mb="md">
+                      <IconUser size={20} />
+                      <Text fw={600}>Profile Image Layout</Text>
+                    </Group>
+                    <ProfileImageLayout 
+                      selectedLayout={profileImageLayout}
+                      onLayoutChange={handleLayoutChange}
+                      onImageSave={handleImageSave} 
+                    />
+                  </Paper>
+                </Grid.Col>
               </Grid>
               {/* Profile Section */}
 
@@ -600,20 +673,116 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                     margin: "0 auto",
                     border: "16px solid #000",
                     borderRadius: 36,
-                    overflow: "hidden",
+                    overflow: "visible",
                     background: currentTheme.bg,
+                    position: "relative",
                   }}
                 >
+                  {/* Inner container with overflow hidden for content */}
+                  <Box
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      overflow: "hidden",
+                      position: "relative",
+                      borderRadius: "20px",
+                    }}
+                  >
+                  {/* Hero Layout - Full Image at Top */}
+                  {/* Only show image in Hero layout if profileImage is set (image has been saved) */}
+                  {profileImageLayout === "hero" && profileImage && (
+                    <Box
+                      style={{
+                        width: "100%",
+                        position: "relative",
+                        margin: 0,
+                        padding: 0,
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <Box
+                        style={{
+                          width: "100%",
+                          height: "280px",
+                          position: "relative",
+                          overflow: "hidden",
+                          boxShadow: "0 6px 20px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)",
+                          borderRadius: "0",
+                        }}
+                      >
+                        {/* Shadow overlay with mask for Linktree-like gradient fade effect */}
+                        <Box
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(0, 0, 0, 0.15)",
+                            mask: "radial-gradient(110.26% 96% at 50% 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.01) 64.72%, rgba(0, 0, 0, 0.03) 68.55%, rgba(0, 0, 0, 0.07) 71.65%, rgba(0, 0, 0, 0.12) 74.13%, rgba(0, 0, 0, 0.18) 76.15%, rgba(0, 0, 0, 0.25) 77.82%, rgba(0, 0, 0, 0.33) 79.3%, rgba(0, 0, 0, 0.41) 80.7%, rgba(0, 0, 0, 0.5) 82.18%, rgba(0, 0, 0, 0.59) 83.85%, rgba(0, 0, 0, 0.67) 85.87%, rgba(0, 0, 0, 0.76) 88.35%, rgba(0, 0, 0, 0.85) 91.45%, rgba(0, 0, 0, 0.93) 95.28%, rgb(0, 0, 0) 100%)",
+                            WebkitMask: "radial-gradient(110.26% 96% at 50% 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.01) 64.72%, rgba(0, 0, 0, 0.03) 68.55%, rgba(0, 0, 0, 0.07) 71.65%, rgba(0, 0, 0, 0.12) 74.13%, rgba(0, 0, 0, 0.18) 76.15%, rgba(0, 0, 0, 0.25) 77.82%, rgba(0, 0, 0, 0.33) 79.3%, rgba(0, 0, 0, 0.41) 80.7%, rgba(0, 0, 0, 0.5) 82.18%, rgba(0, 0, 0, 0.59) 83.85%, rgba(0, 0, 0, 0.67) 85.87%, rgba(0, 0, 0, 0.76) 88.35%, rgba(0, 0, 0, 0.85) 91.45%, rgba(0, 0, 0, 0.93) 95.28%, rgb(0, 0, 0) 100%)",
+                            pointerEvents: "none",
+                            zIndex: 2,
+                          }}
+                        />
+                        <img
+                          src={profileImage}
+                          alt="Profile"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            display: "block",
+                            position: "relative",
+                            zIndex: 1,
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  )}
+                  
                   <Box
                     p="xl"
                     style={{
                       height: "100%",
                       overflowY: "auto",
                       color: currentTheme.text,
+                      paddingTop: profileImageLayout === "hero" && profileImage ? "24px" : "xl",
                     }}
                   >
                     <Stack align="center" gap="md">
-                      <Avatar src={profile?.avatar_url} size={80} radius="xl" />
+                      {/* Classic Layout - Circular Image */}
+                      {profileImageLayout === "classic" && (
+                        <>
+                          {(profileImage || profile?.avatar_url) ? (
+                            <Box
+                              style={{
+                                position: "relative",
+                                width: "120px",
+                                height: "120px",
+                                borderRadius: "50%",
+                                overflow: "hidden",
+                                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)",
+                              }}
+                            >
+                              <img
+                                src={profileImage || profile?.avatar_url}
+                                alt="Profile"
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            </Box>
+                          ) : (
+                            <Avatar size={80} radius="xl" />
+                          )}
+                        </>
+                      )}
                       <Stack gap={4} align="center">
                         <Text size="xl" fw={700}>
                           {profile?.display_name || "Your Name"}
@@ -683,6 +852,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         })}
                       </Stack>
                     </Stack>
+                  </Box>
                   </Box>
                 </Box>
               </Paper>
