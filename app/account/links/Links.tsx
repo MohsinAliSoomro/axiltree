@@ -18,6 +18,9 @@ import {
   Box,
   Card,
   Badge,
+  Tabs,
+  rem,
+  ScrollArea,
 } from "@mantine/core";
 import {
   IconGripVertical,
@@ -26,14 +29,11 @@ import {
   IconLink,
   IconUser,
   IconPalette,
-  IconDeviceMobile,
   IconBrandInstagram,
   IconBrandTiktok,
   IconBrandTwitter,
   IconBrandFacebook,
-  IconFileTypographyFilled,
-  IconFileTypography,
-  IconBrandFunimation,
+  IconEye,
 } from "@tabler/icons-react";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
@@ -42,7 +42,6 @@ import { User } from "@supabase/supabase-js";
 import { themesArray } from "@/app/utils/theme";
 import { animationOptions, getAnimationVariants } from "@/app/utils/animations";
 import { usernameThemes } from "@/app/utils/usernameThemes";
-import { Footprints } from "lucide-react";
 
 const SOCIALS = [
   {
@@ -63,47 +62,16 @@ const SOCIALS = [
     icon: <IconBrandFacebook size={16} />,
   },
 ];
+
 export const fontOptions = [
-  {
-    value: "inter",
-    label: "Inter (Clean & Modern)",
-    css: "var(--font-inter)",
-  },
-  {
-    value: "poppins",
-    label: "Poppins (Stylish)",
-    css: "var(--font-poppins)",
-  },
-  {
-    value: "space",
-    label: "Space Mono (Techy)",
-    css: "var(--font-space)",
-  },
-  {
-    value: "quicksand",
-    label: "Quicksand (Friendly)",
-    css: "var(--font-quicksand)",
-  },
-  {
-    value: "amarna",
-    label: "Amarna (Elegant)",
-    css: "var(--font-amarna)",
-  },
-  {
-    value: "delius",
-    label: "Delius (Handwritten)",
-    css: "var(--font-delius)",
-  },
-  {
-    value: "borel",
-    label: "Borel (Playful)",
-    css: "var(--font-borel)",
-  },
-  {
-    value: "iceland",
-    label: "Iceland (Futuristic)",
-    css: "var(--font-iceland)",
-  },
+  { value: "inter", label: "Inter", css: "var(--font-inter)" },
+  { value: "poppins", label: "Poppins", css: "var(--font-poppins)" },
+  { value: "space", label: "Space Mono", css: "var(--font-space)" },
+  { value: "quicksand", label: "Quicksand", css: "var(--font-quicksand)" },
+  { value: "amarna", label: "Amarna", css: "var(--font-amarna)" },
+  { value: "delius", label: "Delius", css: "var(--font-delius)" },
+  { value: "borel", label: "Borel", css: "var(--font-borel)" },
+  { value: "iceland", label: "Iceland", css: "var(--font-iceland)" },
 ];
 
 const themes = themesArray;
@@ -116,6 +84,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
   const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
+  const [activeTab, setActiveTab] = useState("profile");
   const supabase = createClient();
 
   useEffect(() => {
@@ -136,7 +105,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   }, []);
 
   const loadData = async () => {
-    // Load profile
     const { data: profileData } = await supabase
       .from("profiles")
       .select("*")
@@ -150,7 +118,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setSelectedUsernameTheme(profileData.username_theme || "default");
     }
 
-    // Load links
     const { data: linksData } = await supabase
       .from("links")
       .select("*")
@@ -161,7 +128,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setLinks(linksData as any);
     }
   };
-  
+
   const handleRealtimeUpdate = (payload: any) => {
     if (payload.eventType === "INSERT") {
       setLinks((prev: any) =>
@@ -193,8 +160,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     }));
 
     setLinks(updatedLinks);
-
-    // Update positions in database
     await supabase.from("links").upsert(updatedLinks);
   };
 
@@ -223,6 +188,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       return false;
     }
   };
+
   const addLink = async () => {
     if (!newLink.title || !newLink.url) return;
     if (!validateUrl(newLink.title, newLink.url)) {
@@ -264,6 +230,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     setSelectedTheme(theme);
     await updateProfile("theme", theme);
   };
+
   const updateFont = async (font: any) => {
     setSelectedFont(font);
     await updateProfile("font", font);
@@ -281,415 +248,478 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
 
   const currentTheme =
     themes.find((t) => t.value === selectedTheme) || themes[0];
-  
+
   const currentUsernameTheme =
-    usernameThemes.find((t) => t.value === selectedUsernameTheme) || usernameThemes[0];
+    usernameThemes.find((t) => t.value === selectedUsernameTheme) ||
+    usernameThemes[0];
 
   return (
     <AppShellLayout>
-      <Container size="xl" py="md">
-        <Grid gutter="lg">
-          {/* Left Side - Editor */}
-          <Grid.Col span={{ base: 12, md: 8 }}>
-            <Stack gap="md">
-              <Grid>
-                <Grid.Col span={{ base: 12, md: 8 }}> 
-                {/* <Grid.Col span={{ base: 12, md: 8 }}> changes by shahzad  */}
+      <Box
+        style={{
+          background: "linear-gradient(135deg, #667eea15 0%, #764ba215 100%)",
+          height: "calc(100vh - 60px)",
+          overflow: "hidden",
+        }}
+      >
+        <Container size="xl" h="100%">
+          <Grid gutter="md" h="100%">
+            {/* Left Side - Tabbed Editor */}
+            <Grid.Col span={{ base: 12, lg: 8 }} h="100%">
+              <Paper
+                shadow="md"
+                radius="lg"
+                h="100%"
+                style={{
+                  border: "1px solid #e9ecef",
+                  background: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Tabs
+                  value={activeTab}
+                  onChange={setActiveTab}
+                  style={{ height: "100%", display: "flex", flexDirection: "column" }}
+                >
+                  <Tabs.List>
+                    <Tabs.Tab value="profile" leftSection={<IconUser size={16} />}>
+                      Profile
+                    </Tabs.Tab>
+                    <Tabs.Tab value="design" leftSection={<IconPalette size={16} />}>
+                      Design
+                    </Tabs.Tab>
+                    <Tabs.Tab
+                      value="links"
+                      leftSection={<IconLink size={16} />}
+                      rightSection={
+                        <Badge size="sm" variant="filled" color="violet">
+                          {links.length}
+                        </Badge>
+                      }
+                    >
+                      Links
+                    </Tabs.Tab>
+                  </Tabs.List>
 
-                  <Paper shadow="sm" p="md" withBorder>
-                    <Group mb="md">
-                      <IconUser size={20} />
-                      <Text fw={600}>Profile Information</Text>
-                    </Group>
-
-                    <Stack gap="sm">
-                      <Group>
-                        <Avatar
-                          src={profile?.avatar_url}
-                          size="lg"
-                          radius="xl"
-                        />
-                        <Stack gap={4} style={{ flex: 1 }}>
-                          <TextInput
-                            placeholder="Display Name"
-                            value={profile?.full_name || ""}
-                            onChange={(e) =>
-                              updateProfile("full_name", e.target.value)
-                            }
-                            disabled
-                          />
-                          <TextInput
-                            placeholder="@username"
-                            value={profile?.username || ""}
-                            onChange={(e) =>
-                              updateProfile("username", e.target.value)
-                            }
-                            disabled
+                  <Box style={{ flex: 1, overflow: "hidden" }}>
+                    <ScrollArea h="calc(100vh - 180px)" p="lg">
+                      {/* Profile Tab */}
+                      <Tabs.Panel value="profile">
+                        <Stack gap="lg">
+                          <Group wrap="nowrap" align="flex-start">
+                            <Avatar
+                              src={profile?.avatar_url}
+                              size={80}
+                              radius="xl"
+                              style={{ border: "3px solid #667eea" }}
+                            />
+                            <Stack gap="sm" style={{ flex: 1 }}>
+                              <TextInput
+                                placeholder="Display Name"
+                                value={profile?.full_name || ""}
+                                onChange={(e) =>
+                                  updateProfile("full_name", e.target.value)
+                                }
+                                disabled
+                                size="md"
+                              />
+                              <TextInput
+                                placeholder="@username"
+                                value={profile?.username || ""}
+                                onChange={(e) =>
+                                  updateProfile("username", e.target.value)
+                                }
+                                disabled
+                                size="md"
+                              />
+                            </Stack>
+                          </Group>
+                          <Textarea
+                            placeholder="Tell your story..."
+                            value={profile?.bio || ""}
+                            onChange={(e) => updateProfile("bio", e.target.value)}
+                            minRows={4}
+                            size="md"
                           />
                         </Stack>
-                      </Group>
+                      </Tabs.Panel>
 
-                      <Textarea
-                        placeholder="Bio"
-                        value={profile?.bio || ""}
-                        onChange={(e) => updateProfile("bio", e.target.value)}
-                        minRows={2}
-                      />
-                    </Stack>
-                  </Paper>
-                  <Paper shadow="sm" p="md" withBorder mt="sm">
-                    <Group mb="md">
-                      <IconFileTypography size={20} />
-                      <Text fw={600}>Font </Text>
-                    </Group>
-
-                    <Stack gap="sm">
-                      <Select
-                        label="Profile Font"
-                        placeholder="Choose a font"
-                        data={fontOptions.map((f) => ({
-                          value: f.value,
-                          label: f.label,
-                        }))}
-                        value={selectedFont}
-                        onChange={updateFont}
-                      />
-                    </Stack>
-                  </Paper>
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, md: 4 }}>
-                  {/* Theme Selection */}
-                  <Paper shadow="sm" p="md" withBorder>
-                    <Group mb="md">
-                      <IconPalette size={20} />
-                      <Text fw={600}>Theme</Text>
-                    </Group>
-
-                    <Select
-                      data={themes.map((t) => ({
-                        value: t.value,
-                        label: t.label,
-                      }))}
-                      value={selectedTheme}
-                      onChange={updateTheme}
-                      mb="md"
-                    />
-
-                    <Group gap="xs">
-                      {themes.map((theme) => (
-                        <Box
-                          key={theme.value}
-                          onClick={() => updateTheme(theme.value)}
-                          style={{
-                            width: 40,
-                            height: 40,
-                            background: theme.bg,
-                            borderRadius: 8,
-                            cursor: "pointer",
-                            border:
-                              selectedTheme === theme.value
-                                ? "3px solid #228be6"
-                                : "2px solid #ddd",
-                          }}
-                        />
-                      ))}
-                    </Group>
-                  </Paper>
-                </Grid.Col>
-                {/* // Animation Section // */}
-                <Grid.Col span={{ base: 12, md: 4 }}>
-                  <Paper shadow="sm" p="md" withBorder>
-                    <Group mb="md">
-                      <IconBrandFunimation size={20} /> 
-                      <Text fw={600}>Animation</Text>
-                    </Group>
-
-                    <Select
-                      data={animationOptions.map((a) => ({
-                        value: a.value,
-                        label: a.label,
-                      }))}
-                      value={selectedAnimation}
-                      onChange={updateAnimation}
-                      mb="md"
-                    />
-
-                    <Box
-                      style={{
-                        maxHeight: "240px",
-                        overflowY: "auto",
-                        overflowX: "hidden",
-                        paddingRight: "4px",
-                      }}
-                     
-                    >
-                      <Group gap="xs" wrap="wrap">
-                        {animationOptions.map((animation) => (
-                          <Box
-                            key={animation.value}
-                            onClick={() => updateAnimation(animation.value)}
-                            style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: 8,
-                              background: "#f8f9fa",
-                              border:
-                                selectedAnimation === animation.value
-                                  ? "3px solid #228be6"
-                                  : "2px solid #ddd",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "18px",
-                              transition: "all 0.2s",
-                              overflow: "hidden",
-                              flexShrink: 0,
-                            }}
-                            title={animation.label}
-                          >
-                            <span style={{ 
-                              display: "inline-block",
-                              lineHeight: 1,
-                              maxWidth: "100%",
-                              maxHeight: "100%",
-                            }}>
-                              {animation.icon}
-                            </span>
-                          </Box>
-                        ))}
-                      </Group>
-                    </Box>
-                  </Paper>
-                </Grid.Col>
-
-                {/* // User Name Theme Section // */}
-                <Grid.Col span={{ base: 12, md: 4 }}>
-                  <UsernameThemeSelector
-                    selectedTheme={selectedUsernameTheme}
-                    onThemeChange={updateUsernameTheme}
-                  />
-                </Grid.Col>
-              </Grid>
-              {/* Profile Section */}
-
-              {/* Add Link Section */}
-              <Paper shadow="sm" p="md" withBorder>
-                <Group mb="md">
-                  <IconPlus size={20} />
-                  <Text fw={600}>Add New Link</Text>
-                </Group>
-
-                <Stack gap="sm">
-                  <Select
-                    label="Social Network"
-                    placeholder="Select social network"
-                    data={SOCIALS.map((s) => ({
-                      value: s.value,
-                      label: s.label,
-                      icon: s.icon,
-                    }))}
-                    value={newLink.title}
-                    onChange={(value: any) =>
-                      setNewLink({ ...newLink, title: value })
-                    }
-                  />
-
-                  <TextInput
-                    label="URL"
-                    placeholder="Enter link URL"
-                    value={newLink.url}
-                    onChange={(e) =>
-                      setNewLink({ ...newLink, url: e.currentTarget.value })
-                    }
-                    leftSection={<IconLink size={16} />}
-                  />
-
-                  <Button onClick={addLink} fullWidth>
-                    Add Link
-                  </Button>
-                </Stack>
-              </Paper>
-
-              {/* Links List with Drag and Drop */}
-              <Paper shadow="sm" p="md" withBorder>
-                <Group mb="md">
-                  <IconLink size={20} />
-                  <Text fw={600}>Your Links</Text>
-                  <Badge>{links.length}</Badge>
-                </Group>
-
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  <Droppable droppableId="links">
-                    {(provided) => (
-                      <Stack
-                        gap="xs"
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                      >
-                        {links.map((link: any, index: number) => (
-                          <Draggable
-                            key={link.id}
-                            draggableId={link.id}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <Card
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                shadow="xs"
-                                p="sm"
-                                style={{
-                                  ...provided.draggableProps.style,
-                                  background: snapshot.isDragging
-                                    ? "#f8f9fa"
-                                    : "white",
-                                }}
-                              >
-                                <Group wrap="nowrap">
-                                  <div {...provided.dragHandleProps}>
-                                    <IconGripVertical
-                                      size={20}
-                                      style={{ cursor: "grab" }}
+                      {/* Design Tab */}
+                      <Tabs.Panel value="design">
+                        <Stack gap="lg">
+                          {/* Theme and Font Row */}
+                          <Grid gutter="md">
+                            <Grid.Col span={6}>
+                              <Stack gap="sm">
+                                <Text size="sm" fw={600}>
+                                  Theme
+                                </Text>
+                                <Select
+                                  data={themes.map((t) => ({
+                                    value: t.value,
+                                    label: t.label,
+                                  }))}
+                                  value={selectedTheme}
+                                  onChange={updateTheme}
+                                  size="sm"
+                                />
+                                <Group gap="xs">
+                                  {themes.slice(0, 8).map((theme) => (
+                                    <Box
+                                      key={theme.value}
+                                      onClick={() => updateTheme(theme.value)}
+                                      style={{
+                                        width: 36,
+                                        height: 36,
+                                        background: theme.bg,
+                                        borderRadius: rem(8),
+                                        cursor: "pointer",
+                                        border:
+                                          selectedTheme === theme.value
+                                            ? "3px solid #667eea"
+                                            : "2px solid #dee2e6",
+                                      }}
                                     />
-                                  </div>
-                                  <Stack gap={0} style={{ flex: 1 }}>
-                                    <Text size="sm" fw={500}>
-                                      {link?.title}
-                                    </Text>
-                                    <Text size="xs" c="dimmed" truncate>
-                                      {link?.url}
-                                    </Text>
-                                  </Stack>
-                                  <ActionIcon
-                                    color="red"
-                                    variant="subtle"
-                                    onClick={() => deleteLink(link?.id)}
-                                  >
-                                    <IconTrash size={16} />
-                                  </ActionIcon>
+                                  ))}
                                 </Group>
-                              </Card>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </Stack>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              </Paper>
-            </Stack>
-          </Grid.Col>
+                              </Stack>
+                            </Grid.Col>
+                            <Grid.Col span={6}>
+                              <Stack gap="sm">
+                                <Text size="sm" fw={600}>
+                                  Font
+                                </Text>
+                                <Select
+                                  data={fontOptions.map((f) => ({
+                                    value: f.value,
+                                    label: f.label,
+                                  }))}
+                                  value={selectedFont}
+                                  onChange={updateFont}
+                                  size="sm"
+                                />
+                              </Stack>
+                            </Grid.Col>
+                          </Grid>
 
-          {/* Right Side - Mobile Preview */}
-          <Grid.Col span={{ base: 12, md: 4 }} ff={`var(--font-${selectedFont}), sans-serif`}>
-            <Box pos="sticky" style={{ top: 20 }}>
-              <Paper shadow="sm" p="md" withBorder>
-                <Group mb="md">
-                  <IconDeviceMobile size={20} />
-                  <Text fw={600}>Live Preview</Text>
+                          {/* Animation and Username Theme Row */}
+                          <Grid gutter="md">
+                            <Grid.Col span={6}>
+                              <Stack gap="sm">
+                                <Text size="sm" fw={600}>
+                                  Animation
+                                </Text>
+                                <Select
+                                  data={animationOptions.map((a) => ({
+                                    value: a.value,
+                                    label: a.label,
+                                  }))}
+                                  value={selectedAnimation}
+                                  onChange={updateAnimation}
+                                  size="sm"
+                                />
+                                <Group gap="xs">
+                                  {animationOptions.slice(0, 8).map((animation) => (
+                                    <Box
+                                      key={animation.value}
+                                      onClick={() => updateAnimation(animation.value)}
+                                      style={{
+                                        width: 36,
+                                        height: 36,
+                                        borderRadius: rem(8),
+                                        background: "#f8f9fa",
+                                        border:
+                                          selectedAnimation === animation.value
+                                            ? "3px solid #667eea"
+                                            : "2px solid #dee2e6",
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: "16px",
+                                      }}
+                                      title={animation.label}
+                                    >
+                                      {animation.icon}
+                                    </Box>
+                                  ))}
+                                </Group>
+                              </Stack>
+                            </Grid.Col>
+                            <Grid.Col span={6}>
+                              <UsernameThemeSelector
+                                selectedTheme={selectedUsernameTheme}
+                                onThemeChange={updateUsernameTheme}
+                              />
+                            </Grid.Col>
+                          </Grid>
+                        </Stack>
+                      </Tabs.Panel>
+
+                      {/* Links Tab */}
+                      <Tabs.Panel value="links">
+                        <Stack gap="lg">
+                          {/* Add Link Form */}
+                          <Box>
+                            <Text size="sm" fw={600} mb="sm">
+                              Add New Link
+                            </Text>
+                            <Stack gap="sm">
+                              <Group wrap="nowrap">
+                                <Select
+                                  placeholder="Platform"
+                                  data={SOCIALS.map((s) => ({
+                                    value: s.value,
+                                    label: s.label,
+                                  }))}
+                                  value={newLink.title}
+                                  onChange={(value: any) =>
+                                    setNewLink({ ...newLink, title: value })
+                                  }
+                                  size="sm"
+                                  style={{ flex: 1 }}
+                                />
+                                <TextInput
+                                  placeholder="URL"
+                                  value={newLink.url}
+                                  onChange={(e) =>
+                                    setNewLink({ ...newLink, url: e.currentTarget.value })
+                                  }
+                                  leftSection={<IconLink size={14} />}
+                                  size="sm"
+                                  style={{ flex: 2 }}
+                                />
+                                <Button
+                                  onClick={addLink}
+                                  size="sm"
+                                  variant="gradient"
+                                  gradient={{ from: "violet", to: "grape" }}
+                                  leftSection={<IconPlus size={16} />}
+                                >
+                                  Add
+                                </Button>
+                              </Group>
+                            </Stack>
+                          </Box>
+
+                          {/* Links List */}
+                          <Box>
+                            <Text size="sm" fw={600} mb="sm">
+                              Your Links ({links.length})
+                            </Text>
+                            <DragDropContext onDragEnd={handleDragEnd}>
+                              <Droppable droppableId="links">
+                                {(provided) => (
+                                  <Stack
+                                    gap="xs"
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}
+                                  >
+                                    {links.map((link: any, index: number) => (
+                                      <Draggable
+                                        key={link.id}
+                                        draggableId={link.id}
+                                        index={index}
+                                      >
+                                        {(provided, snapshot) => (
+                                          <Card
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            shadow="xs"
+                                            p="sm"
+                                            radius="md"
+                                            style={{
+                                              ...provided.draggableProps.style,
+                                              background: snapshot.isDragging
+                                                ? "#f8f9fa"
+                                                : "white",
+                                              border: snapshot.isDragging
+                                                ? "2px solid #667eea"
+                                                : "1px solid #e9ecef",
+                                            }}
+                                          >
+                                            <Group wrap="nowrap" gap="sm">
+                                              <div {...provided.dragHandleProps}>
+                                                <IconGripVertical
+                                                  size={18}
+                                                  style={{
+                                                    cursor: "grab",
+                                                    color: "#868e96",
+                                                  }}
+                                                />
+                                              </div>
+                                              <Stack gap={0} style={{ flex: 1 }}>
+                                                <Text size="sm" fw={600}>
+                                                  {link?.title}
+                                                </Text>
+                                                <Text size="xs" c="dimmed" truncate>
+                                                  {link?.url}
+                                                </Text>
+                                              </Stack>
+                                              <ActionIcon
+                                                color="red"
+                                                variant="subtle"
+                                                onClick={() => deleteLink(link?.id)}
+                                                size="md"
+                                              >
+                                                <IconTrash size={16} />
+                                              </ActionIcon>
+                                            </Group>
+                                          </Card>
+                                        )}
+                                      </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                  </Stack>
+                                )}
+                              </Droppable>
+                            </DragDropContext>
+                          </Box>
+                        </Stack>
+                      </Tabs.Panel>
+                    </ScrollArea>
+                  </Box>
+                </Tabs>
+              </Paper>
+            </Grid.Col>
+
+            {/* Right Side - Fixed Preview */}
+            <Grid.Col
+              span={{ base: 12, lg: 4 }}
+              h="100%"
+              ff={`var(--font-${selectedFont}), sans-serif`}
+            >
+              <Paper
+                shadow="md"
+                p="md"
+                radius="lg"
+                h="100%"
+                style={{
+                  border: "1px solid #e9ecef",
+                  background: "white",
+                }}
+              >
+                <Group mb="md" gap="xs">
+                  <IconEye size={18} />
+                  <Text size="sm" fw={600}>
+                    Live Preview
+                  </Text>
                 </Group>
 
                 {/* Mobile Frame */}
                 <Box
                   style={{
                     width: "100%",
-                    maxWidth: 375,
-                    height: 667,
+                    maxWidth: 320,
+                    height: "calc(100vh - 200px)",
                     margin: "0 auto",
-                    border: "16px solid #000",
-                    borderRadius: 36,
+                    border: "10px solid #1a1a1a",
+                    borderRadius: rem(28),
                     overflow: "hidden",
                     background: currentTheme.bg,
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
                   }}
                 >
-                  <Box
-                    p="xl"
-                    style={{
-                      height: "100%",
-                      overflowY: "auto",
-                      color: currentTheme.text,
-                    }}
-                  >
-                    <Stack align="center" gap="md">
-                      <Avatar src={profile?.avatar_url} size={80} radius="xl" />
-                      <Stack gap={4} align="center">
-                        <Text size="xl" fw={700}>
-                          {profile?.display_name || "Your Name"}
-                        </Text>
-                        <Text
-                          size="sm"
-                          opacity={0.8}
+                  <ScrollArea h="100%">
+                    <Box
+                      p="md"
+                      style={{
+                        color: currentTheme.text,
+                      }}
+                    >
+                      <Stack align="center" gap="sm">
+                        <Avatar
+                          src={profile?.avatar_url}
+                          size={64}
+                          radius="xl"
                           style={{
-                            background: currentUsernameTheme.color.includes("gradient")
-                              ? currentUsernameTheme.color
-                              : undefined,
-                            color: currentUsernameTheme.color.includes("gradient")
-                              ? "transparent"
-                              : currentUsernameTheme.color,
-                            WebkitBackgroundClip: currentUsernameTheme.color.includes("gradient")
-                              ? "text"
-                              : undefined,
-                            WebkitTextFillColor: currentUsernameTheme.color.includes("gradient")
-                              ? "transparent"
-                              : undefined,
-                            backgroundClip: currentUsernameTheme.color.includes("gradient")
-                              ? "text"
-                              : undefined,
+                            border: "2px solid rgba(255,255,255,0.3)",
+                            marginTop: rem(12),
                           }}
-                        >
-                          @{profile?.username || "username"}
-                        </Text>
-                        <Text size="sm" ta="center" opacity={0.9}>
-                          {profile?.bio || "Your bio goes here"}
-                        </Text>
-                      </Stack>
+                        />
+                        <Stack gap={2} align="center">
+                          <Text size="md" fw={700}>
+                            {profile?.display_name || "Your Name"}
+                          </Text>
+                          <Text
+                            size="xs"
+                            opacity={0.8}
+                            style={{
+                              background: currentUsernameTheme.color.includes(
+                                "gradient"
+                              )
+                                ? currentUsernameTheme.color
+                                : undefined,
+                              color: currentUsernameTheme.color.includes(
+                                "gradient"
+                              )
+                                ? "transparent"
+                                : currentUsernameTheme.color,
+                              WebkitBackgroundClip:
+                                currentUsernameTheme.color.includes("gradient")
+                                  ? "text"
+                                  : undefined,
+                              WebkitTextFillColor:
+                                currentUsernameTheme.color.includes("gradient")
+                                  ? "transparent"
+                                  : undefined,
+                            }}
+                          >
+                            @{profile?.username || "username"}
+                          </Text>
+                          <Text size="xs" ta="center" opacity={0.85} px="sm">
+                            {profile?.bio || "Your bio goes here"}
+                          </Text>
+                        </Stack>
 
-                      <Stack gap="sm" style={{ width: "100%" }} mt="md">
-                        {links.map((link: any, index: number) => {
-                          const animationVariants = getAnimationVariants(selectedAnimation);
-                          // Add stagger delay for links
-                          const staggerDelay = selectedAnimation !== "none" ? index * 0.1 : 0;
-                          
-                          return (
-                            <motion.div
-                              key={`${link?.id}-${selectedAnimation}`}
-                              initial={animationVariants.initial}
-                              animate={animationVariants.animate}
-                              transition={{
-                                ...animationVariants.transition,
-                                delay: staggerDelay,
-                              }}
-                              style={{ width: "100%" }}
-                            >
-                              <Button
-                                component="a"
-                                href={link?.url}
-                                target="_blank"
-                                fullWidth
-                                size="lg"
-                                radius="xl"
-                                style={{
-                                  background: currentTheme.button,
-                                  color: currentTheme.buttonText,
-                                  border: "none",
+                        <Stack gap="xs" style={{ width: "100%" }} mt="sm">
+                          {links.map((link: any, index: number) => {
+                            const animationVariants =
+                              getAnimationVariants(selectedAnimation);
+                            const staggerDelay =
+                              selectedAnimation !== "none" ? index * 0.1 : 0;
+
+                            return (
+                              <motion.div
+                                key={`${link?.id}-${selectedAnimation}`}
+                                initial={animationVariants.initial}
+                                animate={animationVariants.animate}
+                                transition={{
+                                  ...animationVariants.transition,
+                                  delay: staggerDelay,
                                 }}
+                                style={{ width: "100%" }}
                               >
-                                {link?.title}
-                              </Button>
-                            </motion.div>
-                          );
-                        })}
+                                <Button
+                                  component="a"
+                                  href={link?.url}
+                                  target="_blank"
+                                  fullWidth
+                                  size="sm"
+                                  radius="xl"
+                                  style={{
+                                    background: currentTheme.button,
+                                    color: currentTheme.buttonText,
+                                    border: "none",
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {link?.title}
+                                </Button>
+                              </motion.div>
+                            );
+                          })}
+                        </Stack>
                       </Stack>
-                    </Stack>
-                  </Box>
+                    </Box>
+                  </ScrollArea>
                 </Box>
               </Paper>
-            </Box>
-          </Grid.Col>
-        </Grid>
-      </Container>
+            </Grid.Col>
+          </Grid>
+        </Container>
+      </Box>
     </AppShellLayout>
   );
 }

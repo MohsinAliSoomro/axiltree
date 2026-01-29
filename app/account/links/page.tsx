@@ -1,5 +1,5 @@
 import { createClient } from "../../lib/supabase/server";
-import LinkTreeDashboard from "./Links";
+import LinkTreeDashboard from "./Link";
 
 export default async function Account() {
   const supabase = await createClient();

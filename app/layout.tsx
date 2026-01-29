@@ -66,7 +66,7 @@ export default function RootLayout({
       className={`${inter.variable} ${poppins.variable} ${spaceMono.variable} ${quicksand.variable} ${amarna.variable} ${delius.variable} ${borel.variable} ${iceland.variable}`}
     >
       <head>
-          <ColorSchemeScript defaultColorScheme="light" />
+          <ColorSchemeScript />
       </head>
       <body>
         <MantineProvider theme={mantineTheme} withGlobalClasses>
