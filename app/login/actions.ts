@@ -31,7 +31,7 @@ export async function siginWithGoogle(formData: FormData) {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider:"google",
     options: {
-      redirectTo: "https://axiltree.tech/auth/callback",
+      redirectTo: "https://www.axiltree.tech/auth/callback",
     },
   });
   if (data.url) {
