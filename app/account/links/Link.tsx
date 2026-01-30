@@ -28,7 +28,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
   const [activeTab, setActiveTab] = useState("links");
   const supabase = createClient();
-
+  
   useEffect(() => {
     loadData();
 
@@ -212,7 +212,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
             >
               <Tabs
                 value={activeTab}
-                onChange={setActiveTab}
+                onChange={(value)=>setActiveTab(value as string)}
                 style={{ height: "100%", display: "flex", flexDirection: "column" }}
               >
                 <Tabs.List>

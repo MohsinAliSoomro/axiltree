@@ -30,7 +30,6 @@ export default function MobilePreview({
 
   const currentUsernameTheme =
     usernameThemes.find((t) => t.value === selectedUsernameTheme) || usernameThemes[0];
-
   return (
     <Paper shadow="sm" p="md" withBorder>
       <Group mb="md">
@@ -57,13 +56,14 @@ export default function MobilePreview({
             height: "100%",
             overflowY: "auto",
             color: currentTheme.text,
+            fontFamily: `var(--font-${selectedFont || "inter"}), sans-serif`,
           }}
         >
           <Stack align="center" gap="md">
             <Avatar src={profile?.avatar_url} size={80} radius="xl" />
             <Stack gap={4} align="center">
               <Text size="xl" fw={700}>
-                {profile?.display_name || "Your Name"}
+                {profile?.full_name || "Your Name"}
               </Text>
               <Text
                 size="sm"

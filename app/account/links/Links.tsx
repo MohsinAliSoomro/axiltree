@@ -279,7 +279,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
               >
                 <Tabs
                   value={activeTab}
-                  onChange={setActiveTab}
+                  onChange={value=>setActiveTab(value as string)}
                   style={{ height: "100%", display: "flex", flexDirection: "column" }}
                 >
                   <Tabs.List>

@@ -18,7 +18,7 @@ export default function ThemeSelector({ selectedTheme, updateTheme }: ThemeSelec
         <Text fw={600}>Theme</Text>
       </Group>
 
-      <Select
+      {/* <Select
         data={themes.map((t) => ({
           value: t.value,
           label: t.label,
@@ -26,7 +26,7 @@ export default function ThemeSelector({ selectedTheme, updateTheme }: ThemeSelec
         value={selectedTheme}
         onChange={updateTheme}
         mb="md"
-      />
+      /> */}
 
       <Group gap="xs">
         {themes.map((theme) => (

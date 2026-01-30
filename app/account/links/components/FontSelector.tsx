@@ -59,7 +59,7 @@ export default function FontSelector({ selectedFont, updateFont }: FontSelectorP
       </Group>
 
       <Stack gap="sm">
-        {/* <Select
+        <Select
           label="Profile Font"
           placeholder="Choose a font"
           data={fontOptions.map((f) => ({
@@ -69,7 +69,7 @@ export default function FontSelector({ selectedFont, updateFont }: FontSelectorP
           value={selectedFont}
           //@ts-ignore  
           onChange={updateFont}
-        /> */}
+        />
       </Stack>
     </Paper>
   );

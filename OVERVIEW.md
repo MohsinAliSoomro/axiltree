@@ -1,25 +1,25 @@
-# AxilTree - Project Overview (پروجیکٹ کا جائزہ)
+# AxilTree - Project Overview
 
-## 📋 Project Ka Introduction (پروجیکٹ کا تعارف)
+## 📋 Project Introduction
 
-**AxilTree** ek modern **Bio Link** ya **Links-in-Bio** platform hai. Ye platform users ko allow karta hai ke wo apne saare important links ko ek hi jagah par share kar saken. Ye basically **Linktree** jaisa platform hai jahan users:
+**AxilTree** is a modern **Bio Link** or **Links-in-Bio** platform. This platform allows users to share all their important links in one place. It's basically a **Linktree-like** platform where users can:
 
-- Apna unique username bana sakte hain
-- Apne social media links add kar sakte hain
-- Apni profile customize kar sakte hain (themes, fonts, colors)
-- Apne links ko drag & drop se reorder kar sakte hain
-- Apni public profile page ko share kar sakte hain
+- Create a unique username
+- Add social media links
+- Customize their profile (themes, fonts, colors)
+- Reorder links using drag & drop
+- Share their public profile page
 
-## 🎯 Project Ka Main Purpose (پروجیکٹ کا بنیادی مقصد)
+## 🎯 Project Purpose
 
-Ye project specifically **Instagram, TikTok, Twitter** jaise social media platforms ke liye banaya gaya hai jahan users apne bio mein sirf ek link daal sakte hain. AxilTree se users:
+This project is specifically built for social media platforms like **Instagram, TikTok, and Twitter** where users can only put one link in their bio. With AxilTree, users can:
 
-1. **Ek hi link** share karke apne saare important links ko access kar sakte hain
-2. **Customizable profile** bana sakte hain with different themes aur fonts
-3. **Real-time updates** kar sakte hain apne links mein
-4. **Mobile-friendly** interface use kar sakte hain
+1. Share **one link** to access all their important links
+2. Create **customizable profiles** with different themes and fonts
+3. Make **real-time updates** to their links
+4. Use a **mobile-friendly** interface
 
-## 🛠️ Technologies & Libraries Used (استعمال ہونے والی ٹیکنالوجیز)
+## 🛠️ Technologies & Libraries Used
 
 ### Core Framework & Language
 - **Next.js 16.1.0** - React framework for production
@@ -31,7 +31,7 @@ Ye project specifically **Instagram, TikTok, Twitter** jaise social media platfo
 - **Supabase** - Backend-as-a-Service
   - `@supabase/ssr` (v0.8.0) - Server-side rendering support
   - `@supabase/supabase-js` (v2.89.0) - Supabase client library
-  - **PostgreSQL Database** - Supabase ke through
+  - **PostgreSQL Database** - Through Supabase
   - **Authentication** - Supabase Auth
   - **Row Level Security (RLS)** - Database security
 
@@ -78,7 +78,7 @@ Ye project specifically **Instagram, TikTok, Twitter** jaise social media platfo
 - **eslint-config-next** - Next.js ESLint config
 - **TypeScript** - Type checking
 
-## 📁 Project Structure (پروجیکٹ کی ساخت)
+## 📁 Project Structure
 
 ```
 axiltree/
@@ -127,9 +127,9 @@ axiltree/
 └── README.md                    # Project documentation
 ```
 
-## 🗄️ Database Schema (ڈیٹا بیس کی ساخت)
+## 🗄️ Database Schema
 
-### Tables (Tables)
+### Tables
 
 1. **profiles** - User profiles
    - `id` (UUID, Primary Key)
@@ -172,22 +172,22 @@ axiltree/
 - **Automatic profile creation** on user signup via triggers
 - **Automatic timestamp updates** via triggers
 
-## ✨ Main Features (اہم خصوصیات)
+## ✨ Main Features
 
-### 1. User Authentication (صارف کی تصدیق)
+### 1. User Authentication
 - Email/password signup & login
 - OAuth authentication (via Supabase)
 - Email verification
 - Session management
 - Secure signout
 
-### 2. Profile Management (پروفائل کا انتظام)
+### 2. Profile Management
 - Unique username creation
 - Profile information (name, bio, avatar)
 - Username validation (3-30 chars, alphanumeric + underscore)
 - Profile editing
 
-### 3. Links Management (لنکس کا انتظام)
+### 3. Links Management
 - Add multiple links
 - Social media links support:
   - Instagram
@@ -201,7 +201,7 @@ axiltree/
 - Link activation/deactivation
 - Click tracking (clicks counter)
 
-### 4. Theme Customization (تھیم کی تخصیص)
+### 4. Theme Customization
 - 20+ pre-built themes:
   - Gradient themes (Sunset Glow, Ocean Breeze, Purple Haze, etc.)
   - Solid color themes (Classic White, Dark Mode, etc.)
@@ -209,7 +209,7 @@ axiltree/
 - Button style customization
 - Text color customization
 
-### 5. Font Customization (فونٹ کی تخصیص)
+### 5. Font Customization
 - 8 different font options:
   - Inter (Clean & Modern)
   - Poppins (Stylish)
@@ -220,31 +220,31 @@ axiltree/
   - Borel (Playful)
   - Iceland (Futuristic)
 
-### 6. Real-time Updates (ریل ٹائم اپ ڈیٹس)
+### 6. Real-time Updates
 - Real-time link updates using Supabase subscriptions
 - Live preview of changes
 - Instant UI updates
 
-### 7. Public Profile Pages (عوامی پروفائل صفحات)
+### 7. Public Profile Pages
 - Dynamic routes: `/[username]`
 - Public profile view
 - Active links display
 - Theme-based styling
 - Mobile-responsive design
 
-### 8. Mobile Preview (موبائل پیش منظر)
+### 8. Mobile Preview
 - Live mobile preview in dashboard
 - Real-time theme preview
 - Responsive design
 
-### 9. Landing Page (لینڈنگ پیج)
+### 9. Landing Page
 - Hero section
 - Features showcase
 - How it works section
 - Benefits section
 - Call-to-action buttons
 
-## 🔧 Configuration Files (تشکیل کی فائلیں)
+## 🔧 Configuration Files
 
 ### Environment Variables Required
 ```env
@@ -259,7 +259,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
 - `eslint.config.mjs` - ESLint configuration
 - `package.json` - Dependencies and scripts
 
-## 🚀 How to Run (کیسے چلائیں)
+## 🚀 How to Run
 
 ### Prerequisites
 - Node.js installed
@@ -287,7 +287,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
 5. Open browser:
    - Navigate to `http://localhost:3000`
 
-## 📱 Supported Social Platforms (سپورٹ شدہ سوشل پلیٹ فارمز)
+## 📱 Supported Social Platforms
 
 - Instagram
 - TikTok
@@ -295,7 +295,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
 - Facebook
 - WhatsApp
 
-## 🎨 Available Themes (دستیاب تھیمز)
+## 🎨 Available Themes
 
 ### Gradient Themes
 1. Sunset Glow
@@ -321,7 +321,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
 9. Sunny Yellow
 10. Deep Gray
 
-## 🔐 Security Features (سیکیورٹی خصوصیات)
+## 🔐 Security Features
 
 - Row Level Security (RLS) on all database tables
 - User-specific data access policies
@@ -330,7 +330,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
 - Cookie-based session management
 - URL validation for social links
 
-## 📊 Key Functionalities (اہم افعال)
+## 📊 Key Functionalities
 
 1. **User Registration & Login**
    - Secure signup process
@@ -355,26 +355,26 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
    - Instant UI refresh
    - Real-time subscriptions
 
-## 🎯 Use Cases (استعمال کے معاملات)
+## 🎯 Use Cases
 
-1. **Social Media Influencers** - Apne saare social links share karne ke liye
-2. **Content Creators** - Apni content ko promote karne ke liye
-3. **Businesses** - Apne products/services ko share karne ke liye
-4. **Personal Branding** - Apni online presence ko strengthen karne ke liye
+1. **Social Media Influencers** - To share all their social links
+2. **Content Creators** - To promote their content
+3. **Businesses** - To share their products/services
+4. **Personal Branding** - To strengthen their online presence
 
-## 📝 Notes (نوٹس)
+## 📝 Notes
 
 - Project uses **Next.js App Router** (not Pages Router)
 - All components are **TypeScript** based
-- **Server Components** and **Client Components** mix use kiya gaya hai
-- Supabase ke through **real-time subscriptions** use kiye gaye hain
-- **Drag & Drop** functionality `@hello-pangea/dnd` se implement ki gayi hai
-- **Mantine UI** complete UI solution provide karta hai
-- **Tailwind CSS** utility classes ke liye use kiya gaya hai
+- Both **Server Components** and **Client Components** are used
+- Supabase provides **real-time subscriptions**
+- **Drag & Drop** functionality implemented with `@hello-pangea/dnd`
+- **Mantine UI** provides a complete UI solution
+- **Tailwind CSS** used for utility classes
 
-## 🔄 Future Enhancements (مستقبل کی بہتری)
+## 🔄 Future Enhancements
 
-Potential features jo add kiye ja sakte hain:
+Potential features that can be added:
 - Analytics dashboard (link clicks tracking)
 - Custom domain support
 - More social platform integrations

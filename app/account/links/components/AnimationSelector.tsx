@@ -16,7 +16,7 @@ export default function AnimationSelector({ selectedAnimation, updateAnimation }
         <Text fw={600}>Animation</Text>
       </Group>
 
-      <Select
+      {/* <Select
         data={animationOptions.map((a) => ({
           value: a.value,
           label: a.label,
@@ -24,7 +24,7 @@ export default function AnimationSelector({ selectedAnimation, updateAnimation }
         value={selectedAnimation}
         onChange={updateAnimation}
         mb="md"
-      />
+      /> */}
 
       <Box
         style={{
