@@ -7,9 +7,9 @@ import {
   Button,
   Card,
 } from "@mantine/core";
-import { Camera } from "lucide-react";
 import Why from "./components/why";
 import { createClient } from "./lib/supabase/server";
+import Image from "next/image";
 
 export default async function LandingPage() {
   const supabase = await createClient();
@@ -27,7 +27,7 @@ export default async function LandingPage() {
       <Container size="lg" style={{ padding: "1.5rem 1rem" }}>
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <Camera size={28} color="#E4405F" />
+            <Image src="/logo.png" alt="AxilTree Logo" width={32} height={32} />
             <Text size="xl" fw={700} style={{ color: "#262626" }}>
               AxilTree
             </Text>
