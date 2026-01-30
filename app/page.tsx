@@ -8,6 +8,7 @@ import {
   Card,
 } from "@mantine/core";
 import Why from "./components/why";
+import ContactForm from "./components/ContactForm";
 import { createClient } from "./lib/supabase/server";
 import Image from "next/image";
 
@@ -221,6 +222,25 @@ export default async function LandingPage() {
               Start Now - It's Free
             </Button>
           </div>
+        </Stack>
+      </Container>
+
+      {/* Contact Us Section */}
+      <Container size="sm" style={{ padding: "4rem 1rem" }}>
+        <Stack gap="xl">
+          <Stack align="center" gap="sm">
+            <Title order={2} ta="center" fw={700} size="2rem">
+              Get in Touch
+            </Title>
+            <Text size="md" c="dimmed" ta="center" style={{ maxWidth: "500px" }}>
+              Have questions or feedback? We'd love to hear from you. Send us a
+              message and we'll respond as soon as possible.
+            </Text>
+          </Stack>
+
+          <Card shadow="md" radius="lg" style={{ padding: "2rem" }}>
+            <ContactForm />
+          </Card>
         </Stack>
       </Container>
 
