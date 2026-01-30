@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import Why from "./components/why";
 import ContactForm from "./components/ContactForm";
+import Header from "./components/Header";
 import { createClient } from "./lib/supabase/server";
 import Image from "next/image";
 
@@ -17,6 +18,18 @@ export default async function LandingPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  
+  // Fetch username if user is authenticated
+  let username = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .single();
+    username = profile?.username;
+  }
+  
   return (
     <div
       style={{
@@ -26,23 +39,7 @@ export default async function LandingPage() {
     >
       {/* Header */}
       <Container size="lg" style={{ padding: "1.5rem 1rem" }}>
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
-            <Image src="/logo.png" alt="AxilTree Logo" width={32} height={32} />
-            <Text size="xl" fw={700} style={{ color: "#262626" }}>
-              AxilTree
-            </Text>
-          </Group>
-          <Button
-            variant="gradient"
-            color="dark"
-            size="sm"
-            component="a"
-            href={user ? "/account" : "/login"}
-          >
-            {user ? "Account" : "Login"}
-          </Button>
-        </Group>
+        <Header isAuthenticated={!!user} username={username} />
       </Container>
 
       {/* Hero Section */}
