@@ -5,6 +5,7 @@ import { IconDeviceMobile } from "@tabler/icons-react";
 import { themesArray } from "@/app/utils/theme";
 import { usernameThemes } from "@/app/utils/usernameThemes";
 import { getAnimationVariants } from "@/app/utils/animations";
+import Image from "next/image";
 
 interface MobilePreviewProps {
   profile: any;
@@ -134,6 +135,43 @@ export default function MobilePreview({
                 );
               })}
             </Stack>
+
+            {/* Footer Branding */}
+            <Box mt="xl" pt="lg" style={{ borderTop: `1px solid ${currentTheme.text}30` }}>
+              <Box
+                component="a"
+                href="https://www.axiltree.tech/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  textDecoration: "none",
+                  display: "block",
+                  cursor: "pointer",
+                }}
+              >
+                <Group justify="center" gap="xs">
+                  <Image 
+                    src="/logo.png" 
+                    alt="AxilTree Logo" 
+                    width={20} 
+                    height={20}
+                    style={{
+                      filter: currentTheme.text === "#ffffff" || currentTheme.text === "white" 
+                        ? "brightness(0) invert(1)" 
+                        : "none"
+                    }}
+                  />
+                  <Text 
+                    size="sm" 
+                    fw={600} 
+                    opacity={0.7}
+                    style={{ color: currentTheme.text }}
+                  >
+                    AxilTree
+                  </Text>
+                </Group>
+              </Box>
+            </Box>
           </Stack>
         </Box>
       </Box>

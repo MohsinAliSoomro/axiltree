@@ -1,11 +1,12 @@
 "use client";
-import { Container, Stack, Avatar, Text, Box } from "@mantine/core";
+import { Container, Stack, Avatar, Text, Box, Group } from "@mantine/core";
 import { motion } from "framer-motion";
 import { themesObject } from "../utils/theme";
 import { usernameThemes } from "../utils/usernameThemes";
 import { getAnimationVariants } from "../utils/animations";
 import { createClient } from "../lib/supabase/client";
 import { fetchLocation } from "../utils/location";
+import Image from "next/image";
 
 export default function ProfileView({
   profile,
@@ -38,20 +39,21 @@ export default function ProfileView({
       console.error("Failed to open link:", error);
     }
   };
-  console.log({profile})
   return (
     <Box
       style={{
         minHeight: "100vh",
         background: theme.bg,
         color: theme.text,
-        padding: "40px 20px",
         fontFamily: `var(--font-${profile?.font || "inter"}), sans-serif`,
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <Container size="xs">
-        <Stack align="center" gap="md">
-          <motion.div
+      <Box style={{ flex: 1, padding: "40px 20px" }}>
+        <Container size="xs">
+          <Stack align="center" gap="md">
+            <motion.div
             initial={animationVariants.initial}
             animate={animationVariants.animate}
             transition={{
@@ -174,6 +176,50 @@ export default function ProfileView({
           </Stack>
         </Stack>
       </Container>
+      </Box>
+
+      {/* Footer Branding */}
+      <Box 
+        py="lg" 
+        style={{ 
+          borderTop: `1px solid ${theme.text}30`,
+          background: theme.bg,
+        }}
+      >
+        <Box
+          component="a"
+          href="https://www.axiltree.tech/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            textDecoration: "none",
+            display: "block",
+            cursor: "pointer",
+          }}
+        >
+          <Group justify="center" gap="xs">
+            <Image 
+              src="/logo.png" 
+              alt="AxilTree Logo" 
+              width={24} 
+              height={24}
+              style={{
+                filter: theme.text === "#ffffff" || theme.text === "white" 
+                  ? "brightness(0) invert(1)" 
+                  : "none"
+              }}
+            />
+            <Text 
+              size="sm" 
+              fw={600} 
+              opacity={0.7}
+              style={{ color: theme.text }}
+            >
+              AxilTree
+            </Text>
+          </Group>
+        </Box>
+      </Box>
     </Box>
   );
 }
