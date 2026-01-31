@@ -18,7 +18,7 @@ import {
   SegmentedControl,
 } from "@mantine/core";
 import { IconLink, IconChevronDown } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function Analytics({ 
@@ -31,9 +31,14 @@ export default function Analytics({
   range: "week" | "month";
 }) {
   const [expandedLink, setExpandedLink] = useState<string | null>(null);
+  const [selectedRange, setSelectedRange] = useState<"week" | "month">(range);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setSelectedRange(range);
+  }, [range]);
 
   const { countryData, linksData, linkAnalytics } = useMemo(() => {
     const analytics: any = {};
@@ -123,11 +128,13 @@ export default function Analytics({
             </div>
             <Group>
               <SegmentedControl
-                value={range}
+                value={selectedRange}
                 onChange={(value) => {
+                  const nextRange = value as "week" | "month";
+                  setSelectedRange(nextRange);
                   const params = new URLSearchParams(searchParams?.toString());
-                  params.set("range", value);
-                  router.replace(`${pathname}?${params.toString()}`);
+                  params.set("range", nextRange);
+                  router.push(`${pathname}?${params.toString()}`);
                 }}
                 data={[
                   { label: "Weekly", value: "week" },
