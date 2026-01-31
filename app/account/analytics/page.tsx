@@ -4,14 +4,15 @@ import Analytics from "./Analytics";
 export default async function handleClick({
   searchParams,
 }: {
-  searchParams?: { range?: string };
+  searchParams?: Promise<{ range?: string }>;
 }) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const range = searchParams?.range === "month" ? "month" : "week";
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const range = resolvedSearchParams?.range === "month" ? "month" : "week";
   const now = new Date();
   const cutoff = new Date(now);
   cutoff.setDate(now.getDate() - (range === "week" ? 7 : 30));
@@ -42,8 +43,6 @@ export default async function handleClick({
     analyticsError = result.error;
   }
 
-  console.log("User Links:", userLinks, linksError);
-  console.log("Analytics Data:", analyticsData, analyticsError);
 
   return (
     <Analytics 
