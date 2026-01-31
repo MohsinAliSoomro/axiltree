@@ -14,20 +14,73 @@ import {
   Badge,
   Collapse,
   ActionIcon,
+  Group,
+  SegmentedControl,
 } from "@mantine/core";
 import { IconLink, IconChevronDown } from "@tabler/icons-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function Analytics({ 
-  countryData, 
-  linksData, 
-  linkAnalytics 
+  analyticsData, 
+  links,
+  range,
 }: { 
-  countryData: any; 
-  linksData: any;
-  linkAnalytics: any;
+  analyticsData: any[]; 
+  links: any[];
+  range: "week" | "month";
 }) {
   const [expandedLink, setExpandedLink] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const { countryData, linksData, linkAnalytics } = useMemo(() => {
+    const analytics: any = {};
+
+    (analyticsData || []).forEach((record: any) => {
+      if (!analytics[record.link_id]) {
+        analytics[record.link_id] = {
+          total: 0,
+          byCountry: {},
+        };
+      }
+      analytics[record.link_id].total += 1;
+
+      const country = record.country || "Unknown";
+      if (!analytics[record.link_id].byCountry[country]) {
+        analytics[record.link_id].byCountry[country] = 0;
+      }
+      analytics[record.link_id].byCountry[country] += 1;
+    });
+
+    const enrichedLinks = (links || []).map((link: any) => ({
+      ...link,
+      clicks: analytics[link.id]?.total || 0,
+      clicksByCountry: analytics[link.id]?.byCountry || {},
+    }));
+
+    const countryAggregate: any = {};
+    Object.values(analytics).forEach((linkData: any) => {
+      Object.entries(linkData.byCountry).forEach(([country, count]: [string, any]) => {
+        if (!countryAggregate[country]) {
+          countryAggregate[country] = 0;
+        }
+        countryAggregate[country] += count;
+      });
+    });
+
+    const countries = Object.entries(countryAggregate).map(([country, count]) => ({
+      country,
+      count,
+    }));
+
+    return {
+      countryData: countries,
+      linksData: enrichedLinks,
+      linkAnalytics: analytics,
+    };
+  }, [analyticsData, links]);
 
   // Country Analytics
   const totalClicks = countryData?.reduce((sum: any, item: any) => sum + item.count, 0) || 0;
@@ -57,10 +110,34 @@ export default function Analytics({
   })) || [];
 
   const sortedLinks = [...(linksData || [])].sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
-  console.log({barChartData, linksData})
   return (
     <AppShellLayout>
       <Stack gap="xl">
+        <Paper shadow="sm" p="lg" radius="md" withBorder>
+          <Flex justify="space-between" align="center" gap="md" wrap="wrap">
+            <div>
+              <Title order={2}>Analytics Overview</Title>
+              <Text size="sm" c="dimmed">
+                View weekly or monthly performance
+              </Text>
+            </div>
+            <Group>
+              <SegmentedControl
+                value={range}
+                onChange={(value) => {
+                  const params = new URLSearchParams(searchParams?.toString());
+                  params.set("range", value);
+                  router.replace(`${pathname}?${params.toString()}`);
+                }}
+                data={[
+                  { label: "Weekly", value: "week" },
+                  { label: "Monthly", value: "month" },
+                ]}
+              />
+            </Group>
+          </Flex>
+        </Paper>
+
         {/* Key Metrics */}
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
           <Card shadow="sm" padding="lg" radius="md" withBorder>
