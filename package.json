@@ -1,6 +1,7 @@
 {
   "name": "axiltree",
   "version": "0.1.0",
+  "description": "AxilTree - A modern bio links platform similar to Linktree. Share all your important links in one customizable profile page.",
   "private": true,
   "scripts": {
     "dev": "next dev",

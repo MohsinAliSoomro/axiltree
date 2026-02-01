@@ -19,7 +19,7 @@ export default function UsernameThemeSelector({
         <Text fw={600}>User Name Theme</Text>
       </Group>
 
-      <Select
+      {/* <Select
         data={usernameThemes.map((t) => ({
           value: t.value,
           label: t.label,
@@ -27,7 +27,7 @@ export default function UsernameThemeSelector({
         value={selectedTheme}
         onChange={(value) => onThemeChange(value || "default")}
         mb="md"
-      />
+      /> */}
 
       <Box
         // style={{

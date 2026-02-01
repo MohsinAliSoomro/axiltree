@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AxilTree - Bio Links Platform
+
+**AxilTree** is a modern bio links platform (like Linktree) that allows users to create a customizable profile page with all their important links in one place. Perfect for social media where you can only add one link in your bio.
+
+### Features
+- Create a unique username
+- Add and organize social media & web links
+- Customize profile with themes, fonts, and colors
+- Drag & drop link reordering
+- Mobile-friendly interface
+- Real-time profile updates
 
 ## Getting Started
 

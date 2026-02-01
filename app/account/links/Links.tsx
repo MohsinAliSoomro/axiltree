@@ -18,6 +18,9 @@ import {
   Box,
   Card,
   Badge,
+  Tabs,
+  rem,
+  ScrollArea,
 } from "@mantine/core";
 import {
   IconGripVertical,
@@ -26,14 +29,11 @@ import {
   IconLink,
   IconUser,
   IconPalette,
-  IconDeviceMobile,
   IconBrandInstagram,
   IconBrandTiktok,
   IconBrandTwitter,
   IconBrandFacebook,
-  IconFileTypographyFilled,
-  IconFileTypography,
-  IconBrandFunimation,
+  IconEye,
 } from "@tabler/icons-react";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
@@ -43,7 +43,6 @@ import { themesArray } from "@/app/utils/theme";
 import { animationOptions, getAnimationVariants } from "@/app/utils/animations";
 import { usernameThemes } from "@/app/utils/usernameThemes";
 import { Footprints } from "lucide-react";
-import ProfileImageLayout from "@/app/components/ProfileImageLayout";
 
 const SOCIALS = [
   {
@@ -64,47 +63,16 @@ const SOCIALS = [
     icon: <IconBrandFacebook size={16} />,
   },
 ];
+
 export const fontOptions = [
-  {
-    value: "inter",
-    label: "Inter (Clean & Modern)",
-    css: "var(--font-inter)",
-  },
-  {
-    value: "poppins",
-    label: "Poppins (Stylish)",
-    css: "var(--font-poppins)",
-  },
-  {
-    value: "space",
-    label: "Space Mono (Techy)",
-    css: "var(--font-space)",
-  },
-  {
-    value: "quicksand",
-    label: "Quicksand (Friendly)",
-    css: "var(--font-quicksand)",
-  },
-  {
-    value: "amarna",
-    label: "Amarna (Elegant)",
-    css: "var(--font-amarna)",
-  },
-  {
-    value: "delius",
-    label: "Delius (Handwritten)",
-    css: "var(--font-delius)",
-  },
-  {
-    value: "borel",
-    label: "Borel (Playful)",
-    css: "var(--font-borel)",
-  },
-  {
-    value: "iceland",
-    label: "Iceland (Futuristic)",
-    css: "var(--font-iceland)",
-  },
+  { value: "inter", label: "Inter", css: "var(--font-inter)" },
+  { value: "poppins", label: "Poppins", css: "var(--font-poppins)" },
+  { value: "space", label: "Space Mono", css: "var(--font-space)" },
+  { value: "quicksand", label: "Quicksand", css: "var(--font-quicksand)" },
+  { value: "amarna", label: "Amarna", css: "var(--font-amarna)" },
+  { value: "delius", label: "Delius", css: "var(--font-delius)" },
+  { value: "borel", label: "Borel", css: "var(--font-borel)" },
+  { value: "iceland", label: "Iceland", css: "var(--font-iceland)" },
 ];
 
 const themes = themesArray;
@@ -117,8 +85,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
   const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [profileImageLayout, setProfileImageLayout] = useState<"classic" | "hero">("classic");
   const supabase = createClient();
 
   useEffect(() => {
@@ -139,7 +105,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   }, []);
 
   const loadData = async () => {
-    // Load profile
     const { data: profileData } = await supabase
       .from("profiles")
       .select("*")
@@ -158,7 +123,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setProfileImage(profileData.profile_image_url || null);
     }
 
-    // Load links
     const { data: linksData } = await supabase
       .from("links")
       .select("*")
@@ -169,7 +133,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setLinks(linksData as any);
     }
   };
-  
+
   const handleRealtimeUpdate = (payload: any) => {
     if (payload.eventType === "INSERT") {
       setLinks((prev: any) =>
@@ -201,8 +165,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     }));
 
     setLinks(updatedLinks);
-
-    // Update positions in database
     await supabase.from("links").upsert(updatedLinks);
   };
 
@@ -231,6 +193,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       return false;
     }
   };
+
   const addLink = async () => {
     if (!newLink.title || !newLink.url) return;
     if (!validateUrl(newLink.title, newLink.url)) {
@@ -272,6 +235,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     setSelectedTheme(theme);
     await updateProfile("theme", theme);
   };
+
   const updateFont = async (font: any) => {
     setSelectedFont(font);
     await updateProfile("font", font);
@@ -339,9 +303,10 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
 
   const currentTheme =
     themes.find((t) => t.value === selectedTheme) || themes[0];
-  
+
   const currentUsernameTheme =
-    usernameThemes.find((t) => t.value === selectedUsernameTheme) || usernameThemes[0];
+    usernameThemes.find((t) => t.value === selectedUsernameTheme) ||
+    usernameThemes[0];
 
   return (
     <AppShellLayout>
@@ -528,21 +493,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                     onThemeChange={updateUsernameTheme}
                   />
                 </Grid.Col>
-
-                {/* // Profile image layout section // */}
-                <Grid.Col span={{ base: 12, md: 8 }}>
-                  <Paper shadow="sm" p="md" withBorder>
-                    <Group mb="md">
-                      <IconUser size={20} />
-                      <Text fw={600}>Profile Image Layout</Text>
-                    </Group>
-                    <ProfileImageLayout 
-                      selectedLayout={profileImageLayout}
-                      onLayoutChange={handleLayoutChange}
-                      onImageSave={handleImageSave} 
-                    />
-                  </Paper>
-                </Grid.Col>
               </Grid>
               {/* Profile Section */}
 
@@ -584,205 +534,133 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                 </Stack>
               </Paper>
 
-              {/* Links List with Drag and Drop */}
-              <Paper shadow="sm" p="md" withBorder>
-                <Group mb="md">
-                  <IconLink size={20} />
-                  <Text fw={600}>Your Links</Text>
-                  <Badge>{links.length}</Badge>
-                </Group>
-
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  <Droppable droppableId="links">
-                    {(provided) => (
-                      <Stack
-                        gap="xs"
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                      >
-                        {links.map((link: any, index: number) => (
-                          <Draggable
-                            key={link.id}
-                            draggableId={link.id}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <Card
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                shadow="xs"
-                                p="sm"
-                                style={{
-                                  ...provided.draggableProps.style,
-                                  background: snapshot.isDragging
-                                    ? "#f8f9fa"
-                                    : "white",
-                                }}
-                              >
-                                <Group wrap="nowrap">
-                                  <div {...provided.dragHandleProps}>
-                                    <IconGripVertical
-                                      size={20}
-                                      style={{ cursor: "grab" }}
-                                    />
-                                  </div>
-                                  <Stack gap={0} style={{ flex: 1 }}>
-                                    <Text size="sm" fw={500}>
-                                      {link?.title}
-                                    </Text>
-                                    <Text size="xs" c="dimmed" truncate>
-                                      {link?.url}
-                                    </Text>
-                                  </Stack>
-                                  <ActionIcon
-                                    color="red"
-                                    variant="subtle"
-                                    onClick={() => deleteLink(link?.id)}
+                          {/* Links List */}
+                          <Box>
+                            <Text size="sm" fw={600} mb="sm">
+                              Your Links ({links.length})
+                            </Text>
+                            <DragDropContext onDragEnd={handleDragEnd}>
+                              <Droppable droppableId="links">
+                                {(provided) => (
+                                  <Stack
+                                    gap="xs"
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}
                                   >
-                                    <IconTrash size={16} />
-                                  </ActionIcon>
-                                </Group>
-                              </Card>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </Stack>
-                    )}
-                  </Droppable>
-                </DragDropContext>
+                                    {links.map((link: any, index: number) => (
+                                      <Draggable
+                                        key={link.id}
+                                        draggableId={link.id}
+                                        index={index}
+                                      >
+                                        {(provided, snapshot) => (
+                                          <Card
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            shadow="xs"
+                                            p="sm"
+                                            radius="md"
+                                            style={{
+                                              ...provided.draggableProps.style,
+                                              background: snapshot.isDragging
+                                                ? "#f8f9fa"
+                                                : "white",
+                                              border: snapshot.isDragging
+                                                ? "2px solid #667eea"
+                                                : "1px solid #e9ecef",
+                                            }}
+                                          >
+                                            <Group wrap="nowrap" gap="sm">
+                                              <div {...provided.dragHandleProps}>
+                                                <IconGripVertical
+                                                  size={18}
+                                                  style={{
+                                                    cursor: "grab",
+                                                    color: "#868e96",
+                                                  }}
+                                                />
+                                              </div>
+                                              <Stack gap={0} style={{ flex: 1 }}>
+                                                <Text size="sm" fw={600}>
+                                                  {link?.title}
+                                                </Text>
+                                                <Text size="xs" c="dimmed" truncate>
+                                                  {link?.url}
+                                                </Text>
+                                              </Stack>
+                                              <ActionIcon
+                                                color="red"
+                                                variant="subtle"
+                                                onClick={() => deleteLink(link?.id)}
+                                                size="md"
+                                              >
+                                                <IconTrash size={16} />
+                                              </ActionIcon>
+                                            </Group>
+                                          </Card>
+                                        )}
+                                      </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                  </Stack>
+                                )}
+                              </Droppable>
+                            </DragDropContext>
+                          </Box>
+                        </Stack>
+                      </Tabs.Panel>
+                    </ScrollArea>
+                  </Box>
+                </Tabs>
               </Paper>
-            </Stack>
-          </Grid.Col>
+            </Grid.Col>
 
-          {/* Right Side - Mobile Preview */}
-          <Grid.Col span={{ base: 12, md: 4 }} ff={`var(--font-${selectedFont}), sans-serif`}>
-            <Box pos="sticky" style={{ top: 20 }}>
-              <Paper shadow="sm" p="md" withBorder>
-                <Group mb="md">
-                  <IconDeviceMobile size={20} />
-                  <Text fw={600}>Live Preview</Text>
+            {/* Right Side - Fixed Preview */}
+            <Grid.Col
+              span={{ base: 12, lg: 4 }}
+              h="100%"
+              ff={`var(--font-${selectedFont}), sans-serif`}
+            >
+              <Paper
+                shadow="md"
+                p="md"
+                radius="lg"
+                h="100%"
+                style={{
+                  border: "1px solid #e9ecef",
+                  background: "white",
+                }}
+              >
+                <Group mb="md" gap="xs">
+                  <IconEye size={18} />
+                  <Text size="sm" fw={600}>
+                    Live Preview
+                  </Text>
                 </Group>
 
                 {/* Mobile Frame */}
                 <Box
                   style={{
                     width: "100%",
-                    maxWidth: 375,
-                    height: 667,
+                    maxWidth: 320,
+                    height: "calc(100vh - 200px)",
                     margin: "0 auto",
                     border: "16px solid #000",
                     borderRadius: 36,
-                    overflow: "visible",
+                    overflow: "hidden",
                     background: currentTheme.bg,
-                    position: "relative",
                   }}
                 >
-                  {/* Inner container with overflow hidden for content */}
-                  <Box
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      overflow: "hidden",
-                      position: "relative",
-                      borderRadius: "20px",
-                    }}
-                  >
-                  {/* Hero Layout - Full Image at Top */}
-                  {/* Only show image in Hero layout if profileImage is set (image has been saved) */}
-                  {profileImageLayout === "hero" && profileImage && (
-                    <Box
-                      style={{
-                        width: "100%",
-                        position: "relative",
-                        margin: 0,
-                        padding: 0,
-                        marginBottom: "8px",
-                      }}
-                    >
-                      <Box
-                        style={{
-                          width: "100%",
-                          height: "280px",
-                          position: "relative",
-                          overflow: "hidden",
-                          borderRadius: "0",
-                        }}
-                      >
-                        <img
-                          src={profileImage}
-                          alt="Profile"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            display: "block",
-                            position: "relative",
-                            zIndex: 0,
-                          }}
-                        />
-                        {/* Shadow overlay with mask for Linktree-like gradient fade effect */}
-                        {/* This creates the shadow effect at the bottom of the image that fades into the background */}
-                        <Box
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: typeof currentTheme?.bg === 'string' ? currentTheme.bg : "rgb(216, 146, 203)",
-                            mask: "radial-gradient(110.26% 96% at 50% 100%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.01) 4.72%, rgba(0, 0, 0, 0.03) 8.55%, rgba(0, 0, 0, 0.07) 11.65%, rgba(0, 0, 0, 0.12) 14.13%, rgba(0, 0, 0, 0.18) 16.15%, rgba(0, 0, 0, 0.25) 17.82%, rgba(0, 0, 0, 0.33) 19.3%, rgba(0, 0, 0, 0.41) 20.7%, rgba(0, 0, 0, 0.5) 22.18%, rgba(0, 0, 0, 0.59) 23.85%, rgba(0, 0, 0, 0.67) 25.87%, rgba(0, 0, 0, 0.76) 28.35%, rgba(0, 0, 0, 0.85) 31.45%, rgba(0, 0, 0, 0.93) 35.28%, rgb(0, 0, 0) 50%)",
-                            WebkitMask: "radial-gradient(254.26% 276% at 42% 82%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.01) 4.72%, rgba(0, 0, 0, 0.03) 8.55%, rgba(0, 0, 0, 0.07) 11.65%, rgba(0, 0, 0, 0.12) 14.13%, rgba(0, 0, 0, 0.18) 16.15%, rgba(0, 0, 0, 0.25) 17.82%, rgba(0, 0, 0, 0.33) 19.3%, rgba(0, 0, 0, 0.41) 20.7%, rgba(0, 0, 0, 0.5) 22.18%, rgba(0, 0, 0, 0.59) 23.85%, rgba(0, 0, 0, 0.67) 25.87%, rgba(0, 0, 0, 0.76) 28.35%, rgba(0, 0, 0, 0.85) 31.45%, rgba(0, 0, 0, 0.93) 35.28%, rgb(0, 0, 0) 50%)",
-                            pointerEvents: "none",
-                            zIndex: 1,
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  )}
-                  
                   <Box
                     p="xl"
                     style={{
                       height: "100%",
                       overflowY: "auto",
                       color: currentTheme.text,
-                      paddingTop: profileImageLayout === "hero" && profileImage ? "24px" : "xl",
                     }}
                   >
                     <Stack align="center" gap="md">
-                      {/* Classic Layout - Circular Image */}
-                      {profileImageLayout === "classic" && (
-                        <>
-                          {(profileImage || profile?.avatar_url) ? (
-                            <Box
-                              style={{
-                                position: "relative",
-                                width: "120px",
-                                height: "120px",
-                                borderRadius: "50%",
-                                overflow: "hidden",
-                                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1)",
-                              }}
-                            >
-                              <img
-                                src={profileImage || profile?.avatar_url}
-                                alt="Profile"
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                  borderRadius: "50%",
-                                }}
-                              />
-                            </Box>
-                          ) : (
-                            <Avatar size={80} radius="xl" />
-                          )}
-                        </>
-                      )}
+                      <Avatar src={profile?.avatar_url} size={80} radius="xl" />
                       <Stack gap={4} align="center">
                         <Text size="xl" fw={700}>
                           {profile?.display_name || "Your Name"}
@@ -853,13 +731,12 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                       </Stack>
                     </Stack>
                   </Box>
-                  </Box>
                 </Box>
               </Paper>
-            </Box>
-          </Grid.Col>
-        </Grid>
-      </Container>
+            </Grid.Col>
+          </Grid>
+        </Container>
+      </Box>
     </AppShellLayout>
   );
 }
