@@ -34,6 +34,7 @@ import {
   IconBrandTwitter,
   IconBrandFacebook,
   IconEye,
+  IconBrandFunimation,
 } from "@tabler/icons-react";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
