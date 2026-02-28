@@ -168,9 +168,7 @@ export default function MobilePreview({
                   withIndicators
                   slideSize="100%"
                   slideGap={0}
-                  align="start"
-                  loop
-                  containScroll="trimSnaps"
+                  emblaOptions={{ align: "start", containScroll: "trimSnaps", loop: true }}
                   getEmblaApi={setCarouselApi}
                   styles={{
                     viewport: {
