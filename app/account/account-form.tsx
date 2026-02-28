@@ -11,12 +11,17 @@ import {
   Textarea,
   FileInput,
   Avatar,
+  Progress,
+  Text,
+  Group,
+  ThemeIcon,
 } from "@mantine/core";
 import { createClient } from "@/app/lib/supabase/client";
 import { type User } from "@supabase/supabase-js";
 import AppShellLayout from "../components/layout";
 import { notifications } from "@mantine/notifications";
-import { Check, Save, X, Upload } from "lucide-react";
+import { Check, Circle, Save, X, Upload } from "lucide-react";
+import { calculateProfileCompletion } from "@/app/utils/profileCompletion";
 
 export default function AccountForm({ user }: { user: User | null }) {
   const supabase = createClient();
@@ -26,6 +31,9 @@ export default function AccountForm({ user }: { user: User | null }) {
   const [bio, setBio] = useState<string | null>(null);
   const [avatar_url, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [theme, setTheme] = useState<string | null>(null);
+  const [linksCount, setLinksCount] = useState(0);
 
   // Fetch profile
   const getProfile = useCallback(async () => {
@@ -42,7 +50,16 @@ export default function AccountForm({ user }: { user: User | null }) {
         setFullname(data.full_name);
         setBio(data.bio);
         setAvatarUrl(data.avatar_url);
+        setUsername(data.username);
+        setTheme(data.theme);
       }
+
+      const { count: linksTotal } = await supabase
+        .from("links")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", user?.id);
+
+      setLinksCount(linksTotal || 0);
     } catch (error) {
       console.error(error);
     } finally {
@@ -124,11 +141,49 @@ export default function AccountForm({ user }: { user: User | null }) {
     }
   }
 
+  const completion = calculateProfileCompletion({
+    username,
+    avatar_url,
+    bio,
+    theme,
+    linksCount,
+  });
+
   return (
     <AppShellLayout>
       <Paper radius="lg" p="lg" maw={420} mx="auto" withBorder>
         <Stack gap="md">
           <Title order={3}>Account Settings</Title>
+
+          <Paper p="md" radius="md" withBorder>
+            <Stack gap="sm">
+              <Group justify="space-between" align="center">
+                <Text fw={600}>Profile Completion</Text>
+                <Text fw={700}>{completion.score}%</Text>
+              </Group>
+              <Progress value={completion.score} radius="xl" />
+              <Text size="sm" c="dimmed">
+                {completion.completedCount} of {completion.totalCount} steps completed
+              </Text>
+              <Stack gap={6}>
+                {completion.items.map((item) => (
+                  <Group key={item.key} gap="xs" align="center">
+                    <ThemeIcon
+                      size={18}
+                      radius="xl"
+                      color={item.completed ? "green" : "gray"}
+                      variant="light"
+                    >
+                      {item.completed ? <Check size={12} /> : <Circle size={10} />}
+                    </ThemeIcon>
+                    <Text size="sm" c={item.completed ? "dark" : "dimmed"}>
+                      {item.label}
+                    </Text>
+                  </Group>
+                ))}
+              </Stack>
+            </Stack>
+          </Paper>
 
           <TextInput label="Email" value={user?.email || ""} disabled />
 
@@ -148,7 +203,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
           {/* Avatar Preview */}
           <Stack align="center" >
-            {avatar_url && <Avatar src={avatar_url} size={80} radius="xl" />}
+            {avatar_url && <Avatar src={avatar_url} size={80} radius="50%" />}
             <FileInput
               label="Upload Avatar"
               placeholder="Choose file"

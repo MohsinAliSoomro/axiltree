@@ -7,6 +7,8 @@ import { getAnimationVariants } from "../utils/animations";
 import { createClient } from "../lib/supabase/client";
 import { fetchLocation } from "../utils/location";
 import Image from "next/image";
+import { Carousel } from "@mantine/carousel";
+import { useEffect, useState } from "react";
 
 export default function ProfileView({
   profile,
@@ -24,6 +26,19 @@ export default function ProfileView({
   
   // Get animation variants
   const animationVariants = getAnimationVariants(profile?.animation || "none");
+  const selectedLayout = profile?.layout || "stack";
+  const [carouselApi, setCarouselApi] = useState<any>(null);
+
+  useEffect(() => {
+    if (selectedLayout !== "carousel" || !carouselApi || (links?.length || 0) < 2)
+      return;
+
+    const intervalId = setInterval(() => {
+      carouselApi.scrollNext();
+    }, 2200);
+
+    return () => clearInterval(intervalId);
+  }, [selectedLayout, carouselApi, links?.length]);
   
   const client = createClient();
   const handleClick = async (link: any) => {
@@ -53,6 +68,32 @@ export default function ProfileView({
       <Box style={{ flex: 1, padding: "40px 20px" }}>
         <Container size="xs">
           <Stack align="center" gap="md">
+            {profile?.banner_url && profile?.is_banner_show && (
+              <Box
+                style={{
+                  width: "calc(100% + 40px)",
+                  height: 220,
+                  borderRadius: 0,
+                  overflow: "hidden",
+                  position: "relative",
+                  marginTop: -40,
+                  marginLeft: -20,
+                  marginRight: -20,
+                  backgroundImage: `url(${profile.banner_url})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                <Box
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, ${theme.bg} 100%)`,
+                  }}
+                />
+              </Box>
+            )}
+
             <motion.div
             initial={animationVariants.initial}
             animate={animationVariants.animate}
@@ -61,7 +102,13 @@ export default function ProfileView({
               delay: 0,
             }}
           >
-            <Avatar src={profile?.avatar_url} size={100} radius="xl" />
+            <Avatar
+              src={profile?.avatar_url}
+              size={100}
+              radius="50%"
+              mt={profile?.banner_url && profile?.is_banner_show ? -64 : 0}
+              style={{ zIndex: 2, border: `4px solid ${theme.bg}` }}
+            />
           </motion.div>
           
           <Stack gap={8} align="center">
@@ -125,55 +172,83 @@ export default function ProfileView({
             </motion.div>
           </Stack>
 
-          <Stack gap="md" style={{ width: "100%" }} mt="lg">
-            {links?.map((link: any, index: number) => {
-              const staggerDelay = profile?.animation !== "none" ? (0.4 + index * 0.1) : 0;
-              
-              return (
-                <motion.div
-                  key={link.id}
-                  initial={animationVariants.initial}
-                  animate={animationVariants.animate}
-                  transition={{
-                    ...animationVariants.transition,
-                    delay: staggerDelay,
-                  }}
-                  style={{ width: "100%" }}
-                >
-                  <Box
-                    component="a"
-                    href={link.url}
-                    onClick={() => handleClick(link)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      background: theme.button,
-                      color: theme.buttonText,
-                      border: "none",
-                      padding: "16px 20px",
-                      borderRadius: "50px",
-                      textAlign: "center",
-                      fontWeight: 500,
-                      fontSize: "16px",
-                      textDecoration: "none",
-                      cursor: "pointer",
-                      transition: "transform 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = "scale(1.02)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = "scale(1)";
-                    }}
-                  >
-                    {link.title}
-                  </Box>
-                </motion.div>
-              );
-            })}
-          </Stack>
+          <Box style={{ width: "100%" }} mt="lg">
+            {selectedLayout === "grid" ? (
+              <Box
+                style={{
+                  width: "100%",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 12,
+                }}
+              >
+                {links?.map((link: any, index: number) => (
+                  <ProfileLinkItem
+                    key={link.id}
+                    link={link}
+                    index={index}
+                    animationVariants={animationVariants}
+                    hasAnimation={profile?.animation !== "none"}
+                    buttonBg={theme.button}
+                    buttonText={theme.buttonText}
+                    onTrack={handleClick}
+                    compact
+                  />
+                ))}
+              </Box>
+            ) : selectedLayout === "carousel" ? (
+              <Carousel
+                withIndicators
+                slideSize="100%"
+                slideGap={0}
+                align="start"
+                loop
+                containScroll="trimSnaps"
+                getEmblaApi={setCarouselApi}
+                styles={{
+                  viewport: {
+                    paddingRight: 0,
+                  },
+                  container: {
+                    marginRight: 0,
+                  },
+                  indicator: {
+                    backgroundColor: theme.text,
+                  },
+                }}
+              >
+                {links?.map((link: any, index: number) => (
+                  <Carousel.Slide key={link.id}>
+                    <ProfileLinkItem
+                      link={link}
+                      index={index}
+                      animationVariants={animationVariants}
+                      hasAnimation={profile?.animation !== "none"}
+                      buttonBg={theme.button}
+                      buttonText={theme.buttonText}
+                      onTrack={handleClick}
+                      square
+                    />
+                  </Carousel.Slide>
+                ))}
+              </Carousel>
+            ) : (
+              <Stack gap="md" style={{ width: "100%" }}>
+                {links?.map((link: any, index: number) => (
+                  <ProfileLinkItem
+                    key={link.id}
+                    link={link}
+                    index={index}
+                    animationVariants={animationVariants}
+                    hasAnimation={profile?.animation !== "none"}
+                    buttonBg={theme.button}
+                    buttonText={theme.buttonText}
+                    onTrack={handleClick}
+                  />
+                ))}
+              </Stack>
+            )}
+          </Box>
         </Stack>
       </Container>
       </Box>
@@ -221,5 +296,75 @@ export default function ProfileView({
         </Box>
       </Box>
     </Box>
+  );
+}
+
+function ProfileLinkItem({
+  link,
+  index,
+  animationVariants,
+  hasAnimation,
+  buttonBg,
+  buttonText,
+  onTrack,
+  compact = false,
+  square = false,
+}: {
+  link: any;
+  index: number;
+  animationVariants: any;
+  hasAnimation: boolean;
+  buttonBg: string;
+  buttonText: string;
+  onTrack: (link: any) => void;
+  compact?: boolean;
+  square?: boolean;
+}) {
+  const staggerDelay = hasAnimation ? 0.4 + index * 0.1 : 0;
+
+  return (
+    <motion.div
+      initial={animationVariants.initial}
+      animate={animationVariants.animate}
+      transition={{
+        ...animationVariants.transition,
+        delay: staggerDelay,
+      }}
+      style={{ width: "100%" }}
+    >
+      <Box
+        component="a"
+        href={link.url}
+        onClick={() => onTrack(link)}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          aspectRatio: square ? "1 / 1" : undefined,
+          background: buttonBg,
+          color: buttonText,
+          border: "none",
+          padding: compact ? "13px 10px" : "16px 20px",
+          borderRadius: square ? "8px" : compact ? "14px" : "50px",
+          textAlign: "center",
+          fontWeight: 500,
+          fontSize: compact ? "14px" : "16px",
+          textDecoration: "none",
+          cursor: "pointer",
+          transition: "transform 0.2s",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.transform = "scale(1.02)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+        }}
+      >
+        {link.title}
+      </Box>
+    </motion.div>
   );
 }

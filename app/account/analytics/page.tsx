@@ -1,10 +1,24 @@
 import { createClient } from "@/app/lib/supabase/server";
 import Analytics from "./Analytics";
 
+type AnalyticsRange = "1d" | "week" | "month" | "90d" | "custom";
+
+const VALID_RANGES: AnalyticsRange[] = ["1d", "week", "month", "90d", "custom"];
+
+function parseDateInput(value?: string) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatDateInput(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
 export default async function handleClick({
   searchParams,
 }: {
-  searchParams?: Promise<{ range?: string }>;
+  searchParams?: Promise<{ range?: string; start?: string; end?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -12,10 +26,45 @@ export default async function handleClick({
   } = await supabase.auth.getUser();
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const range = resolvedSearchParams?.range === "month" ? "month" : "week";
+  const requestedRange = resolvedSearchParams?.range as AnalyticsRange | undefined;
+  const range: AnalyticsRange = VALID_RANGES.includes(requestedRange as AnalyticsRange)
+    ? (requestedRange as AnalyticsRange)
+    : "week";
+
   const now = new Date();
-  const cutoff = new Date(now);
-  cutoff.setDate(now.getDate() - (range === "week" ? 7 : 30));
+  const startDate = new Date(now);
+  let endDate = new Date(now);
+  let effectiveRange: AnalyticsRange = range;
+
+  if (range === "1d") {
+    startDate.setDate(now.getDate() - 1);
+  } else if (range === "week") {
+    startDate.setDate(now.getDate() - 7);
+  } else if (range === "month") {
+    startDate.setDate(now.getDate() - 30);
+  } else if (range === "90d") {
+    startDate.setDate(now.getDate() - 90);
+  } else {
+    const parsedStart = parseDateInput(resolvedSearchParams?.start);
+    const parsedEnd = parseDateInput(resolvedSearchParams?.end);
+
+    if (!parsedStart || !parsedEnd || parsedStart > parsedEnd) {
+      effectiveRange = "week";
+      startDate.setDate(now.getDate() - 7);
+      endDate = new Date(now);
+    } else {
+      startDate.setTime(parsedStart.getTime());
+      startDate.setHours(0, 0, 0, 0);
+
+      endDate = new Date(parsedEnd);
+      endDate.setHours(23, 59, 59, 999);
+    }
+  }
+
+  const customStart =
+    effectiveRange === "custom" ? formatDateInput(startDate) : undefined;
+  const customEnd =
+    effectiveRange === "custom" ? formatDateInput(endDate) : undefined;
 
   // Fetch current user's links
   const { data: userLinks, error: linksError } = await supabase
@@ -37,7 +86,8 @@ export default async function handleClick({
       .select("link_id, country, action, created_at")
       .in("link_id", linkIds)
       .eq("action", "click")
-      .gte("created_at", cutoff.toISOString());
+      .gte("created_at", startDate.toISOString())
+      .lte("created_at", endDate.toISOString());
     
     analyticsData = result.data;
     analyticsError = result.error;
@@ -48,7 +98,9 @@ export default async function handleClick({
     <Analytics 
       analyticsData={analyticsData || []}
       links={userLinks || []}
-      range={range}
+      range={effectiveRange}
+      customStart={customStart}
+      customEnd={customEnd}
     />
   );
 }

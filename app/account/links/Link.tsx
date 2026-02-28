@@ -17,6 +17,9 @@ import AnimationSelector from "./components/AnimationSelector";
 import AddLinkForm from "./components/AddLinkForm";
 import LinksList from "./components/LinksList";
 import MobilePreview from "./components/MobilePreview";
+import TemplateMarketplace from "./components/TemplateMarketplace";
+import { type ProfileTemplate } from "@/app/utils/templates";
+import LayoutSelector from "./components/LayoutSelector";
 
 
 export default function LinkTreeDashboard({ user }: { user: User | null }) {
@@ -26,6 +29,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
   const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
+  const [selectedLayout, setSelectedLayout] = useState("stack");
   const [activeTab, setActiveTab] = useState("links");
   const supabase = createClient();
   
@@ -58,6 +62,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setSelectedFont(profileData.font || "inter");
       setSelectedAnimation(profileData.animation || "none");
       setSelectedUsernameTheme(profileData.username_theme || "default");
+      setSelectedLayout(profileData.layout || "stack");
     }
 
     const { data: linksData } = await supabase
@@ -187,6 +192,36 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     await updateProfile("username_theme", theme);
   };
 
+  const updateLayout = async (layout: string) => {
+    setSelectedLayout(layout);
+    await updateProfile("layout", layout);
+  };
+
+  const applyTemplate = async (template: ProfileTemplate) => {
+    setSelectedTheme(template.theme);
+    setSelectedFont(template.font);
+    setSelectedAnimation(template.animation);
+    setSelectedUsernameTheme(template.usernameTheme);
+
+    setProfile((prev: any) => ({
+      ...prev,
+      theme: template.theme,
+      font: template.font,
+      animation: template.animation,
+      username_theme: template.usernameTheme,
+    }));
+
+    await supabase
+      .from("profiles")
+      .update({
+        theme: template.theme,
+        font: template.font,
+        animation: template.animation,
+        username_theme: template.usernameTheme,
+      })
+      .eq("id", user?.id);
+  };
+
   return (
     <AppShellLayout>
       <Box
@@ -222,6 +257,9 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                   >
                     Links
                   </Tabs.Tab>
+                  <Tabs.Tab value="theme" leftSection={<IconPalette size={16} />}>
+                    Theme
+                  </Tabs.Tab>
                   <Tabs.Tab value="design" leftSection={<IconPalette size={16} />}>
                     Design
                   </Tabs.Tab>
@@ -242,18 +280,29 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                       />
                     </Tabs.Panel>
 
+                    {/* Theme Tab */}
+                    <Tabs.Panel value="theme">
+                      <TemplateMarketplace onApplyTemplate={applyTemplate} />
+
+                    </Tabs.Panel>
+
                     {/* Design Tab */}
                     <Tabs.Panel value="design">
+                      <LayoutSelector
+                        selectedLayout={selectedLayout}
+                        updateLayout={updateLayout}
+                      />
+
                       <ThemeSelector 
                         selectedTheme={selectedTheme} 
                         updateTheme={updateTheme} 
                       />
-                      
+
                       <UsernameThemeSelector
                         selectedTheme={selectedUsernameTheme}
                         onThemeChange={updateUsernameTheme}
                       />
-                      
+
                       <AnimationSelector 
                         selectedAnimation={selectedAnimation} 
                         updateAnimation={updateAnimation} 
@@ -296,6 +345,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
               selectedFont={selectedFont}
               selectedAnimation={selectedAnimation}
               selectedUsernameTheme={selectedUsernameTheme}
+              selectedLayout={selectedLayout}
             />
           </Grid.Col>
         </Grid>
