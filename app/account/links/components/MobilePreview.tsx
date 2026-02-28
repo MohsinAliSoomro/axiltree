@@ -6,6 +6,8 @@ import { themesArray } from "@/app/utils/theme";
 import { usernameThemes } from "@/app/utils/usernameThemes";
 import { getAnimationVariants } from "@/app/utils/animations";
 import Image from "next/image";
+import { Carousel } from "@mantine/carousel";
+import { useEffect, useState } from "react";
 
 interface MobilePreviewProps {
   profile: any;
@@ -14,6 +16,7 @@ interface MobilePreviewProps {
   selectedFont: string;
   selectedAnimation: string;
   selectedUsernameTheme: string;
+  selectedLayout: string;
 }
 
 const themes = themesArray;
@@ -24,8 +27,21 @@ export default function MobilePreview({
   selectedTheme, 
   selectedFont, 
   selectedAnimation,
-  selectedUsernameTheme
+  selectedUsernameTheme,
+  selectedLayout,
 }: MobilePreviewProps) {
+  const [carouselApi, setCarouselApi] = useState<any>(null);
+
+  useEffect(() => {
+    if (selectedLayout !== "carousel" || !carouselApi || links.length < 2) return;
+
+    const intervalId = setInterval(() => {
+      carouselApi.scrollNext();
+    }, 2200);
+
+    return () => clearInterval(intervalId);
+  }, [selectedLayout, carouselApi, links.length]);
+
   const currentTheme =
     themes.find((t) => t.value === selectedTheme) || themes[0];
 
@@ -61,7 +77,39 @@ export default function MobilePreview({
           }}
         >
           <Stack align="center" gap="md">
-            <Avatar src={profile?.avatar_url} size={80} radius="xl" />
+            {profile?.banner_url && profile?.is_banner_show && (
+              <Box
+                style={{
+                  width: "calc(100% + (var(--mantine-spacing-xl) * 2))",
+                  height: 160,
+                  borderRadius: 0,
+                  overflow: "hidden",
+                  position: "relative",
+                  marginTop: "calc(var(--mantine-spacing-xl) * -1)",
+                  marginLeft: "calc(var(--mantine-spacing-xl) * -1)",
+                  marginRight: "calc(var(--mantine-spacing-xl) * -1)",
+                  backgroundImage: `url(${profile.banner_url})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                <Box
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: `linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, ${currentTheme.bg} 100%)`,
+                  }}
+                />
+              </Box>
+            )}
+
+            <Avatar
+              src={profile?.avatar_url}
+              size={80}
+              radius="50%"
+              mt={profile?.banner_url && profile?.is_banner_show ? -46 : 0}
+              style={{ zIndex: 2, border: `3px solid ${currentTheme.bg}` }}
+            />
             <Stack gap={4} align="center">
               <Text size="xl" fw={700}>
                 {profile?.full_name || "Your Name"}
@@ -95,45 +143,72 @@ export default function MobilePreview({
             </Stack>
 
             <Stack gap="sm" style={{ width: "100%" }} mt="md">
-              {links.map((link: any, index: number) => {
-                const animationVariants = getAnimationVariants(selectedAnimation);
-                // Add stagger delay for links
-                const staggerDelay = selectedAnimation !== "none" ? index * 0.1 : 0;
-
-                return (
-                  <motion.div
-                    key={`${link?.id}-${selectedAnimation}`}
-                    initial={animationVariants.initial}
-                    animate={animationVariants.animate}
-                    transition={{
-                      ...animationVariants.transition,
-                      delay: staggerDelay,
-                    }}
-                    style={{ width: "100%" }}
-                  >
-                    <Box
-                      component="a"
-                      href={link?.url}
-                      target="_blank"
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        background: currentTheme.button,
-                        color: currentTheme.buttonText,
-                        border: "none",
-                        padding: "16px 20px",
-                        borderRadius: "50px",
-                        textAlign: "center",
-                        fontWeight: 500,
-                        fontSize: "16px",
-                        textDecoration: "none",
-                      }}
-                    >
-                      {link?.title}
-                    </Box>
-                  </motion.div>
-                );
-              })}
+              {selectedLayout === "grid" ? (
+                <Box
+                  style={{
+                    width: "100%",
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 10,
+                  }}
+                >
+                  {links.map((link: any, index: number) => (
+                    <PreviewLinkItem
+                      key={`${link?.id}-${selectedAnimation}`}
+                      link={link}
+                      index={index}
+                      selectedAnimation={selectedAnimation}
+                      currentTheme={currentTheme}
+                      compact
+                    />
+                  ))}
+                </Box>
+              ) : selectedLayout === "carousel" ? (
+                <Carousel
+                  withIndicators
+                  slideSize="100%"
+                  slideGap={0}
+                  align="start"
+                  loop
+                  containScroll="trimSnaps"
+                  getEmblaApi={setCarouselApi}
+                  styles={{
+                    viewport: {
+                      paddingRight: 0,
+                    },
+                    container: {
+                      marginRight: 0,
+                    },
+                    indicator: {
+                      backgroundColor: currentTheme.text,
+                    },
+                  }}
+                >
+                  {links.map((link: any, index: number) => (
+                    <Carousel.Slide key={`${link?.id}-${selectedAnimation}`}>
+                      <PreviewLinkItem
+                        link={link}
+                        index={index}
+                        selectedAnimation={selectedAnimation}
+                        currentTheme={currentTheme}
+                        square
+                      />
+                    </Carousel.Slide>
+                  ))}
+                </Carousel>
+              ) : (
+                <Stack gap="sm" style={{ width: "100%" }}>
+                  {links.map((link: any, index: number) => (
+                    <PreviewLinkItem
+                      key={`${link?.id}-${selectedAnimation}`}
+                      link={link}
+                      index={index}
+                      selectedAnimation={selectedAnimation}
+                      currentTheme={currentTheme}
+                    />
+                  ))}
+                </Stack>
+              )}
             </Stack>
 
             {/* Footer Branding */}
@@ -176,5 +251,60 @@ export default function MobilePreview({
         </Box>
       </Box>
     </Paper>
+  );
+}
+
+function PreviewLinkItem({
+  link,
+  index,
+  selectedAnimation,
+  currentTheme,
+  compact = false,
+  square = false,
+}: {
+  link: any;
+  index: number;
+  selectedAnimation: string;
+  currentTheme: any;
+  compact?: boolean;
+  square?: boolean;
+}) {
+  const animationVariants = getAnimationVariants(selectedAnimation);
+  const staggerDelay = selectedAnimation !== "none" ? index * 0.1 : 0;
+
+  return (
+    <motion.div
+      initial={animationVariants.initial}
+      animate={animationVariants.animate}
+      transition={{
+        ...animationVariants.transition,
+        delay: staggerDelay,
+      }}
+      style={{ width: "100%" }}
+    >
+      <Box
+        component="a"
+        href={link?.url}
+        target="_blank"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          aspectRatio: square ? "1 / 1" : undefined,
+          background: currentTheme.button,
+          color: currentTheme.buttonText,
+          border: "none",
+          padding: compact ? "12px 10px" : "16px 20px",
+          borderRadius: square ? "8px" : compact ? "14px" : "50px",
+          textAlign: "center",
+          fontWeight: 500,
+          fontSize: compact ? "13px" : "16px",
+          textDecoration: "none",
+        }}
+      >
+        {link?.title}
+      </Box>
+    </motion.div>
   );
 }

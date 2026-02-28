@@ -311,7 +311,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                             <Avatar
                               src={profile?.avatar_url}
                               size={80}
-                              radius="xl"
+                              radius="50%"
                               style={{ border: "3px solid #667eea" }}
                             />
                             <Stack gap="sm" style={{ flex: 1 }}>
@@ -632,7 +632,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         <Avatar
                           src={profile?.avatar_url}
                           size={64}
-                          radius="xl"
+                          radius="50%"
                           style={{
                             border: "2px solid rgba(255,255,255,0.3)",
                             marginTop: rem(12),
