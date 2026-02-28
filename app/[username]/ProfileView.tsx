@@ -56,8 +56,12 @@ export default function ProfileView({
   };
   return (
     <Box
+      className="hide-scrollbar"
       style={{
-        minHeight: "100vh",
+        height: "100vh",
+        overflowY: "auto",
+        msOverflowStyle: "none",
+        scrollbarWidth: "none",
         background: theme.bg,
         color: theme.text,
         fontFamily: `var(--font-${profile?.font || "inter"}), sans-serif`,

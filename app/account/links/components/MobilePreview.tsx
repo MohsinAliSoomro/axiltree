@@ -68,10 +68,13 @@ export default function MobilePreview({
         }}
       >
         <Box
+          className="hide-scrollbar"
           p="xl"
           style={{
             height: "100%",
             overflowY: "auto",
+            msOverflowStyle: "none",
+            scrollbarWidth: "none",
             color: currentTheme.text,
             fontFamily: `var(--font-${selectedFont || "inter"}), sans-serif`,
           }}
