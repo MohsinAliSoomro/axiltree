@@ -106,9 +106,23 @@ export default async function Page({ params }: UsernamePageProps) {
     console.error("Error fetching content blocks:", blocksError);
   }
 
+  const { data: products, error: productsError } = await supabase
+    .from("products")
+    .select("*")
+    .eq("profile_id", profile.id)
+    .eq("is_active", true)
+    .order("position", { ascending: true });
+
+  if (productsError) {
+    console.error("Error fetching products:", productsError);
+  }
+
   const visibleLinks = (links || []).filter((link: any) => isLinkVisibleNow(link));
   const visibleBlocks = (contentBlocks || []).filter((block: any) =>
     isLinkVisibleNow(block)
+  );
+  const visibleProducts = (products || []).filter((product: any) =>
+    isLinkVisibleNow(product)
   );
 
   return (
@@ -116,6 +130,7 @@ export default async function Page({ params }: UsernamePageProps) {
       profile={profile}
       links={visibleLinks as any}
       contentBlocks={visibleBlocks as any}
+      products={visibleProducts as any}
     />
   );
 }

@@ -19,10 +19,12 @@ export default function ProfileView({
   profile,
   links,
   contentBlocks,
+  products,
 }: {
   profile: any;
   links: any[];
   contentBlocks: ContentBlock[];
+  products: any[];
 }) {
   const theme =
     themesObject[profile?.theme] ||
@@ -280,6 +282,27 @@ export default function ProfileView({
               ))}
             </Stack>
           )}
+
+          {products?.length > 0 && (
+            <Stack gap="sm" style={{ width: "100%" }} mt="md">
+              <Text size="sm" fw={700} opacity={0.85}>
+                Products
+              </Text>
+              <Stack gap="xs" style={{ width: "100%" }}>
+                {products.map((product: any, index: number) => (
+                  <ProfileProductItem
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    animationVariants={animationVariants}
+                    hasAnimation={profile?.animation !== "none"}
+                    buttonBg={theme.button}
+                    buttonText={theme.buttonText}
+                  />
+                ))}
+              </Stack>
+            </Stack>
+          )}
         </Stack>
       </Container>
       </Box>
@@ -327,6 +350,89 @@ export default function ProfileView({
         </Box>
       </Box>
     </Box>
+  );
+}
+
+function ProfileProductItem({
+  product,
+  index,
+  animationVariants,
+  hasAnimation,
+  buttonBg,
+  buttonText,
+}: {
+  product: any;
+  index: number;
+  animationVariants: any;
+  hasAnimation: boolean;
+  buttonBg: string;
+  buttonText: string;
+}) {
+  const staggerDelay = hasAnimation ? 0.6 + index * 0.1 : 0;
+
+  return (
+    <motion.div
+      initial={animationVariants.initial}
+      animate={animationVariants.animate}
+      transition={{
+        ...animationVariants.transition,
+        delay: staggerDelay,
+      }}
+      style={{ width: "100%" }}
+    >
+      <Box
+        component="a"
+        href={product.buy_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          width: "100%",
+          padding: "12px",
+          textDecoration: "none",
+          color: buttonText,
+          background: buttonBg,
+          borderRadius: 14,
+        }}
+      >
+        {product.image_url ? (
+          <Box
+            component="img"
+            src={product.image_url}
+            alt={product.title}
+            style={{
+              width: 54,
+              height: 54,
+              objectFit: "cover",
+              borderRadius: 10,
+              flexShrink: 0,
+            }}
+          />
+        ) : (
+          <Box
+            style={{
+              width: 54,
+              height: 54,
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.2)",
+              flexShrink: 0,
+            }}
+          />
+        )}
+        <Box style={{ minWidth: 0, flex: 1 }}>
+          <Text fw={600} size="sm" truncate="end">
+            {product.title}
+          </Text>
+          {product.price !== null && product.price !== undefined && (
+            <Text size="xs" opacity={0.85}>
+              ${Number(product.price).toFixed(2)}
+            </Text>
+          )}
+        </Box>
+      </Box>
+    </motion.div>
   );
 }
 

@@ -19,6 +19,7 @@ interface MobilePreviewProps {
   profile: any;
   links: any[];
   contentBlocks: ContentBlock[];
+  products: any[];
   selectedTheme: string;
   selectedFont: string;
   selectedAnimation: string;
@@ -32,6 +33,7 @@ export default function MobilePreview({
   profile, 
   links, 
   contentBlocks,
+  products,
   selectedTheme, 
   selectedFont, 
   selectedAnimation,
@@ -41,6 +43,7 @@ export default function MobilePreview({
   const [carouselApi, setCarouselApi] = useState<any>(null);
   const displayLinks = links.filter((link) => isLinkVisibleNow(link));
   const displayBlocks = contentBlocks.filter((block) => isLinkVisibleNow(block));
+  const displayProducts = products.filter((product) => isLinkVisibleNow(product));
 
   useEffect(() => {
     if (selectedLayout !== "carousel" || !carouselApi || displayLinks.length < 2) return;
@@ -234,6 +237,21 @@ export default function MobilePreview({
               </Stack>
             )}
 
+            {displayProducts.length > 0 && (
+              <Stack gap="xs" style={{ width: "100%" }} mt="sm">
+                <Text size="sm" fw={700} opacity={0.9}>
+                  Products
+                </Text>
+                {displayProducts.map((product, index) => (
+                  <PreviewProductItem
+                    key={`${product.id}-${index}`}
+                    product={product}
+                    currentTheme={currentTheme}
+                  />
+                ))}
+              </Stack>
+            )}
+
             {/* Footer Branding */}
             <Box mt="xl" pt="lg" style={{ borderTop: `1px solid ${currentTheme.text}30` }}>
               <Box
@@ -274,6 +292,70 @@ export default function MobilePreview({
         </Box>
       </Box>
     </Paper>
+  );
+}
+
+function PreviewProductItem({
+  product,
+  currentTheme,
+}: {
+  product: any;
+  currentTheme: any;
+}) {
+  return (
+    <Box
+      component="a"
+      href={product.buy_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        background: currentTheme.button,
+        color: currentTheme.buttonText,
+        borderRadius: 12,
+        padding: "10px",
+        textDecoration: "none",
+      }}
+    >
+      {product.image_url ? (
+        <Box
+          component="img"
+          src={product.image_url}
+          alt={product.title}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 8,
+            objectFit: "cover",
+            flexShrink: 0,
+          }}
+        />
+      ) : (
+        <Box
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 8,
+            background: "rgba(255,255,255,0.2)",
+            flexShrink: 0,
+          }}
+        />
+      )}
+
+      <Box style={{ minWidth: 0, flex: 1 }}>
+        <Text size="sm" fw={600} truncate="end">
+          {product.title}
+        </Text>
+        {product.price !== null && product.price !== undefined && (
+          <Text size="xs" opacity={0.85}>
+            ${Number(product.price).toFixed(2)}
+          </Text>
+        )}
+      </Box>
+    </Box>
   );
 }
 

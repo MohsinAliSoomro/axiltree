@@ -5,7 +5,6 @@ import {
   Box,
   Tabs,
   rem,
-  ScrollArea,
   Text,
   Badge,
   Group,
@@ -19,7 +18,7 @@ import {
   IconPalette, 
   IconLink 
 } from "@tabler/icons-react";
-import { IconPlus, IconArrowLeft, IconStack2 } from "@tabler/icons-react";
+import { IconPlus, IconArrowLeft, IconStack2, IconUpload } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
@@ -33,6 +32,8 @@ import AddLinkForm from "./components/AddLinkForm";
 import LinksList from "./components/LinksList";
 import AddContentBlockForm from "./components/AddContentBlockForm";
 import ContentBlocksList from "./components/ContentBlocksList";
+import BulkImportProducts from "./components/BulkImportProducts";
+import ProductsList from "./components/ProductsList";
 import MobilePreview from "./components/MobilePreview";
 import TemplateMarketplace from "./components/TemplateMarketplace";
 import { type ProfileTemplate } from "@/app/utils/templates";
@@ -44,6 +45,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [profile, setProfile] = useState<any>(null);
   const [links, setLinks] = useState<any>([]);
   const [contentBlocks, setContentBlocks] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [selectedTheme, setSelectedTheme] = useState("default");
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
@@ -51,6 +53,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedLayout, setSelectedLayout] = useState("stack");
   const [activeTab, setActiveTab] = useState("links");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [createTarget, setCreateTarget] = useState<"link" | "block" | null>(null);
   const isMobileEditor = useMediaQuery("(max-width: 62em)");
   const supabase = createClient();
@@ -130,6 +133,16 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     if (blocksData) {
       setContentBlocks(blocksData as any[]);
     }
+
+    const { data: productsData } = await supabase
+      .from("products")
+      .select("*")
+      .eq("profile_id", user?.id)
+      .order("position");
+
+    if (productsData) {
+      setProducts(productsData as any[]);
+    }
   };
 
   const handleRealtimeUpdate = (payload: any) => {
@@ -198,6 +211,22 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
 
     setContentBlocks(updatedBlocks);
     await supabase.from("profile_blocks").upsert(updatedBlocks);
+  };
+
+  const handleProductDragEnd = async (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(products);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    const updatedProducts: any[] = items.map((product, index) => ({
+      ...product,
+      position: index,
+    }));
+
+    setProducts(updatedProducts);
+    await supabase.from("products").upsert(updatedProducts);
   };
 
   const validateUrl = (social: string, url: string) => {
@@ -344,6 +373,11 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     setContentBlocks((prev) => prev.filter((block: any) => block.id !== id));
   };
 
+  const deleteProduct = async (id: string) => {
+    await supabase.from("products").delete().eq("id", id);
+    setProducts((prev) => prev.filter((product: any) => product.id !== id));
+  };
+
   const updateBlockLiveStatus = async (id: string, isLive: boolean) => {
     setContentBlocks((prev: any[]) =>
       prev.map((block: any) =>
@@ -363,6 +397,59 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
         )
       );
       alert("Failed to update content block status. Please try again.");
+    }
+  };
+
+  const updateProductLiveStatus = async (id: string, isLive: boolean) => {
+    setProducts((prev: any[]) =>
+      prev.map((product: any) =>
+        product.id === id ? { ...product, is_active: isLive } : product
+      )
+    );
+
+    const { error } = await supabase
+      .from("products")
+      .update({ is_active: isLive })
+      .eq("id", id);
+
+    if (error) {
+      setProducts((prev: any[]) =>
+        prev.map((product: any) =>
+          product.id === id ? { ...product, is_active: !isLive } : product
+        )
+      );
+      alert("Failed to update product status. Please try again.");
+    }
+  };
+
+  const updateProductSchedule = async (
+    id: string,
+    publishAt: string | null,
+    expireAt: string | null
+  ) => {
+    setProducts((prev: any[]) =>
+      prev.map((product: any) =>
+        product.id === id
+          ? { ...product, publish_at: publishAt, expire_at: expireAt }
+          : product
+      )
+    );
+
+    const { error } = await supabase
+      .from("products")
+      .update({ publish_at: publishAt, expire_at: expireAt })
+      .eq("id", id);
+
+    if (error) {
+      alert("Failed to update product schedule. Please try again.");
+      const { data: productsData } = await supabase
+        .from("products")
+        .select("*")
+        .eq("profile_id", user?.id)
+        .order("position");
+      if (productsData) {
+        setProducts(productsData as any[]);
+      }
     }
   };
 
@@ -478,9 +565,15 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                   </Tabs.Tab>
                 </Tabs.List>
 
-                <Box style={{ flex: 1, overflow: "hidden", background: "#f5f6f8" }}>
-                  <ScrollArea h="100%" p="lg">
-                    <Box pb={96}>
+                <Box
+                  style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    background: "#f5f6f8",
+                    padding: "16px",
+                  }}
+                >
+                  <Box pb={320}>
                       <Box
                         mb="md"
                         style={{
@@ -565,6 +658,9 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                               <Badge variant="light" color="grape">
                                 {contentBlocks.length} blocks
                               </Badge>
+                              <Badge variant="light" color="orange">
+                                {products.length} products
+                              </Badge>
                             </Group>
                           </Group>
                           <Text size="xs" c="dimmed" mb="sm">
@@ -580,6 +676,17 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                             }}
                           >
                             Add New
+                          </Button>
+
+                          <Button
+                            mt="sm"
+                            leftSection={<IconUpload size={16} />}
+                            fullWidth
+                            variant="light"
+                            size="md"
+                            onClick={() => setIsImportModalOpen(true)}
+                          >
+                            Bulk Import Products
                           </Button>
                         </Box>
 
@@ -622,9 +729,28 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                             />
                           </Box>
                         </SimpleGrid>
+
+                        <Box
+                          mt="md"
+                          style={{
+                            border: "1px solid #e5e7eb",
+                            borderRadius: rem(10),
+                            padding: "12px",
+                            background: "#ffffff",
+                          }}
+                        >
+                          <Text fw={700} size="sm" mb="sm">
+                            Manage Products
+                          </Text>
+                          <ProductsList
+                            products={products}
+                            deleteProduct={deleteProduct}
+                            updateProductLiveStatus={updateProductLiveStatus}
+                            updateProductSchedule={updateProductSchedule}
+                          />
+                        </Box>
                       </Tabs.Panel>
-                    </Box>
-                  </ScrollArea>
+                  </Box>
                 </Box>
               </Tabs>
 
@@ -689,6 +815,29 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                   </Stack>
                 )}
               </Modal>
+
+              <Modal
+                opened={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                title="Bulk Import Products"
+                centered
+                size="lg"
+              >
+                <BulkImportProducts
+                  profileId={user?.id}
+                  onImported={async () => {
+                    const { data: productsData } = await supabase
+                      .from("products")
+                      .select("*")
+                      .eq("profile_id", user?.id)
+                      .order("position");
+                    if (productsData) {
+                      setProducts(productsData as any[]);
+                    }
+                    setIsImportModalOpen(false);
+                  }}
+                />
+              </Modal>
             </Grid.Col>
 
             <Grid.Col span={{ base: 12, lg: 4 }} h="100%" style={{ background: "#f7f7f7" }}>
@@ -697,6 +846,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                   profile={profile}
                   links={links}
                   contentBlocks={contentBlocks}
+                  products={products}
                   selectedTheme={selectedTheme}
                   selectedFont={selectedFont}
                   selectedAnimation={selectedAnimation}
