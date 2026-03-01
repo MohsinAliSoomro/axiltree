@@ -31,14 +31,16 @@ This file tracks high-impact features to improve AxilTree as a Linktree-style pl
 - [ ] **Monetization Blocks**
   - Tip jar, one-time payment links, and product/booking blocks.
 
-- [ ] **Content Blocks Beyond Links**
+- [x] **Content Blocks Beyond Links**
   - Add support for text, video embed, music embed, and image gallery blocks.
+  - Completed on 2026-03-01.
 
 - [ ] **A/B Testing for Link Order**
   - Test different link arrangements and compare conversion rates.
 
-- [ ] **Smart Link Scheduling**
+- [x] **Smart Link Scheduling**
   - Schedule links by date/time, auto-expire campaigns.
+  - Completed on 2026-03-01.
 
 - [ ] **Team / Creator Workspace**
   - Multi-user access with role permissions (owner, editor, viewer).

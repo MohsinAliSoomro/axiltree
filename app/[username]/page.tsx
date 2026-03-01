@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "../lib/supabase/server";
 import ProfileView from "./ProfileView";
+import { isLinkVisibleNow } from "../utils/linkSchedule";
 
 type UsernamePageProps = {
   params: Promise<{ username: string }>;
@@ -94,5 +95,42 @@ export default async function Page({ params }: UsernamePageProps) {
     console.error("Error fetching links:", linksError);
   }
 
-  return <ProfileView profile={profile} links={links as any} />;
+  const { data: contentBlocks, error: blocksError } = await supabase
+    .from("profile_blocks")
+    .select("*")
+    .eq("profile_id", profile.id)
+    .eq("is_active", true)
+    .order("position", { ascending: true });
+
+  if (blocksError) {
+    console.error("Error fetching content blocks:", blocksError);
+  }
+
+  const { data: products, error: productsError } = await supabase
+    .from("products")
+    .select("*")
+    .eq("profile_id", profile.id)
+    .eq("is_active", true)
+    .order("position", { ascending: true });
+
+  if (productsError) {
+    console.error("Error fetching products:", productsError);
+  }
+
+  const visibleLinks = (links || []).filter((link: any) => isLinkVisibleNow(link));
+  const visibleBlocks = (contentBlocks || []).filter((block: any) =>
+    isLinkVisibleNow(block)
+  );
+  const visibleProducts = (products || []).filter((product: any) =>
+    isLinkVisibleNow(product)
+  );
+
+  return (
+    <ProfileView
+      profile={profile}
+      links={visibleLinks as any}
+      contentBlocks={visibleBlocks as any}
+      products={visibleProducts as any}
+    />
+  );
 }

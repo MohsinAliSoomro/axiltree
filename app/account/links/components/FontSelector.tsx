@@ -52,7 +52,7 @@ export const fontOptions = [
 
 export default function FontSelector({ selectedFont, updateFont }: FontSelectorProps) {
   return (
-    <Paper shadow="sm" p="md" withBorder mt="sm">
+    <Paper shadow="sm" p="md" withBorder>
       <Group mb="md">
         <IconFileTypography size={20} />
         <Text fw={600}>Font </Text>

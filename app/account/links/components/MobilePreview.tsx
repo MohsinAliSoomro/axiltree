@@ -8,10 +8,18 @@ import { getAnimationVariants } from "@/app/utils/animations";
 import Image from "next/image";
 import { Carousel } from "@mantine/carousel";
 import { useEffect, useState } from "react";
+import { isLinkVisibleNow } from "@/app/utils/linkSchedule";
+import {
+  getMusicEmbedUrl,
+  getVideoEmbedUrl,
+  type ContentBlock,
+} from "@/app/utils/contentBlocks";
 
 interface MobilePreviewProps {
   profile: any;
   links: any[];
+  contentBlocks: ContentBlock[];
+  products: any[];
   selectedTheme: string;
   selectedFont: string;
   selectedAnimation: string;
@@ -24,6 +32,8 @@ const themes = themesArray;
 export default function MobilePreview({ 
   profile, 
   links, 
+  contentBlocks,
+  products,
   selectedTheme, 
   selectedFont, 
   selectedAnimation,
@@ -31,16 +41,19 @@ export default function MobilePreview({
   selectedLayout,
 }: MobilePreviewProps) {
   const [carouselApi, setCarouselApi] = useState<any>(null);
+  const displayLinks = links.filter((link) => isLinkVisibleNow(link));
+  const displayBlocks = contentBlocks.filter((block) => isLinkVisibleNow(block));
+  const displayProducts = products.filter((product) => isLinkVisibleNow(product));
 
   useEffect(() => {
-    if (selectedLayout !== "carousel" || !carouselApi || links.length < 2) return;
+    if (selectedLayout !== "carousel" || !carouselApi || displayLinks.length < 2) return;
 
     const intervalId = setInterval(() => {
       carouselApi.scrollNext();
     }, 2200);
 
     return () => clearInterval(intervalId);
-  }, [selectedLayout, carouselApi, links.length]);
+  }, [selectedLayout, carouselApi, displayLinks.length]);
 
   const currentTheme =
     themes.find((t) => t.value === selectedTheme) || themes[0];
@@ -155,7 +168,7 @@ export default function MobilePreview({
                     gap: 10,
                   }}
                 >
-                  {links.map((link: any, index: number) => (
+                  {displayLinks.map((link: any, index: number) => (
                     <PreviewLinkItem
                       key={`${link?.id}-${selectedAnimation}`}
                       link={link}
@@ -185,7 +198,7 @@ export default function MobilePreview({
                     },
                   }}
                 >
-                  {links.map((link: any, index: number) => (
+                  {displayLinks.map((link: any, index: number) => (
                     <Carousel.Slide key={`${link?.id}-${selectedAnimation}`}>
                       <PreviewLinkItem
                         link={link}
@@ -199,7 +212,7 @@ export default function MobilePreview({
                 </Carousel>
               ) : (
                 <Stack gap="sm" style={{ width: "100%" }}>
-                  {links.map((link: any, index: number) => (
+                  {displayLinks.map((link: any, index: number) => (
                     <PreviewLinkItem
                       key={`${link?.id}-${selectedAnimation}`}
                       link={link}
@@ -211,6 +224,33 @@ export default function MobilePreview({
                 </Stack>
               )}
             </Stack>
+
+            {displayBlocks.length > 0 && (
+              <Stack gap="sm" style={{ width: "100%" }} mt="sm">
+                {displayBlocks.map((block) => (
+                  <PreviewContentBlockItem
+                    key={block.id}
+                    block={block}
+                    currentTheme={currentTheme}
+                  />
+                ))}
+              </Stack>
+            )}
+
+            {displayProducts.length > 0 && (
+              <Stack gap="xs" style={{ width: "100%" }} mt="sm">
+                <Text size="sm" fw={700} opacity={0.9}>
+                  Products
+                </Text>
+                {displayProducts.map((product, index) => (
+                  <PreviewProductItem
+                    key={`${product.id}-${index}`}
+                    product={product}
+                    currentTheme={currentTheme}
+                  />
+                ))}
+              </Stack>
+            )}
 
             {/* Footer Branding */}
             <Box mt="xl" pt="lg" style={{ borderTop: `1px solid ${currentTheme.text}30` }}>
@@ -252,6 +292,187 @@ export default function MobilePreview({
         </Box>
       </Box>
     </Paper>
+  );
+}
+
+function PreviewProductItem({
+  product,
+  currentTheme,
+}: {
+  product: any;
+  currentTheme: any;
+}) {
+  return (
+    <Box
+      component="a"
+      href={product.buy_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        background: currentTheme.button,
+        color: currentTheme.buttonText,
+        borderRadius: 12,
+        padding: "10px",
+        textDecoration: "none",
+      }}
+    >
+      {product.image_url ? (
+        <Box
+          component="img"
+          src={product.image_url}
+          alt={product.title}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 8,
+            objectFit: "cover",
+            flexShrink: 0,
+          }}
+        />
+      ) : (
+        <Box
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 8,
+            background: "rgba(255,255,255,0.2)",
+            flexShrink: 0,
+          }}
+        />
+      )}
+
+      <Box style={{ minWidth: 0, flex: 1 }}>
+        <Text size="sm" fw={600} truncate="end">
+          {product.title}
+        </Text>
+        {product.price !== null && product.price !== undefined && (
+          <Text size="xs" opacity={0.85}>
+            ${Number(product.price).toFixed(2)}
+          </Text>
+        )}
+      </Box>
+    </Box>
+  );
+}
+
+function PreviewContentBlockItem({
+  block,
+  currentTheme,
+}: {
+  block: ContentBlock;
+  currentTheme: any;
+}) {
+  if (block.type === "text") {
+    return (
+      <Box
+        style={{
+          background: `${currentTheme.button}20`,
+          color: currentTheme.text,
+          borderRadius: 12,
+          padding: "12px 14px",
+        }}
+      >
+        {block.title && (
+          <Text size="sm" fw={700} mb={4}>
+            {block.title}
+          </Text>
+        )}
+        <Text size="sm">{block.content_json?.text || ""}</Text>
+      </Box>
+    );
+  }
+
+  if (block.type === "gallery") {
+    const images = block.content_json?.images || [];
+    return (
+      <Stack gap={6}>
+        {block.title && (
+          <Text size="sm" fw={700}>
+            {block.title}
+          </Text>
+        )}
+        <Box
+          style={{
+            width: "100%",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 8,
+          }}
+        >
+          {images.slice(0, 4).map((imageUrl, index) => (
+            <Box
+              key={`${block.id}-preview-${index}`}
+              component="img"
+              src={imageUrl}
+              alt={block.title || "Gallery image"}
+              style={{
+                width: "100%",
+                aspectRatio: "1 / 1",
+                objectFit: "cover",
+                borderRadius: 10,
+                border: `1px solid ${currentTheme.text}20`,
+              }}
+            />
+          ))}
+        </Box>
+      </Stack>
+    );
+  }
+
+  const fallbackUrl = block.content_json?.url || "";
+  const embedUrl =
+    block.content_json?.embedUrl ||
+    (block.type === "video"
+      ? getVideoEmbedUrl(fallbackUrl)
+      : getMusicEmbedUrl(fallbackUrl));
+
+  return (
+    <Stack gap={4}>
+      {block.title && (
+        <Text size="sm" fw={700}>
+          {block.title}
+        </Text>
+      )}
+      {embedUrl ? (
+        <Box
+          component="iframe"
+          src={embedUrl}
+          title={block.title || `${block.type} embed`}
+          style={{
+            width: "100%",
+            height: block.type === "video" ? 180 : 120,
+            border: "none",
+            borderRadius: 12,
+            background: `${currentTheme.button}20`,
+          }}
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+          allowFullScreen
+        />
+      ) : (
+        <Box
+          component="a"
+          href={fallbackUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            background: currentTheme.button,
+            color: currentTheme.buttonText,
+            borderRadius: 12,
+            padding: "10px 12px",
+            textDecoration: "none",
+            display: "inline-block",
+            fontWeight: 600,
+            fontSize: 13,
+          }}
+        >
+          Open {block.type}
+        </Box>
+      )}
+    </Stack>
   );
 }
 

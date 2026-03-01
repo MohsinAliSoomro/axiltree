@@ -1,10 +1,24 @@
 "use client";
 import { useState } from "react";
-import { Paper, Stack, Group, Select, Text, TextInput, Button } from "@mantine/core";
+import {
+  Paper,
+  Stack,
+  Group,
+  Select,
+  Text,
+  TextInput,
+  Button,
+  Switch,
+} from "@mantine/core";
 import { IconPlus, IconLink } from "@tabler/icons-react";
 
 interface AddLinkFormProps {
-  addLink: (title: string, url: string) => void;
+  addLink: (payload: {
+    title: string;
+    url: string;
+    publishAt?: string | null;
+    expireAt?: string | null;
+  }) => void;
 }
 
 const SOCIALS = [
@@ -29,12 +43,35 @@ const SOCIALS = [
 
 export default function AddLinkForm({ addLink }: AddLinkFormProps) {
   const [newLink, setNewLink] = useState({ title: "", url: "" });
+  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const [publishAt, setPublishAt] = useState("");
+  const [expireAt, setExpireAt] = useState("");
 
   const handleSubmit = () => {
-    if (newLink.title && newLink.url) {
-      addLink(newLink.title, newLink.url);
-      setNewLink({ title: "", url: "" });
+    if (!newLink.title || !newLink.url) return;
+
+    const publishISO = publishAt ? new Date(publishAt).toISOString() : null;
+    const expireISO = expireAt ? new Date(expireAt).toISOString() : null;
+
+    if (scheduleEnabled && publishISO && expireISO) {
+      const publishDate = new Date(publishISO);
+      const expireDate = new Date(expireISO);
+      if (expireDate <= publishDate) {
+        alert("Expiry date must be after publish date.");
+        return;
+      }
     }
+
+    addLink({
+      title: newLink.title,
+      url: newLink.url,
+      publishAt: scheduleEnabled ? publishISO : null,
+      expireAt: scheduleEnabled ? expireISO : null,
+    });
+    setNewLink({ title: "", url: "" });
+    setScheduleEnabled(false);
+    setPublishAt("");
+    setExpireAt("");
   };
 
   return (
@@ -54,8 +91,8 @@ export default function AddLinkForm({ addLink }: AddLinkFormProps) {
             icon: s.icon,
           }))}
           value={newLink.title}
-          onChange={(value: any) =>
-            setNewLink({ ...newLink, title: value })
+          onChange={(value) =>
+            setNewLink({ ...newLink, title: value || "" })
           }
         />
 
@@ -68,6 +105,29 @@ export default function AddLinkForm({ addLink }: AddLinkFormProps) {
           }
           leftSection={<IconLink size={16} />}
         />
+
+        <Switch
+          label="Schedule this link"
+          checked={scheduleEnabled}
+          onChange={(event) => setScheduleEnabled(event.currentTarget.checked)}
+        />
+
+        {scheduleEnabled && (
+          <>
+            <TextInput
+              label="Publish at"
+              type="datetime-local"
+              value={publishAt}
+              onChange={(event) => setPublishAt(event.currentTarget.value)}
+            />
+            <TextInput
+              label="Expire at (optional)"
+              type="datetime-local"
+              value={expireAt}
+              onChange={(event) => setExpireAt(event.currentTarget.value)}
+            />
+          </>
+        )}
 
         <Button onClick={handleSubmit} fullWidth>
           Add Link
