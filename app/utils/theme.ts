@@ -190,4 +190,8 @@ export const themesArray = [
 ];
 
 export const themesObject = convertThemesArrayToObject(themesArray);
-console.log(themesObject);
+
+const defaultThemeKey = themesArray[0]?.value;
+if (defaultThemeKey && themesObject[defaultThemeKey]) {
+  themesObject.default = themesObject[defaultThemeKey];
+}

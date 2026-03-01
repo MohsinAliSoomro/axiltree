@@ -4,6 +4,16 @@
 
 You need to create the `contacts` table in your Supabase database. You have two options:
 
+For Smart Link Scheduling, also run:
+
+- `supabase/migrations/20260301_add_link_scheduling.sql`
+- This adds `publish_at` and `expire_at` to `links` with a safety constraint (`expire_at > publish_at`).
+
+For Content Blocks Beyond Links, also run:
+
+- `supabase/migrations/20260301_add_profile_blocks.sql`
+- This adds `profile_blocks` for `text`, `video`, `music`, and `gallery` content types.
+
 ### Option 1: Using Supabase Dashboard (Recommended)
 
 1. Go to your [Supabase Dashboard](https://supabase.com/dashboard)

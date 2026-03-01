@@ -9,16 +9,29 @@ import { fetchLocation } from "../utils/location";
 import Image from "next/image";
 import { Carousel } from "@mantine/carousel";
 import { useEffect, useState } from "react";
+import {
+  getMusicEmbedUrl,
+  getVideoEmbedUrl,
+  type ContentBlock,
+} from "../utils/contentBlocks";
 
 export default function ProfileView({
   profile,
   links,
+  contentBlocks,
 }: {
   profile: any;
   links: any[];
+  contentBlocks: ContentBlock[];
 }) {
-  //@ts-ignore
-  const theme = themesObject[profile?.theme] || themesObject.default;
+  const theme =
+    themesObject[profile?.theme] ||
+    themesObject.default || {
+      bg: "#ffffff",
+      text: "#000000",
+      button: "#000000",
+      buttonText: "#ffffff",
+    };
   
   // Get username theme
   const currentUsernameTheme =
@@ -251,6 +264,22 @@ export default function ProfileView({
               </Stack>
             )}
           </Box>
+
+          {contentBlocks?.length > 0 && (
+            <Stack gap="md" style={{ width: "100%" }} mt="md">
+              {contentBlocks.map((block: ContentBlock, index: number) => (
+                <ProfileContentBlockItem
+                  key={block.id}
+                  block={block}
+                  index={index}
+                  animationVariants={animationVariants}
+                  hasAnimation={profile?.animation !== "none"}
+                  buttonBg={theme.button}
+                  buttonText={theme.buttonText}
+                />
+              ))}
+            </Stack>
+          )}
         </Stack>
       </Container>
       </Box>
@@ -298,6 +327,160 @@ export default function ProfileView({
         </Box>
       </Box>
     </Box>
+  );
+}
+
+function ProfileContentBlockItem({
+  block,
+  index,
+  animationVariants,
+  hasAnimation,
+  buttonBg,
+  buttonText,
+}: {
+  block: ContentBlock;
+  index: number;
+  animationVariants: any;
+  hasAnimation: boolean;
+  buttonBg: string;
+  buttonText: string;
+}) {
+  const staggerDelay = hasAnimation ? 0.4 + index * 0.1 : 0;
+
+  if (block.type === "text") {
+    return (
+      <motion.div
+        initial={animationVariants.initial}
+        animate={animationVariants.animate}
+        transition={{
+          ...animationVariants.transition,
+          delay: staggerDelay,
+        }}
+      >
+        <Box
+          style={{
+            width: "100%",
+            background: `${buttonBg}20`,
+            borderRadius: 14,
+            padding: "14px 16px",
+          }}
+        >
+          {block.title && (
+            <Text size="sm" fw={700} mb={6}>
+              {block.title}
+            </Text>
+          )}
+          <Text size="sm" style={{ whiteSpace: "pre-wrap" }}>
+            {block.content_json?.text || ""}
+          </Text>
+        </Box>
+      </motion.div>
+    );
+  }
+
+  if (block.type === "gallery") {
+    const images = block.content_json?.images || [];
+    return (
+      <motion.div
+        initial={animationVariants.initial}
+        animate={animationVariants.animate}
+        transition={{
+          ...animationVariants.transition,
+          delay: staggerDelay,
+        }}
+      >
+        <Stack gap="xs">
+          {block.title && (
+            <Text size="sm" fw={700}>
+              {block.title}
+            </Text>
+          )}
+          <Box
+            style={{
+              width: "100%",
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: 10,
+            }}
+          >
+            {images.map((imageUrl, imageIndex) => (
+              <Box
+                key={`${block.id}-${imageIndex}`}
+                component="img"
+                src={imageUrl}
+                alt={block.title || "Gallery image"}
+                style={{
+                  width: "100%",
+                  aspectRatio: "1 / 1",
+                  objectFit: "cover",
+                  borderRadius: 10,
+                }}
+              />
+            ))}
+          </Box>
+        </Stack>
+      </motion.div>
+    );
+  }
+
+  const fallbackUrl = block.content_json?.url || "";
+  const embedUrl =
+    block.content_json?.embedUrl ||
+    (block.type === "video"
+      ? getVideoEmbedUrl(fallbackUrl)
+      : getMusicEmbedUrl(fallbackUrl));
+
+  return (
+    <motion.div
+      initial={animationVariants.initial}
+      animate={animationVariants.animate}
+      transition={{
+        ...animationVariants.transition,
+        delay: staggerDelay,
+      }}
+    >
+      <Stack gap="xs">
+        {block.title && (
+          <Text size="sm" fw={700}>
+            {block.title}
+          </Text>
+        )}
+        {embedUrl ? (
+          <Box
+            component="iframe"
+            src={embedUrl}
+            title={block.title || `${block.type} embed`}
+            style={{
+              width: "100%",
+              height: block.type === "video" ? 260 : 160,
+              border: "none",
+              borderRadius: 12,
+              background: buttonBg,
+            }}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <Box
+            component="a"
+            href={fallbackUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              background: buttonBg,
+              color: buttonText,
+              borderRadius: 12,
+              padding: "12px 14px",
+              textDecoration: "none",
+              display: "inline-block",
+              fontWeight: 600,
+            }}
+          >
+            Open {block.type}
+          </Box>
+        )}
+      </Stack>
+    </motion.div>
   );
 }
 
