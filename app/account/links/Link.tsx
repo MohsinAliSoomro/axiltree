@@ -10,12 +10,16 @@ import {
   Badge,
   Group,
   SimpleGrid,
+  Button,
+  Modal,
+  Stack,
 } from "@mantine/core";
 import { 
   IconUser, 
   IconPalette, 
   IconLink 
 } from "@tabler/icons-react";
+import { IconPlus, IconArrowLeft, IconStack2 } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
@@ -46,6 +50,8 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
   const [selectedLayout, setSelectedLayout] = useState("stack");
   const [activeTab, setActiveTab] = useState("links");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createTarget, setCreateTarget] = useState<"link" | "block" | null>(null);
   const isMobileEditor = useMediaQuery("(max-width: 62em)");
   const supabase = createClient();
 
@@ -423,122 +429,65 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     <AppShellLayout>
       <Box
         style={{
-          background: "linear-gradient(135deg, #667eea15 0%, #764ba215 100%)",
+          background: "#f3f4f6",
           height: "calc(100vh - 60px)",
           overflow: "hidden",
+          padding: 12,
         }}
       >
-        <Grid gutter="md" h="100%">
-          {/* Left Side - Tabbed Editor */}
-          <Grid.Col span={{ base: 12, lg: 8 }} h="100%">
-            <Box
+        <Box
+          h="100%"
+          style={{
+            border: "1px solid #d8dadd",
+            borderRadius: rem(10),
+            background: "#ffffff",
+            overflow: "hidden",
+          }}
+        >
+          <Grid gutter={0} h="100%">
+            <Grid.Col
+              span={{ base: 12, lg: 8 }}
               h="100%"
-              style={{
-                border: "1px solid #e9ecef",
-                background: "white",
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: rem(8),
-                overflow: "hidden",
-              }}
+              style={{ borderRight: isMobileEditor ? "none" : "1px solid #e5e7eb" }}
             >
               <Tabs
                 value={activeTab}
-                onChange={(value)=>setActiveTab(value as string)}
-                style={{
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: isMobileEditor ? "column" : "row",
-                }}
+                onChange={(value) => setActiveTab(value as string)}
+                style={{ height: "100%", display: "flex", flexDirection: "column" }}
               >
                 <Tabs.List
                   style={{
-                    width: isMobileEditor ? "100%" : 220,
-                    minWidth: isMobileEditor ? "100%" : 220,
-                    padding: isMobileEditor ? "10px" : "12px 10px",
-                    borderRight: isMobileEditor ? "none" : "1px solid #e9ecef",
-                    borderBottom: isMobileEditor ? "1px solid #e9ecef" : "none",
-                    background: "linear-gradient(180deg, #f7f8ff 0%, #ffffff 100%)",
-                    display: "flex",
-                    flexDirection: isMobileEditor ? "row" : "column",
+                    padding: "8px 12px",
+                    borderBottom: "1px solid #e5e7eb",
+                    background: "#fafafa",
+                    gap: 8,
                     flexWrap: isMobileEditor ? "wrap" : "nowrap",
-                    gap: 6,
                   }}
                 >
-                  {!isMobileEditor && (
-                    <Box
-                      style={{
-                        padding: "8px 8px 12px",
-                        marginBottom: 6,
-                        borderBottom: "1px dashed #e5e7eb",
-                      }}
-                    >
-                      <Text fw={700} size="sm">
-                        Editor
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        Build and style your page from this sidebar.
-                      </Text>
-                    </Box>
-                  )}
-                   <Tabs.Tab
-                    value="links"
-                    leftSection={<IconLink size={16} />}
-                    style={{
-                      justifyContent: "flex-start",
-                      borderRadius: rem(10),
-                      flex: isMobileEditor ? "1 1 45%" : undefined,
-                    }}
-                  >
+                  <Tabs.Tab value="links" leftSection={<IconLink size={16} />}>
                     Links
                   </Tabs.Tab>
-                  <Tabs.Tab
-                    value="theme"
-                    leftSection={<IconPalette size={16} />}
-                    style={{
-                      justifyContent: "flex-start",
-                      borderRadius: rem(10),
-                      flex: isMobileEditor ? "1 1 45%" : undefined,
-                    }}
-                  >
-                    Theme
+                  <Tabs.Tab value="theme" leftSection={<IconPalette size={16} />}>
+                    Appearance
                   </Tabs.Tab>
-                  <Tabs.Tab
-                    value="design"
-                    leftSection={<IconPalette size={16} />}
-                    style={{
-                      justifyContent: "flex-start",
-                      borderRadius: rem(10),
-                      flex: isMobileEditor ? "1 1 45%" : undefined,
-                    }}
-                  >
-                    Design
+                  <Tabs.Tab value="design" leftSection={<IconPalette size={16} />}>
+                    Settings
                   </Tabs.Tab>
-                  <Tabs.Tab
-                    value="profile"
-                    leftSection={<IconUser size={16} />}
-                    style={{
-                      justifyContent: "flex-start",
-                      borderRadius: rem(10),
-                      flex: isMobileEditor ? "1 1 45%" : undefined,
-                    }}
-                  >
+                  <Tabs.Tab value="profile" leftSection={<IconUser size={16} />}>
                     Profile
                   </Tabs.Tab>
-                  
-                 
                 </Tabs.List>
 
-                <Box style={{ flex: 1, overflow: "hidden" }}>
+                <Box style={{ flex: 1, overflow: "hidden", background: "#f5f6f8" }}>
                   <ScrollArea h="100%" p="lg">
-                    <Box pb={80}>
+                    <Box pb={96}>
                       <Box
                         mb="md"
                         style={{
-                          border: "1px solid #eef0f4",
-                          borderRadius: rem(12),
+                          border: "1px solid #e5e7eb",
+                          borderRadius: rem(10),
                           padding: "10px 12px",
-                          background: "#fafbff",
+                          background: "#ffffff",
                         }}
                       >
                         <Text fw={700} size="sm">
@@ -549,156 +498,215 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         </Text>
                       </Box>
 
-                      {/* Profile Tab */}
                       <Tabs.Panel value="profile">
-                        <ProfileInfo 
-                          profile={profile} 
-                          updateProfile={updateProfile} 
-                        />
+                        <ProfileInfo profile={profile} updateProfile={updateProfile} />
                       </Tabs.Panel>
 
-                      {/* Theme Tab */}
                       <Tabs.Panel value="theme">
                         <TemplateMarketplace onApplyTemplate={applyTemplate} />
-
                       </Tabs.Panel>
 
-                      {/* Design Tab */}
                       <Tabs.Panel value="design">
-                        <LayoutSelector
-                          selectedLayout={selectedLayout}
-                          updateLayout={updateLayout}
-                        />
+                        <Box pb={140}>
+                          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+                            <LayoutSelector
+                              selectedLayout={selectedLayout}
+                              updateLayout={updateLayout}
+                            />
 
-                        <ThemeSelector 
-                          selectedTheme={selectedTheme} 
-                          updateTheme={updateTheme} 
-                        />
+                            <Box>
+                              <FontSelector
+                                selectedFont={selectedFont}
+                                updateFont={updateFont}
+                              />
+                            </Box>
+                          </SimpleGrid>
 
-                        <UsernameThemeSelector
-                          selectedTheme={selectedUsernameTheme}
-                          onThemeChange={updateUsernameTheme}
-                        />
+                          <Box mt="md">
+                            <ThemeSelector
+                              selectedTheme={selectedTheme}
+                              updateTheme={updateTheme}
+                            />
+                          </Box>
 
-                        <AnimationSelector 
-                          selectedAnimation={selectedAnimation} 
-                          updateAnimation={updateAnimation} 
-                        />
-                        
-                        <Box mt="md">
-                          <FontSelector
-                            selectedFont={selectedFont} 
-                            updateFont={updateFont} 
-                          />
+                          <Box mt="md">
+                            <UsernameThemeSelector
+                              selectedTheme={selectedUsernameTheme}
+                              onThemeChange={updateUsernameTheme}
+                            />
+                          </Box>
+
+                          <Box mt="md">
+                            <AnimationSelector
+                              selectedAnimation={selectedAnimation}
+                              updateAnimation={updateAnimation}
+                            />
+                          </Box>
                         </Box>
                       </Tabs.Panel>
 
-                      {/* Links Tab */}
                       <Tabs.Panel value="links">
-                      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
                         <Box
                           style={{
-                            border: "1px solid #eef0f4",
-                            borderRadius: rem(12),
-                            padding: "12px",
-                            background: "#fcfcff",
+                            border: "1px solid #e5e7eb",
+                            borderRadius: rem(10),
+                            padding: "14px",
+                            background: "#ffffff",
                           }}
                         >
                           <Group justify="space-between" mb="sm">
                             <Text fw={700} size="sm">
-                              Link Actions
+                              Quick Add
                             </Text>
-                            <Badge variant="light" color="violet">
-                              {links.length} links
-                            </Badge>
+                            <Group gap={8}>
+                              <Badge variant="light" color="violet">
+                                {links.length} links
+                              </Badge>
+                              <Badge variant="light" color="grape">
+                                {contentBlocks.length} blocks
+                              </Badge>
+                            </Group>
                           </Group>
-                          <AddLinkForm addLink={addLink} />
+                          <Text size="xs" c="dimmed" mb="sm">
+                            Add a new link or content block from one popup. You can keep adding multiple items.
+                          </Text>
+                          <Button
+                            leftSection={<IconPlus size={16} />}
+                            fullWidth
+                            size="md"
+                            onClick={() => {
+                              setCreateTarget(null);
+                              setIsCreateModalOpen(true);
+                            }}
+                          >
+                            Add New
+                          </Button>
                         </Box>
 
-                        <Box
-                          style={{
-                            border: "1px solid #eef0f4",
-                            borderRadius: rem(12),
-                            padding: "12px",
-                            background: "#fcfcff",
-                          }}
-                        >
-                          <Group justify="space-between" mb="sm">
-                            <Text fw={700} size="sm">
-                              Content Blocks
+                        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md" mt="md">
+                          <Box
+                            style={{
+                              border: "1px solid #e5e7eb",
+                              borderRadius: rem(10),
+                              padding: "12px",
+                              background: "#ffffff",
+                            }}
+                          >
+                            <Text fw={700} size="sm" mb="sm">
+                              Manage Links
                             </Text>
-                            <Badge variant="light" color="grape">
-                              {contentBlocks.length} blocks
-                            </Badge>
-                          </Group>
-                          <AddContentBlockForm addContentBlock={addContentBlock} />
-                        </Box>
-                      </SimpleGrid>
+                            <LinksList
+                              links={links}
+                              handleDragEnd={handleDragEnd}
+                              deleteLink={deleteLink}
+                              updateLinkLiveStatus={updateLinkLiveStatus}
+                            />
+                          </Box>
 
-                      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md" mt="md">
-                        <Box
-                          style={{
-                            border: "1px solid #eef0f4",
-                            borderRadius: rem(12),
-                            padding: "12px",
-                            background: "#ffffff",
-                          }}
-                        >
-                          <Text fw={700} size="sm" mb="sm">
-                            Manage Links
-                          </Text>
-                          <LinksList 
-                            links={links} 
-                            handleDragEnd={handleDragEnd} 
-                            deleteLink={deleteLink}
-                            updateLinkLiveStatus={updateLinkLiveStatus}
-                          />
-                        </Box>
-
-                        <Box
-                          style={{
-                            border: "1px solid #eef0f4",
-                            borderRadius: rem(12),
-                            padding: "12px",
-                            background: "#ffffff",
-                          }}
-                        >
-                          <Text fw={700} size="sm" mb="sm">
-                            Arrange Content Blocks
-                          </Text>
-                          <ContentBlocksList
-                            blocks={contentBlocks}
-                            handleDragEnd={handleBlockDragEnd}
-                            deleteBlock={deleteContentBlock}
-                            updateBlockLiveStatus={updateBlockLiveStatus}
-                          />
-                        </Box>
-                      </SimpleGrid>
-                    </Tabs.Panel>
+                          <Box
+                            style={{
+                              border: "1px solid #e5e7eb",
+                              borderRadius: rem(10),
+                              padding: "12px",
+                              background: "#ffffff",
+                            }}
+                          >
+                            <Text fw={700} size="sm" mb="sm">
+                              Arrange Content Blocks
+                            </Text>
+                            <ContentBlocksList
+                              blocks={contentBlocks}
+                              handleDragEnd={handleBlockDragEnd}
+                              deleteBlock={deleteContentBlock}
+                              updateBlockLiveStatus={updateBlockLiveStatus}
+                            />
+                          </Box>
+                        </SimpleGrid>
+                      </Tabs.Panel>
                     </Box>
                   </ScrollArea>
                 </Box>
               </Tabs>
-            </Box>
-          </Grid.Col>
 
-          {/* Right Side - Fixed Preview */}
-          <Grid.Col
-            span={{ base: 12, lg: 4 }}
-            h="100%"
-          >
-            <MobilePreview 
-              profile={profile}
-              links={links}
-              contentBlocks={contentBlocks}
-              selectedTheme={selectedTheme}
-              selectedFont={selectedFont}
-              selectedAnimation={selectedAnimation}
-              selectedUsernameTheme={selectedUsernameTheme}
-              selectedLayout={selectedLayout}
-            />
-          </Grid.Col>
-        </Grid>
+              <Modal
+                opened={isCreateModalOpen}
+                onClose={() => {
+                  setIsCreateModalOpen(false);
+                  setCreateTarget(null);
+                }}
+                title={
+                  createTarget === "link"
+                    ? "Add New Link"
+                    : createTarget === "block"
+                      ? "Add Content Block"
+                      : "Create New Item"
+                }
+                centered
+                size="lg"
+              >
+                {!createTarget ? (
+                  <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                    <Button
+                      variant="light"
+                      size="lg"
+                      leftSection={<IconLink size={18} />}
+                      onClick={() => setCreateTarget("link")}
+                      style={{ height: 96 }}
+                    >
+                      New Link
+                    </Button>
+                    <Button
+                      variant="light"
+                      color="grape"
+                      size="lg"
+                      leftSection={<IconStack2 size={18} />}
+                      onClick={() => setCreateTarget("block")}
+                      style={{ height: 96 }}
+                    >
+                      Content Block
+                    </Button>
+                  </SimpleGrid>
+                ) : (
+                  <Stack gap="sm">
+                    <Button
+                      variant="subtle"
+                      leftSection={<IconArrowLeft size={16} />}
+                      onClick={() => setCreateTarget(null)}
+                      style={{ alignSelf: "flex-start" }}
+                    >
+                      Back
+                    </Button>
+
+                    {createTarget === "link" ? (
+                      <AddLinkForm addLink={addLink} />
+                    ) : (
+                      <AddContentBlockForm addContentBlock={addContentBlock} />
+                    )}
+
+                    <Text size="xs" c="dimmed">
+                      Tip: Form stays open so you can add multiple items one after another.
+                    </Text>
+                  </Stack>
+                )}
+              </Modal>
+            </Grid.Col>
+
+            <Grid.Col span={{ base: 12, lg: 4 }} h="100%" style={{ background: "#f7f7f7" }}>
+              <Box h="100%" p="md" style={{ overflowY: "auto" }}>
+                <MobilePreview
+                  profile={profile}
+                  links={links}
+                  contentBlocks={contentBlocks}
+                  selectedTheme={selectedTheme}
+                  selectedFont={selectedFont}
+                  selectedAnimation={selectedAnimation}
+                  selectedUsernameTheme={selectedUsernameTheme}
+                  selectedLayout={selectedLayout}
+                />
+              </Box>
+            </Grid.Col>
+          </Grid>
+        </Box>
       </Box>
     </AppShellLayout>
   );
