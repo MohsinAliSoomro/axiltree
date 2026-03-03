@@ -10,7 +10,7 @@ type UsernamePageProps = {
 
 const baseSiteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-  "https://axiltree.tech";
+  "https://www.axiltree.tech";
 
 export async function generateMetadata({
   params,

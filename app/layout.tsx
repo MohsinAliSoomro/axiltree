@@ -59,7 +59,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AxilTree - Bio Links Platform",
     description: "Share all your important links in one customizable profile page. A modern platform for managing your bio links.",
-    url: "https://axiltree.tech",
+    url: "https://www.axiltree.tech",
     siteName: "AxilTree",
     images: [
       {
