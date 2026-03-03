@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AxilTree</string>
+    <string name="title_activity_main">AxilTree</string>
+    <string name="package_name">com.axiltree.app</string>
+    <string name="custom_url_scheme">com.axiltree.app</string>
+</resources>
