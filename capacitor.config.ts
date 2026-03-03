@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'AxilTree',
   webDir: 'www',
   server: {
-    url: process.env.CAPACITOR_SERVER_URL || 'https://axiltree.com',
+    url: process.env.CAPACITOR_SERVER_URL || 'https://www.axiltree.tech',
     cleartext: false
   }
 };
