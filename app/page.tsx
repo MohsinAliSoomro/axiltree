@@ -8,6 +8,7 @@ import {
   Card,
   Badge,
   Box,
+  SimpleGrid,
 } from "@mantine/core";
 import Why from "./components/why";
 import ContactForm from "./components/ContactForm";
@@ -111,8 +112,8 @@ export default async function LandingPage() {
                 fontSize: "1.125rem",
               }}
             >
-              All your links, one place. Start free. Set up in minutes.
-              Perfect for creators, businesses, and influencers.
+              Publish links, products, and rich content blocks in one page.
+              Start free and launch in minutes.
             </Text>
           </Stack>
 
@@ -304,6 +305,93 @@ export default async function LandingPage() {
       </Container>
 
       {/* Benefits Section */}
+      <Container size="lg" style={{ padding: "1rem 1rem 5rem" }}>
+        <Stack gap={36}>
+          <Stack align="center" gap="md">
+            <Title
+              order={2}
+              ta="center"
+              fw={700}
+              style={{
+                fontSize: "2.2rem",
+                color: "#1a1a1a",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Everything you can publish
+            </Title>
+            <Text
+              size="lg"
+              c="dimmed"
+              ta="center"
+              style={{ maxWidth: "700px" }}
+            >
+              AxilTree is more than basic bio links — manage campaigns,
+              products, and media from one dashboard.
+            </Text>
+          </Stack>
+
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
+            {[
+              {
+                title: "Links + Social Profiles",
+                desc: "Add unlimited links and arrange them with drag & drop for the best click flow.",
+                badge: "Core",
+              },
+              {
+                title: "Products",
+                desc: "Show product cards with price, image, and buy links to drive direct sales.",
+                badge: "Commerce",
+              },
+              {
+                title: "Content Blocks",
+                desc: "Publish text, video embeds, music embeds, and image galleries beyond standard links.",
+                badge: "Content",
+              },
+              {
+                title: "Smart Scheduling",
+                desc: "Set publish and expiry times for links, products, and content for timed campaigns.",
+                badge: "Automation",
+              },
+              {
+                title: "Advanced Analytics",
+                desc: "Track clicks with date ranges, countries, and export reports to improve performance.",
+                badge: "Insights",
+              },
+              {
+                title: "Templates + Bulk Import",
+                desc: "Use ready templates and import products via CSV or JSON to launch faster.",
+                badge: "Scale",
+              },
+            ].map((feature) => (
+              <Card
+                key={feature.title}
+                shadow="sm"
+                radius="xl"
+                style={{
+                  padding: "1.5rem",
+                  background: "white",
+                  border: "1px solid #e9ecef",
+                  height: "100%",
+                }}
+              >
+                <Stack gap={10}>
+                  <Badge variant="light" radius="xl" style={{ width: "fit-content" }}>
+                    {feature.badge}
+                  </Badge>
+                  <Text fw={700} size="lg" style={{ color: "#1a1a1a" }}>
+                    {feature.title}
+                  </Text>
+                  <Text size="sm" c="dimmed" style={{ lineHeight: 1.6 }}>
+                    {feature.desc}
+                  </Text>
+                </Stack>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </Stack>
+      </Container>
+
       <Container size="lg" style={{ padding: "5rem 1rem" }}>
         <Stack gap={48}>
           <Stack align="center" gap="md">
@@ -374,14 +462,14 @@ export default async function LandingPage() {
                 },
                 {
                   num: "2",
-                  title: "Add Links",
-                  desc: "Add all your important links in one place. Customize the look and feel to match your brand.",
+                  title: "Build Your Page",
+                  desc: "Add links, products, and content blocks, then style everything to match your brand.",
                   icon: "🔗",
                 },
                 {
                   num: "3",
-                  title: "Share",
-                  desc: "Put your unique link in your Instagram bio, TikTok, or anywhere else you want to share!",
+                  title: "Schedule & Scale",
+                  desc: "Schedule campaigns, review analytics, and keep improving your conversion over time.",
                   icon: "🚀",
                 },
               ].map((step, i) => (
@@ -493,6 +581,43 @@ export default async function LandingPage() {
           </Card>
         </Stack>
       </Container>
+
+      {/* Android App Coming Soon */}
+      <Box
+        style={{
+          background: "linear-gradient(to bottom, #ffffff, #f8f9fa)",
+          padding: "2rem 1rem 5rem",
+        }}
+      >
+        <Container size="sm">
+          <Card
+            shadow="sm"
+            radius="xl"
+            style={{
+              padding: "2.25rem",
+              background: "white",
+              border: "1px solid #e9ecef",
+              textAlign: "center",
+            }}
+          >
+            <Stack align="center" gap={12}>
+              <Badge variant="light" size="lg" radius="xl">
+                Android
+              </Badge>
+              <Title order={3} fw={700} style={{ color: "#1a1a1a" }}>
+                Android App Coming Soon
+              </Title>
+              <Text c="dimmed" size="md" style={{ maxWidth: "520px", lineHeight: 1.7 }}>
+                We are building the AxilTree Android app for faster profile edits,
+                quick analytics, and on-the-go campaign updates.
+              </Text>
+              <Button variant="light" radius="xl" disabled>
+                Coming Soon on Play Store
+              </Button>
+            </Stack>
+          </Card>
+        </Container>
+      </Box>
 
       {/* Footer */}
       <Box

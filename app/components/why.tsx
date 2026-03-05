@@ -26,10 +26,10 @@ export default function Why() {
               <Zap size={24} color="white" />
             </div>
             <Text fw={600} size="lg">
-              Easy Setup
+              Links, Products & Blocks
             </Text>
             <Text c="dimmed" size="sm">
-              Ready in 5 minutes. No code needed — just click and go live.
+              Manage bio links, product cards, and rich content blocks from one simple dashboard.
             </Text>
           </Stack>
         </Card>
@@ -56,11 +56,10 @@ export default function Why() {
               <Sparkles size={24} color="white" />
             </div>
             <Text fw={600} size="lg">
-              Beautiful Design
+              Smart Scheduling
             </Text>
             <Text c="dimmed" size="sm">
-              Professional themes that look perfect on mobile. Fully
-              customizable.
+              Schedule publish and expiry windows for links, products, and campaigns automatically.
             </Text>
           </Stack>
         </Card>
@@ -87,11 +86,10 @@ export default function Why() {
               <Users size={24} color="white" />
             </div>
             <Text fw={600} size="lg">
-              Track Analytics
+              Analytics & Growth
             </Text>
             <Text c="dimmed" size="sm">
-              See how many people are clicking. Identify your best-performing
-              links.
+              Track clicks by range and country, then optimize with templates and faster bulk updates.
             </Text>
           </Stack>
         </Card>
