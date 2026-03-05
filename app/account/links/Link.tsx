@@ -247,6 +247,23 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
             parsed.hostname.includes("wa.me") ||
             parsed.hostname.includes("whatsapp.com")
           );
+        case "YouTube":
+          return (
+            parsed.hostname.includes("youtube.com") ||
+            parsed.hostname.includes("youtu.be")
+          );
+        case "LinkedIn":
+          return parsed.hostname.includes("linkedin.com");
+        case "Snapchat":
+          return parsed.hostname.includes("snapchat.com");
+        case "Telegram":
+          return (
+            parsed.hostname.includes("t.me") ||
+            parsed.hostname.includes("telegram.me") ||
+            parsed.hostname.includes("telegram.org")
+          );
+        case "Website":
+          return !!parsed.hostname;
         default:
           return false;
       }
@@ -596,7 +613,14 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                       </Tabs.Panel>
 
                       <Tabs.Panel value="theme">
-                        <TemplateMarketplace onApplyTemplate={applyTemplate} />
+                        <Box
+                          style={{
+                            maxHeight: "calc(100vh - 260px)",
+                            overflowY: "auto",
+                          }}
+                        >
+                          <TemplateMarketplace onApplyTemplate={applyTemplate} />
+                        </Box>
                       </Tabs.Panel>
 
                       <Tabs.Panel value="design">
@@ -641,57 +665,103 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                       <Tabs.Panel value="links">
                         <Box
                           style={{
-                            border: "1px solid #e5e7eb",
-                            borderRadius: rem(10),
-                            padding: "14px",
-                            background: "#ffffff",
+                            maxHeight: "calc(100vh - 260px)",
+                            overflowY: "auto",
                           }}
                         >
-                          <Group justify="space-between" mb="sm">
-                            <Text fw={700} size="sm">
-                              Quick Add
-                            </Text>
-                            <Group gap={8}>
-                              <Badge variant="light" color="violet">
-                                {links.length} links
-                              </Badge>
-                              <Badge variant="light" color="grape">
-                                {contentBlocks.length} blocks
-                              </Badge>
-                              <Badge variant="light" color="orange">
-                                {products.length} products
-                              </Badge>
+                          <Box
+                            style={{
+                              border: "1px solid #e5e7eb",
+                              borderRadius: rem(10),
+                              padding: "14px",
+                              background: "#ffffff",
+                            }}
+                          >
+                            <Group justify="space-between" mb="sm">
+                              <Text fw={700} size="sm">
+                                Quick Add
+                              </Text>
+                              <Group gap={8}>
+                                <Badge variant="light" color="violet">
+                                  {links.length} links
+                                </Badge>
+                                <Badge variant="light" color="grape">
+                                  {contentBlocks.length} blocks
+                                </Badge>
+                                <Badge variant="light" color="orange">
+                                  {products.length} products
+                                </Badge>
+                              </Group>
                             </Group>
-                          </Group>
-                          <Text size="xs" c="dimmed" mb="sm">
-                            Add a new link or content block from one popup. You can keep adding multiple items.
-                          </Text>
-                          <Button
-                            leftSection={<IconPlus size={16} />}
-                            fullWidth
-                            size="md"
-                            onClick={() => {
-                              setCreateTarget(null);
-                              setIsCreateModalOpen(true);
-                            }}
-                          >
-                            Add New
-                          </Button>
+                            <Text size="xs" c="dimmed" mb="sm">
+                              Add a new link or content block from one popup. You can keep adding multiple items.
+                            </Text>
+                            <Button
+                              leftSection={<IconPlus size={16} />}
+                              fullWidth
+                              size="md"
+                              onClick={() => {
+                                setCreateTarget(null);
+                                setIsCreateModalOpen(true);
+                              }}
+                            >
+                              Add New
+                            </Button>
 
-                          <Button
-                            mt="sm"
-                            leftSection={<IconUpload size={16} />}
-                            fullWidth
-                            variant="light"
-                            size="md"
-                            onClick={() => setIsImportModalOpen(true)}
-                          >
-                            Bulk Import Products
-                          </Button>
-                        </Box>
+                            <Button
+                              mt="sm"
+                              leftSection={<IconUpload size={16} />}
+                              fullWidth
+                              variant="light"
+                              size="md"
+                              onClick={() => setIsImportModalOpen(true)}
+                            >
+                              Bulk Import Products
+                            </Button>
+                          </Box>
 
-                        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md" mt="md">
+                          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md" mt="md">
+                            <Box
+                              style={{
+                                border: "1px solid #e5e7eb",
+                                borderRadius: rem(10),
+                                padding: "12px",
+                                background: "#ffffff",
+                              }}
+                            >
+                              <Text fw={700} size="sm" mb="sm">
+                                Manage Links
+                              </Text>
+                              <LinksList
+                                links={links}
+                                handleDragEnd={handleDragEnd}
+                                deleteLink={deleteLink}
+                                updateLinkLiveStatus={updateLinkLiveStatus}
+                              />
+                            </Box>
+
+                            <Box
+                              style={{
+                                border: "1px solid #e5e7eb",
+                                borderRadius: rem(10),
+                                padding: "12px",
+                                background: "#ffffff",
+                              }}
+                            >
+                              <Text fw={700} size="sm" mb="sm">
+                                Arrange Content Blocks
+                              </Text>
+                              <ContentBlocksList
+                                blocks={contentBlocks}
+                                handleDragEnd={handleBlockDragEnd}
+                                deleteBlock={deleteContentBlock}
+                                updateBlockLiveStatus={updateBlockLiveStatus}
+                              />
+                            </Box>
+                          </SimpleGrid>
+
                           <Box
+                            mt="md"
                             style={{
                               border: "1px solid #e5e7eb",
                               borderRadius: rem(10),
@@ -700,54 +770,15 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                             }}
                           >
                             <Text fw={700} size="sm" mb="sm">
-                              Manage Links
+                              Manage Products
                             </Text>
-                            <LinksList
-                              links={links}
-                              handleDragEnd={handleDragEnd}
-                              deleteLink={deleteLink}
-                              updateLinkLiveStatus={updateLinkLiveStatus}
+                            <ProductsList
+                              products={products}
+                              deleteProduct={deleteProduct}
+                              updateProductLiveStatus={updateProductLiveStatus}
+                              updateProductSchedule={updateProductSchedule}
                             />
                           </Box>
-
-                          <Box
-                            style={{
-                              border: "1px solid #e5e7eb",
-                              borderRadius: rem(10),
-                              padding: "12px",
-                              background: "#ffffff",
-                            }}
-                          >
-                            <Text fw={700} size="sm" mb="sm">
-                              Arrange Content Blocks
-                            </Text>
-                            <ContentBlocksList
-                              blocks={contentBlocks}
-                              handleDragEnd={handleBlockDragEnd}
-                              deleteBlock={deleteContentBlock}
-                              updateBlockLiveStatus={updateBlockLiveStatus}
-                            />
-                          </Box>
-                        </SimpleGrid>
-
-                        <Box
-                          mt="md"
-                          style={{
-                            border: "1px solid #e5e7eb",
-                            borderRadius: rem(10),
-                            padding: "12px",
-                            background: "#ffffff",
-                          }}
-                        >
-                          <Text fw={700} size="sm" mb="sm">
-                            Manage Products
-                          </Text>
-                          <ProductsList
-                            products={products}
-                            deleteProduct={deleteProduct}
-                            updateProductLiveStatus={updateProductLiveStatus}
-                            updateProductSchedule={updateProductSchedule}
-                          />
                         </Box>
                       </Tabs.Panel>
                   </Box>
