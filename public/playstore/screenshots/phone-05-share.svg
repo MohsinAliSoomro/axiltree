@@ -1,0 +1,57 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1080" y2="1920" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8F9FA"/>
+      <stop offset="0.55" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F0EEFF"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#E4405F"/>
+      <stop offset="1" stop-color="#C13584"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#667EEA"/>
+      <stop offset="1" stop-color="#764BA2"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="200%" height="200%" filterUnits="objectBoundingBox">
+      <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#000" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <circle cx="160" cy="210" r="130" fill="#E4405F" fill-opacity="0.10"/>
+
+  <rect x="90" y="88" width="52" height="52" rx="16" fill="url(#brand)"/>
+  <path d="M106 114L116 101L126 114L116 127L106 114Z" fill="white"/>
+  <text x="158" y="123" fill="#1A1A1A" font-size="44" font-family="Inter, Arial, sans-serif" font-weight="800">Axil</text>
+  <text x="240" y="123" fill="url(#brand)" font-size="44" font-family="Inter, Arial, sans-serif" font-weight="800">Tree</text>
+
+  <text x="90" y="278" fill="#1A1A1A" font-size="84" font-family="Inter, Arial, sans-serif" font-weight="900">Share Anywhere</text>
+  <text x="90" y="362" fill="#1A1A1A" font-size="84" font-family="Inter, Arial, sans-serif" font-weight="900">Grow Faster</text>
+  <text x="90" y="442" fill="#5F6368" font-size="38" font-family="Inter, Arial, sans-serif" font-weight="500">One link for Instagram, TikTok, X, YouTube and more.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="560" width="900" height="780" rx="48" fill="#FFFFFF"/>
+  </g>
+
+  <rect x="150" y="650" width="780" height="280" rx="34" fill="url(#card)"/>
+  <text x="540" y="748" text-anchor="middle" fill="#FFF" font-size="48" font-family="Inter, Arial, sans-serif" font-weight="900">axiltree.in/yourname</text>
+  <text x="540" y="816" text-anchor="middle" fill="#FFF" font-size="30" font-family="Inter, Arial, sans-serif" font-weight="600">Your single link in bio</text>
+
+  <rect x="150" y="980" width="240" height="90" rx="28" fill="#FDF1F6"/>
+  <text x="270" y="1036" text-anchor="middle" fill="#3C4043" font-size="30" font-family="Inter, Arial, sans-serif" font-weight="700">Instagram</text>
+
+  <rect x="420" y="980" width="240" height="90" rx="28" fill="#F6EEFB"/>
+  <text x="540" y="1036" text-anchor="middle" fill="#3C4043" font-size="30" font-family="Inter, Arial, sans-serif" font-weight="700">TikTok</text>
+
+  <rect x="690" y="980" width="240" height="90" rx="28" fill="#F8F9FA" stroke="#E5E7EB"/>
+  <text x="810" y="1036" text-anchor="middle" fill="#3C4043" font-size="30" font-family="Inter, Arial, sans-serif" font-weight="700">YouTube</text>
+
+  <text x="150" y="1178" fill="#1A1A1A" font-size="34" font-family="Inter, Arial, sans-serif" font-weight="800">Perfect for creators and businesses</text>
+  <text x="150" y="1230" fill="#5F6368" font-size="30" font-family="Inter, Arial, sans-serif" font-weight="500">Turn profile visitors into followers and customers.</text>
+
+  <rect x="90" y="1420" width="900" height="92" rx="46" fill="url(#brand)"/>
+  <text x="540" y="1479" text-anchor="middle" fill="#FFF" font-size="34" font-family="Inter, Arial, sans-serif" font-weight="800">Share Once, Reach Everywhere</text>
+
+  <text x="540" y="1812" text-anchor="middle" fill="#6F7277" font-size="28" font-family="Inter, Arial, sans-serif" font-weight="600">axiltree.in</text>
+</svg>

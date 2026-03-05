@@ -4,6 +4,7 @@ import { countryMap } from "@/app/utils/countryColors";
 import { PieChart, BarChart } from "@mantine/charts";
 import {
   Box,
+  Button,
   Card,
   Flex,
   Paper,
@@ -16,29 +17,126 @@ import {
   ActionIcon,
   Group,
   SegmentedControl,
+  TextInput,
 } from "@mantine/core";
 import { IconLink, IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+type AnalyticsRange = "1d" | "week" | "month" | "90d" | "custom";
+
+function toDateInputValue(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function toCsvValue(value: unknown) {
+  const text = value == null ? "" : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
 export default function Analytics({ 
   analyticsData, 
   links,
   range,
+  customStart,
+  customEnd,
 }: { 
   analyticsData: any[]; 
   links: any[];
-  range: "week" | "month";
+  range: AnalyticsRange;
+  customStart?: string;
+  customEnd?: string;
 }) {
   const [expandedLink, setExpandedLink] = useState<string | null>(null);
-  const [selectedRange, setSelectedRange] = useState<"week" | "month">(range);
+  const [selectedRange, setSelectedRange] = useState<AnalyticsRange>(range);
+  const [customStartDate, setCustomStartDate] = useState(customStart || "");
+  const [customEndDate, setCustomEndDate] = useState(customEnd || "");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     setSelectedRange(range);
-  }, [range]);
+    setCustomStartDate(customStart || "");
+    setCustomEndDate(customEnd || "");
+  }, [range, customStart, customEnd]);
+
+  const applyRange = (
+    nextRange: AnalyticsRange,
+    start?: string,
+    end?: string
+  ) => {
+    const params = new URLSearchParams(searchParams?.toString());
+    params.set("range", nextRange);
+
+    if (nextRange === "custom") {
+      if (start) params.set("start", start);
+      if (end) params.set("end", end);
+    } else {
+      params.delete("start");
+      params.delete("end");
+    }
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const customRangeValid =
+    Boolean(customStartDate && customEndDate) &&
+    new Date(customStartDate) <= new Date(customEndDate);
+
+  const handleDownloadCsv = () => {
+    const linkMap = new Map(
+      (links || []).map((link: any) => [link.id, link])
+    );
+
+    const header = [
+      "link_id",
+      "link_title",
+      "link_url",
+      "country",
+      "action",
+      "created_at",
+      "selected_range",
+    ];
+
+    const rows = (analyticsData || []).map((record: any) => {
+      const link = linkMap.get(record.link_id);
+      return [
+        record.link_id,
+        link?.title || "",
+        link?.url || "",
+        record.country || "Unknown",
+        record.action || "click",
+        record.created_at || "",
+        selectedRange,
+      ];
+    });
+
+    const csv = [
+      header.map(toCsvValue).join(","),
+      ...rows.map((row) => row.map(toCsvValue).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([`\uFEFF${csv}`], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    const customSuffix =
+      selectedRange === "custom" && customStartDate && customEndDate
+        ? `-${customStartDate}-to-${customEndDate}`
+        : "";
+    const fileName = `analytics-${selectedRange}${customSuffix}-${dateStamp}.csv`;
+
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
+  };
 
   const { countryData, linksData, linkAnalytics } = useMemo(() => {
     const analytics: any = {};
@@ -123,26 +221,69 @@ export default function Analytics({
             <div>
               <Title order={2}>Analytics Overview</Title>
               <Text size="sm" c="dimmed">
-                View weekly or monthly performance
+                View performance by time range
               </Text>
             </div>
             <Group>
+              <Button
+                variant="light"
+                onClick={handleDownloadCsv}
+              >
+                Download CSV
+              </Button>
               <SegmentedControl
                 value={selectedRange}
                 onChange={(value) => {
-                  const nextRange = value as "week" | "month";
+                  const nextRange = value as AnalyticsRange;
                   setSelectedRange(nextRange);
-                  const params = new URLSearchParams(searchParams?.toString());
-                  params.set("range", nextRange);
-                  router.push(`${pathname}?${params.toString()}`);
+
+                  if (nextRange === "custom") {
+                    const defaultEnd = customEndDate || toDateInputValue(new Date());
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    const defaultStart = customStartDate || toDateInputValue(sevenDaysAgo);
+
+                    setCustomStartDate(defaultStart);
+                    setCustomEndDate(defaultEnd);
+                    applyRange("custom", defaultStart, defaultEnd);
+                    return;
+                  }
+
+                  applyRange(nextRange);
                 }}
                 data={[
-                  { label: "Weekly", value: "week" },
-                  { label: "Monthly", value: "month" },
+                  { label: "1D", value: "1d" },
+                  { label: "7D", value: "week" },
+                  { label: "30D", value: "month" },
+                  { label: "90D", value: "90d" },
+                  { label: "Custom", value: "custom" },
                 ]}
               />
             </Group>
           </Flex>
+
+          {selectedRange === "custom" && (
+            <Group mt="md" align="end">
+              <TextInput
+                label="Start date"
+                type="date"
+                value={customStartDate}
+                onChange={(event) => setCustomStartDate(event.currentTarget.value)}
+              />
+              <TextInput
+                label="End date"
+                type="date"
+                value={customEndDate}
+                onChange={(event) => setCustomEndDate(event.currentTarget.value)}
+              />
+              <Button
+                onClick={() => applyRange("custom", customStartDate, customEndDate)}
+                disabled={!customRangeValid}
+              >
+                Apply
+              </Button>
+            </Group>
+          )}
         </Paper>
 
         {/* Key Metrics */}

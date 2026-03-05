@@ -1,0 +1,52 @@
+[
+  {
+    "title": "Wireless Earbuds Pro",
+    "price": 79.99,
+    "image_url": "https://images.unsplash.com/photo-1588423771073-b8903fbb85b5",
+    "buy_url": "https://example.com/products/wireless-earbuds-pro",
+    "is_active": true,
+    "position": 0,
+    "publish_at": "2026-03-01T10:00:00Z",
+    "expire_at": null
+  },
+  {
+    "title": "Smart Fitness Watch X2",
+    "price": 149.5,
+    "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+    "buy_url": "https://example.com/products/smart-fitness-watch-x2",
+    "is_active": true,
+    "position": 1,
+    "publish_at": null,
+    "expire_at": null
+  },
+  {
+    "title": "Portable Bluetooth Speaker Mini",
+    "price": 45,
+    "image_url": "https://images.unsplash.com/photo-1589003077984-894e133dabab",
+    "buy_url": "https://example.com/products/portable-bluetooth-speaker-mini",
+    "is_active": false,
+    "position": 2,
+    "publish_at": null,
+    "expire_at": null
+  },
+  {
+    "title": "Adjustable Laptop Stand",
+    "price": 29.99,
+    "image_url": "https://images.unsplash.com/photo-1517336714739-489689fd1ca8",
+    "buy_url": "https://example.com/products/adjustable-laptop-stand",
+    "is_active": true,
+    "position": 3,
+    "publish_at": "2026-03-05T09:30:00Z",
+    "expire_at": "2026-03-30T23:59:00Z"
+  },
+  {
+    "title": "USB-C Fast Charger 65W",
+    "price": 34.75,
+    "image_url": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0",
+    "buy_url": "https://example.com/products/usb-c-fast-charger-65w",
+    "is_active": true,
+    "position": 4,
+    "publish_at": null,
+    "expire_at": null
+  }
+]

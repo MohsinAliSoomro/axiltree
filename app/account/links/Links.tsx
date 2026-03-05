@@ -35,6 +35,7 @@ import {
   IconBrandFacebook,
   IconEye,
   IconBrandFunimation,
+  IconFileTypography,
 } from "@tabler/icons-react";
 import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
@@ -320,47 +321,47 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                 <Grid.Col span={{ base: 12, md: 8 }}> 
                 {/* <Grid.Col span={{ base: 12, md: 8 }}> changes by shahzad  */}
 
-                  <Paper shadow="sm" p="md" withBorder>
-                    <Group mb="md">
-                      <IconUser size={20} />
-                      <Text fw={600}>Profile Information</Text>
-                    </Group>
-
-                    <Stack gap="sm">
-                      <Group>
-                        <Avatar
-                          src={profile?.avatar_url}
-                          size="lg"
-                          radius="xl"
-                        />
-                        <Stack gap={4} style={{ flex: 1 }}>
-                          <TextInput
-                            placeholder="Display Name"
-                            value={profile?.full_name || ""}
-                            onChange={(e) =>
-                              updateProfile("full_name", e.target.value)
-                            }
-                            disabled
-                          />
-                          <TextInput
-                            placeholder="@username"
-                            value={profile?.username || ""}
-                            onChange={(e) =>
-                              updateProfile("username", e.target.value)
-                            }
-                            disabled
+                  <Box style={{ flex: 1, overflow: "hidden" }}>
+                    <ScrollArea h="calc(100vh - 180px)" p="lg">
+                      {/* Profile Tab */}
+                      <Tabs.Panel value="profile">
+                        <Stack gap="lg">
+                          <Group wrap="nowrap" align="flex-start">
+                            <Avatar
+                              src={profile?.avatar_url}
+                              size={80}
+                              radius="50%"
+                              style={{ border: "3px solid #667eea" }}
+                            />
+                            <Stack gap="sm" style={{ flex: 1 }}>
+                              <TextInput
+                                placeholder="Display Name"
+                                value={profile?.full_name || ""}
+                                onChange={(e) =>
+                                  updateProfile("full_name", e.target.value)
+                                }
+                                disabled
+                                size="md"
+                              />
+                              <TextInput
+                                placeholder="@username"
+                                value={profile?.username || ""}
+                                onChange={(e) =>
+                                  updateProfile("username", e.target.value)
+                                }
+                                disabled
+                                size="md"
+                              />
+                            </Stack>
+                          </Group>
+                          <Textarea
+                            placeholder="Tell your story..."
+                            value={profile?.bio || ""}
+                            onChange={(e) => updateProfile("bio", e.target.value)}
+                            minRows={4}
+                            size="md"
                           />
                         </Stack>
-                      </Group>
-
-                      <Textarea
-                        placeholder="Bio"
-                        value={profile?.bio || ""}
-                        onChange={(e) => updateProfile("bio", e.target.value)}
-                        minRows={2}
-                      />
-                    </Stack>
-                  </Paper>
                   <Paper shadow="sm" p="md" withBorder mt="sm">
                     <Group mb="md">
                       <IconFileTypography size={20} />
@@ -652,23 +653,18 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                     background: currentTheme.bg,
                   }}
                 >
-                  <Box
-                    p="xl"
-                    style={{
-                      height: "100%",
-                      overflowY: "auto",
-                      color: currentTheme.text,
-                    }}
-                  >
-                    <Stack align="center" gap="md">
-                      <Avatar src={profile?.avatar_url} size={80} radius="xl" />
-                      <Stack gap={4} align="center">
-                        <Text size="xl" fw={700}>
-                          {profile?.display_name || "Your Name"}
-                        </Text>
-                        <Text
-                          size="sm"
-                          opacity={0.8}
+                  <ScrollArea h="100%">
+                    <Box
+                      p="md"
+                      style={{
+                        color: currentTheme.text,
+                      }}
+                    >
+                      <Stack align="center" gap="sm">
+                        <Avatar
+                          src={profile?.avatar_url}
+                          size={64}
+                          radius="50%"
                           style={{
                             background: currentUsernameTheme.color.includes("gradient")
                               ? currentUsernameTheme.color
@@ -740,4 +736,13 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       </Box>
     </AppShellLayout>
   );
+}
+
+function setProfileImageLayout(arg0: any) {
+  throw new Error("Function not implemented.");
+}
+
+
+function setProfileImage(arg0: any) {
+  throw new Error("Function not implemented.");
 }

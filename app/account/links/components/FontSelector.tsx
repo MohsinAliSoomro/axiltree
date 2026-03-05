@@ -28,10 +28,10 @@ function getShortName(label: string) {
 
 export default function FontSelector({ selectedFont, updateFont }: FontSelectorProps) {
   return (
-    <Paper shadow="sm" p="md" withBorder radius="md" mt="sm">
-      <Group mb="md" gap="xs">
-        <IconFileTypography size={20} stroke={1.5} />
-        <Text fw={600} size="sm">Font</Text>
+    <Paper shadow="sm" p="md" withBorder>
+      <Group mb="md">
+        <IconFileTypography size={20} />
+        <Text fw={600}>Font </Text>
       </Group>
 
       <Box

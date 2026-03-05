@@ -506,10 +506,13 @@ export default async function LandingPage() {
           <Stack gap={24}>
             <Group justify="center" gap={32}>
               <Text
+                component="a"
+                href="/privacy"
                 size="sm"
                 style={{
                   color: "#666",
                   cursor: "pointer",
+                  textDecoration: "none",
                   transition: "color 0.2s ease",
                 }}
               >
