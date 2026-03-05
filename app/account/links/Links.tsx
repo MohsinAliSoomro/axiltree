@@ -321,10 +321,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                 <Grid.Col span={{ base: 12, md: 8 }}> 
                 {/* <Grid.Col span={{ base: 12, md: 8 }}> changes by shahzad  */}
 
-                  <Box style={{ flex: 1, overflow: "hidden" }}>
-                    <ScrollArea h="calc(100vh - 180px)" p="lg">
                       {/* Profile Tab */}
-                      <Tabs.Panel value="profile">
                         <Stack gap="lg">
                           <Group wrap="nowrap" align="flex-start">
                             <Avatar
@@ -610,11 +607,6 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                             </DragDropContext>
                           </Box>
                         </Stack>
-                      </Tabs.Panel>
-                    </ScrollArea>
-                  </Box>
-                </Tabs>
-              </Paper>
             </Grid.Col>
 
             {/* Right Side - Fixed Preview */}
@@ -684,7 +676,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                           }}
                         >
                           @{profile?.username || "username"}
-                        </Text>
+                        </Avatar>
                         <Text size="sm" ta="center" opacity={0.9}>
                           {profile?.bio || "Your bio goes here"}
                         </Text>
@@ -726,14 +718,13 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                           );
                         })}
                       </Stack>
-                    </Stack>
-                  </Box>
+                    </Box>
+                  </ScrollArea>
                 </Box>
               </Paper>
             </Grid.Col>
           </Grid>
         </Container>
-      </Box>
     </AppShellLayout>
   );
 }

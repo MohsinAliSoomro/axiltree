@@ -1,0 +1,47 @@
+<svg width="1024" height="576" viewBox="0 0 1024 576" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">AxilTree YouTube Channel Banner</title>
+  <desc id="desc">A modern YouTube channel banner sized 1024 by 576 pixels.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="576" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="160" y1="140" x2="860" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="28" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="576" fill="url(#bg)"/>
+
+  <circle cx="166" cy="110" r="170" fill="#22D3EE" opacity="0.12" filter="url(#glow)"/>
+  <circle cx="892" cy="490" r="220" fill="#A78BFA" opacity="0.14" filter="url(#glow)"/>
+
+  <rect x="120" y="118" width="784" height="340" rx="28" fill="#0B1220" opacity="0.72" stroke="url(#accent)" stroke-width="2"/>
+
+  <circle cx="512" cy="192" r="66" fill="#0F172A" stroke="url(#accent)" stroke-width="3"/>
+  <image href="logo.png" x="458" y="138" width="108" height="108" preserveAspectRatio="xMidYMid meet"/>
+
+  <text x="512" y="312" text-anchor="middle" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="1.2">
+    AXILTREE
+  </text>
+
+  <text x="512" y="362" text-anchor="middle" fill="#CBD5E1" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="28" font-weight="500" letter-spacing="0.6">
+    One Link. Every Platform.
+  </text>
+
+  <text x="512" y="408" text-anchor="middle" fill="#94A3B8" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="19" font-weight="500" letter-spacing="0.3">
+    <tspan x="512" dy="0">Modern bio links platform like Linktree for creators and brands</tspan>
+    <tspan x="512" dy="28">Create one customizable page with all your important links</tspan>
+  </text>
+
+  <rect x="388" y="468" width="248" height="10" rx="5" fill="url(#accent)" opacity="0.9"/>
+</svg>
