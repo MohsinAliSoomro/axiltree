@@ -58,18 +58,19 @@ const iconByAnimation: Record<string, React.ComponentType<{ size?: number }>> = 
 
 export default function AnimationSelector({ selectedAnimation, updateAnimation }: AnimationSelectorProps) {
   return (
-    <Paper shadow="sm" p="md" withBorder>
-      <Group mb="md">
-        <IconBrandFunimation size={20} />
-        <Text fw={600}>Animation</Text>
+    <Paper shadow="sm" p="md" withBorder radius="md">
+      <Group mb="md" gap="xs">
+        <IconBrandFunimation size={20} stroke={1.5} />
+        <Text fw={600} size="sm">Animation</Text>
       </Group>
 
       <Box
+        className="animation-selector-grid"
         style={{
-          maxHeight: "240px",
+          maxHeight: 260,
           overflowY: "auto",
           overflowX: "hidden",
-          paddingRight: "4px",
+          padding: 4,
         }}
       >
         <Group gap="xs" wrap="wrap">

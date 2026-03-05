@@ -1,0 +1,50 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1080" y2="1920" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8F9FA"/>
+      <stop offset="0.55" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F0EEFF"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#E4405F"/>
+      <stop offset="1" stop-color="#C13584"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="200%" height="200%" filterUnits="objectBoundingBox">
+      <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#000" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <circle cx="920" cy="180" r="130" fill="#C13584" fill-opacity="0.10"/>
+
+  <rect x="90" y="88" width="52" height="52" rx="16" fill="url(#brand)"/>
+  <path d="M106 114L116 101L126 114L116 127L106 114Z" fill="white"/>
+  <text x="158" y="123" fill="#1A1A1A" font-size="44" font-family="Inter, Arial, sans-serif" font-weight="800">Axil</text>
+  <text x="240" y="123" fill="url(#brand)" font-size="44" font-family="Inter, Arial, sans-serif" font-weight="800">Tree</text>
+
+  <text x="90" y="278" fill="#1A1A1A" font-size="86" font-family="Inter, Arial, sans-serif" font-weight="900">Customize Your</text>
+  <text x="90" y="366" fill="#1A1A1A" font-size="86" font-family="Inter, Arial, sans-serif" font-weight="900">Profile Style</text>
+  <text x="90" y="448" fill="#5F6368" font-size="38" font-family="Inter, Arial, sans-serif" font-weight="500">Themes, fonts, and colors that match your brand.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="540" width="900" height="810" rx="48" fill="#FFFFFF"/>
+  </g>
+
+  <rect x="150" y="620" width="220" height="140" rx="28" fill="#667EEA"/>
+  <rect x="390" y="620" width="220" height="140" rx="28" fill="#764BA2"/>
+  <rect x="630" y="620" width="220" height="140" rx="28" fill="url(#brand)"/>
+
+  <text x="150" y="840" fill="#1A1A1A" font-size="36" font-family="Inter, Arial, sans-serif" font-weight="800">Font Options</text>
+  <text x="150" y="900" fill="#3C4043" font-size="34" font-family="Inter, Arial, sans-serif" font-weight="500">Inter • Poppins • Quicksand</text>
+
+  <rect x="150" y="960" width="780" height="84" rx="42" fill="#F8F9FA" stroke="#E5E7EB"/>
+  <text x="540" y="1014" text-anchor="middle" fill="#3C4043" font-size="30" font-family="Inter, Arial, sans-serif" font-weight="700">20+ Ready-to-use themes</text>
+
+  <rect x="150" y="1080" width="780" height="84" rx="42" fill="#FDF1F6"/>
+  <text x="540" y="1134" text-anchor="middle" fill="#3C4043" font-size="30" font-family="Inter, Arial, sans-serif" font-weight="700">Beautiful mobile layouts</text>
+
+  <rect x="90" y="1420" width="900" height="92" rx="46" fill="url(#brand)"/>
+  <text x="540" y="1479" text-anchor="middle" fill="#FFF" font-size="34" font-family="Inter, Arial, sans-serif" font-weight="800">Design Your Signature Link Page</text>
+
+  <text x="540" y="1812" text-anchor="middle" fill="#6F7277" font-size="28" font-family="Inter, Arial, sans-serif" font-weight="600">axiltree.in</text>
+</svg>

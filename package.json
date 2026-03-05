@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "video:build-short": "bash scripts/build-one-minute-short.sh",
     "cap:sync": "npx cap sync android",
     "cap:copy": "npx cap copy android",
     "android:open": "npx cap open android",
