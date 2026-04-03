@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TextInput, Textarea, Button, Stack, Text } from "@mantine/core";
+import { TextInput, Textarea, Button, Stack, SimpleGrid } from "@mantine/core";
 import { submitContactForm } from "../actions/contact";
 import { notifications } from "@mantine/notifications";
 
@@ -36,42 +36,56 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit}>
       <Stack gap="md">
-        <TextInput
-          label="Name"
-          name="name"
-          placeholder="Your name"
-          required
-          size="md"
-        />
-        <TextInput
-          label="Email"
-          name="email"
-          type="email"
-          placeholder="your.email@example.com"
-          required
-          size="md"
-        />
-        <TextInput
-          label="Subject"
-          name="subject"
-          placeholder="What is this about?"
-          required
-          size="md"
-        />
+        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+          <TextInput
+            label="Name"
+            name="name"
+            placeholder="John Doe"
+            required
+            size="sm"
+            radius="md"
+            styles={{
+              input: { background: "#e9e9ea", border: "1px solid #dedede" },
+              label: { color: "#6d6d6d", fontSize: "0.75rem" },
+            }}
+          />
+          <TextInput
+            label="Email"
+            name="email"
+            type="email"
+            placeholder="john@example.com"
+            required
+            size="sm"
+            radius="md"
+            styles={{
+              input: { background: "#e9e9ea", border: "1px solid #dedede" },
+              label: { color: "#6d6d6d", fontSize: "0.75rem" },
+            }}
+          />
+        </SimpleGrid>
+
+        <input type="hidden" name="subject" value="Landing page inquiry" />
+
         <Textarea
           label="Message"
           name="message"
-          placeholder="Your message..."
+          placeholder="How can we help you?"
           required
-          minRows={4}
-          size="md"
+          minRows={3}
+          size="sm"
+          radius="md"
+          styles={{
+            input: { background: "#e9e9ea", border: "1px solid #dedede" },
+            label: { color: "#6d6d6d", fontSize: "0.75rem" },
+          }}
         />
         <Button
           type="submit"
-          size="md"
-          variant="gradient"
+          size="sm"
+          radius="xl"
           loading={isSubmitting}
           fullWidth
+          style={{ background: "#cf1048", fontWeight: 700 }}
         >
           Send Message
         </Button>
