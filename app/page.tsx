@@ -1,4 +1,8 @@
 import {
+  ActionIcon,
+  Anchor,
+  Avatar,
+  Center,
   Container,
   Stack,
   Group,
@@ -9,10 +13,19 @@ import {
   Badge,
   Box,
   SimpleGrid,
+  Divider,
 } from "@mantine/core";
-import Why from "./components/why";
+import SiteHeader from "./components/SiteHeader";
+import SiteFooter from "./components/SiteFooter";
 import ContactForm from "./components/ContactForm";
-import Header from "./components/Header";
+import {
+  IconBolt,
+  IconCircleCheck,
+  IconDots,
+  IconRocket,
+  IconShield,
+  IconStar,
+} from "@tabler/icons-react";
 import { createClient } from "./lib/supabase/server";
 
 export default async function LandingPage() {
@@ -32,647 +45,287 @@ export default async function LandingPage() {
     username = profile?.username;
   }
   
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(to bottom, #f8f9fa 0%, #ffffff 50%)",
-      }}
-    >
-      {/* Header */}
-      <Box
-        style={{
-          background: "rgba(255, 255, 255, 0.8)",
-          backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <Container size="lg" style={{ padding: "1.25rem 1rem" }}>
-          <Header isAuthenticated={!!user} username={username} />
-        </Container>
-      </Box>
+  const ctaHref = user ? "/account" : "/signup";
+  const altHref = user && username ? `/${username}` : "/login";
 
-      {/* Hero Section */}
-      <Container size="md" style={{ padding: "5rem 1rem 4rem" }}>
-        <Stack align="center" gap={32}>
-          {/* Badge */}
-          <Badge
-            size="lg"
-            radius="xl"
-            variant="light"
-            gradient={{ from: "pink", to: "purple", deg: 45 }}
-            style={{
-              padding: "0.5rem 1.25rem",
-              textTransform: "none",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              background: "linear-gradient(135deg, rgba(228, 64, 95, 0.1), rgba(193, 53, 132, 0.1))",
-              color: "#C13584",
-              border: "1px solid rgba(193, 53, 132, 0.2)",
-            }}
-          >
-            🎉 Join thousands of creators worldwide
+  return (
+    <Box style={{ background: "#f4f4f5", minHeight: "100vh", color: "#191919", fontFamily: "var(--font-poppins), var(--font-inter), sans-serif" }}>
+      <SiteHeader
+        links={[
+          { label: "Features", href: "#features" },
+          { label: "Templates", href: "#templates" },
+          { label: "Pricing", href: "#pricing" },
+          { label: "Showcase", href: "#showcase" },
+        ]}
+        activeHref="#features"
+        primaryActionLabel="Sign Up"
+        primaryActionHref={ctaHref}
+        secondaryActionLabel="Log in"
+        secondaryActionHref={user ? "/account" : "/login"}
+      />
+
+      <Container size="md" pt={74} pb={72}>
+        <Stack align="center" gap={14}>
+          <Badge radius="xl" color="pink" variant="light" style={{ textTransform: "uppercase", letterSpacing: "0.12em", fontSize: "10px", fontWeight: 700, background: "#f7d8e1", color: "#c9174f", border: "1px solid #efbfd0" }}>
+            Elevate your presence
           </Badge>
 
-          {/* Main Heading */}
-          <Stack align="center" gap={20} style={{ textAlign: "center" }}>
-            <Title
-              order={1}
-              style={{
-                fontSize: "clamp(2rem, 5vw, 3.5rem)",
-                fontWeight: 800,
-                color: "#1a1a1a",
-                lineHeight: 1.15,
-                maxWidth: "700px",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Share all your important links with{" "}
-              <span
-                style={{
-                  background: "linear-gradient(135deg, #E4405F, #C13584)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                one bio link
-              </span>
-            </Title>
-            
-            <Text
-              size="xl"
-              style={{
-                color: "#666",
-                maxWidth: "540px",
-                lineHeight: 1.7,
-                fontSize: "1.125rem",
-              }}
-            >
-              Publish links, products, and rich content blocks in one page.
-              Start free and launch in minutes.
-            </Text>
-          </Stack>
+          <Title ta="center" style={{ fontSize: "clamp(2.2rem, 7vw, 4.05rem)", lineHeight: 1.02, letterSpacing: "-0.045em", maxWidth: 700, fontWeight: 700 }}>
+            Share all your important
+            <br />
+            links with <span style={{ color: "#cc1049" }}>one bio link</span>
+          </Title>
 
-          {/* CTA Button */}
-          <Stack align="center" gap={16}>
-            <Button
-              size="xl"
-              radius="xl"
-              style={{
-                background: "linear-gradient(135deg, #E4405F, #C13584)",
-                padding: "0 3rem",
-                height: "56px",
-                fontSize: "1.05rem",
-                fontWeight: 600,
-                boxShadow: "0 8px 24px rgba(228, 64, 95, 0.3)",
-                transition: "all 0.3s ease",
-              }}
-            >
+          <Text ta="center" c="#666" maw={510} size="sm" style={{ lineHeight: 1.7 }}>
+            Transform your digital footprint into a high-end editorial
+            experience. Curate your content, products, and social identity with
+            AxilTree.
+          </Text>
+
+          <Text ta="center" c="#595959" size="xs">AxilTree</Text>
+
+          <Group mt="sm" gap="sm">
+            <Button component="a" href={ctaHref} radius="xl" size="md" style={{ background: "#cf1048", paddingInline: "1.35rem" }}>
               Create Your Page
             </Button>
+            <Button component="a" href={altHref} radius="xl" size="md" variant="default" style={{ borderColor: "#dadada", background: "#f7f7f7" }}>
+              View Templates
+            </Button>
+          </Group>
 
-            <Group gap={24} style={{ marginTop: "0.5rem" }}>
-              <Group gap={8}>
-                <Text size="sm" style={{ color: "#666" }}>
-                  ✨ Free forever
-                </Text>
-              </Group>
-              <Text size="sm" style={{ color: "#d0d0d0" }}>
-                •
-              </Text>
-              <Group gap={8}>
-                <Text size="sm" style={{ color: "#666" }}>
-                  🚀 Setup in 2 minutes
-                </Text>
-              </Group>
-              <Text size="sm" style={{ color: "#d0d0d0" }}>
-                •
-              </Text>
-              <Group gap={8}>
-                <Text size="sm" style={{ color: "#666" }}>
-                  💳 No credit card
-                </Text>
-              </Group>
-            </Group>
-          </Stack>
+          <Group mt={12} gap={16} c="#7d7d7d">
+            <Group gap={4}><IconShield size={13} /><Text size="xs">Trusted by 10K+ creators</Text></Group>
+            <Group gap={4}><IconStar size={13} /><Text size="xs">4.9/5 rating</Text></Group>
+            <Group gap={4}><IconBolt size={13} /><Text size="xs">Lightning fast setup</Text></Group>
+          </Group>
         </Stack>
       </Container>
 
-      {/* Preview Section */}
-      <Container size="md" style={{ padding: "4rem 1rem" }}>
-        <Card
-          shadow="xl"
-          radius="xl"
-          style={{
-            padding: "3rem 2rem",
-            background: "white",
-            border: "1px solid #e9ecef",
-            position: "relative",
-            overflow: "visible",
-          }}
-        >
-          {/* Decorative Elements */}
-          <div
-            style={{
-              position: "absolute",
-              top: "-20px",
-              left: "-20px",
-              width: "100px",
-              height: "100px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, rgba(228, 64, 95, 0.1), rgba(193, 53, 132, 0.1))",
-              filter: "blur(40px)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: "-20px",
-              right: "-20px",
-              width: "120px",
-              height: "120px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, rgba(193, 53, 132, 0.1), rgba(102, 126, 234, 0.1))",
-              filter: "blur(50px)",
-            }}
-          />
+      <Container size="lg" pb={88}>
+        <Card radius={30} p={{ base: 20, md: 40 }} style={{ background: "#ededee", border: "1px solid #e4e4e5" }}>
+          <Group align="center" wrap="wrap" gap={42}>
+            <Center style={{ flex: "0 0 330px", minHeight: 390 }}>
+              <Box style={{ width: 240, borderRadius: 38, background: "#171717", padding: 9, boxShadow: "0 18px 32px rgba(0,0,0,0.25)" }}>
+                <Box style={{ borderRadius: 30, background: "#f4f4f4", overflow: "hidden", position: "relative" }}>
+                  <Box style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 80, height: 16, borderBottomLeftRadius: 12, borderBottomRightRadius: 12, background: "#171717", zIndex: 3 }} />
 
-          <Stack align="center" gap="xl">
-            <Stack align="center" gap="sm" style={{ marginBottom: "1rem" }}>
-              <Title order={3} fw={700} ta="center" size="1.5rem">
-                See it in action
+                  <Box style={{ height: 165, background: "linear-gradient(130deg, #0f1532 0%, #11234f 55%, #ff8d2f 56%, #ef4f42 100%)" }} />
+
+                  <Center style={{ marginTop: -34, marginBottom: 8, position: "relative", zIndex: 2 }}>
+                    <Avatar radius="xl" size={68} color="pink" style={{ border: "3px solid #f4f4f4" }}>SJ</Avatar>
+                  </Center>
+
+                  <Stack gap={4} align="center" mb={14}>
+                    <Text fw={700} size="xl" style={{ lineHeight: 1.1 }}>Sarah Jenkins</Text>
+                    <Text size="sm" c="#6b6b6b">Digital Artist & Curator</Text>
+                  </Stack>
+
+                  <Stack gap={10} px={16} pb={16}>
+                    <Group justify="space-between" style={{ background: "#f1f1f1", border: "1px solid #e5e5e5", borderRadius: 999, padding: "12px 16px" }}>
+                      <Text fw={600} size="sm">Latest Portfolio</Text>
+                      <Text c="#cc1148" fw={700}>›</Text>
+                    </Group>
+                    <Group justify="space-between" style={{ background: "#fdfdfd", border: "2px solid #ebc6d3", borderRadius: 999, padding: "12px 16px" }}>
+                      <Text fw={600} size="sm">Shop My Prints</Text>
+                      <Text c="#cc1148" fw={700}>⬢</Text>
+                    </Group>
+                    <Group justify="space-between" style={{ background: "#f1f1f1", border: "1px solid #e5e5e5", borderRadius: 999, padding: "12px 16px" }}>
+                      <Text fw={600} size="sm">Photography Course</Text>
+                      <Text c="#cc1148" fw={700}>●</Text>
+                    </Group>
+                  </Stack>
+                </Box>
+              </Box>
+            </Center>
+
+            <Stack gap={15} style={{ flex: 1, minWidth: 280, maxWidth: 560 }}>
+              <Title order={2} fw={600} style={{ fontSize: "clamp(2rem, 4vw, 3.45rem)", letterSpacing: "-0.03em", lineHeight: 1.08 }}>
+                Craft your narrative with
+                <br />
+                absolute precision
               </Title>
-              <Text size="md" c="dimmed" ta="center" style={{ maxWidth: "400px" }}>
-                A beautiful mobile-optimized page for all your links
+              <Text size="xl" c="#6a5e60" maw={500} style={{ lineHeight: 1.55 }}>
+                Your bio link should not just be a list; it is your digital
+                storefront. AxilTree gives you the editorial tools to present
+                your work with the dignity it deserves.
               </Text>
+              <Stack gap={12} mt={6}>
+                <Group align="flex-start" gap={10} wrap="nowrap">
+                  <IconCircleCheck size={18} color="#c9154c" style={{ marginTop: 2 }} />
+                  <Stack gap={0}>
+                    <Text fw={700} size="xl" style={{ lineHeight: 1.2 }}>Dynamic Content Blocks</Text>
+                    <Text c="#6f6f6f" size="sm">Embed videos, music, and products directly.</Text>
+                  </Stack>
+                </Group>
+                <Group align="flex-start" gap={10} wrap="nowrap">
+                  <IconCircleCheck size={18} color="#c9154c" style={{ marginTop: 2 }} />
+                  <Stack gap={0}>
+                    <Text fw={700} size="xl" style={{ lineHeight: 1.2 }}>Premium Aesthetics</Text>
+                    <Text c="#6f6f6f" size="sm">High-end typography and layout controls.</Text>
+                  </Stack>
+                </Group>
+              </Stack>
             </Stack>
-
-            {/* Phone Mockup */}
-            <div
-              style={{
-                width: "300px",
-                height: "600px",
-                borderRadius: "48px",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                padding: "14px",
-                boxShadow: "0 30px 80px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.1)",
-                position: "relative",
-              }}
-            >
-              {/* Phone Notch */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "20px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: "120px",
-                  height: "26px",
-                  background: "#1a1a1a",
-                  borderRadius: "0 0 20px 20px",
-                  zIndex: 10,
-                }}
-              />
-
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: "36px",
-                  background: "white",
-                  padding: "2.5rem 1.75rem",
-                  overflow: "hidden",
-                }}
-              >
-                <Stack gap="lg" align="center">
-                  {/* Profile Image */}
-                  <div
-                    style={{
-                      width: "96px",
-                      height: "96px",
-                      borderRadius: "50%",
-                      background: "linear-gradient(135deg, #E4405F, #C13584)",
-                      marginBottom: "0.25rem",
-                      boxShadow: "0 8px 20px rgba(228, 64, 95, 0.3)",
-                    }}
-                  />
-                  
-                  {/* Username */}
-                  <Stack gap={4} align="center">
-                    <Text fw={700} size="xl" style={{ color: "#1a1a1a" }}>
-                      @yourusername
-                    </Text>
-                    <Text size="sm" c="dimmed">
-                      Content Creator
-                    </Text>
-                  </Stack>
-
-                  {/* Links */}
-                  <Stack gap="sm" style={{ width: "100%", marginTop: "0.5rem" }}>
-                    {[
-                      { icon: "📺", text: "YouTube Channel" },
-                      { icon: "🛍️", text: "Shop My Store" },
-                      { icon: "✍️", text: "Read My Blog" },
-                      { icon: "📧", text: "Contact Me" },
-                    ].map((item, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          padding: "1.125rem 1.25rem",
-                          borderRadius: "14px",
-                          background: "#f8f9fa",
-                          textAlign: "center",
-                          fontWeight: 600,
-                          fontSize: "0.95rem",
-                          border: "1px solid #e9ecef",
-                          transition: "all 0.2s ease",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {item.icon} {item.text}
-                      </div>
-                    ))}
-                  </Stack>
-                </Stack>
-              </div>
-            </div>
-          </Stack>
+          </Group>
         </Card>
       </Container>
 
-      {/* Benefits Section */}
-      <Container size="lg" style={{ padding: "1rem 1rem 5rem" }}>
-        <Stack gap={36}>
-          <Stack align="center" gap="md">
-            <Title
-              order={2}
-              ta="center"
-              fw={700}
-              style={{
-                fontSize: "2.2rem",
-                color: "#1a1a1a",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Everything you can publish
-            </Title>
-            <Text
-              size="lg"
-              c="dimmed"
-              ta="center"
-              style={{ maxWidth: "700px" }}
-            >
-              AxilTree is more than basic bio links — manage campaigns,
-              products, and media from one dashboard.
-            </Text>
-          </Stack>
+      <Container size="lg" id="features" pb={86}>
+        <Stack align="center" gap={5} mb={34}>
+          <Title order={2} ta="center" style={{ fontSize: "clamp(1.8rem, 4.2vw, 2.7rem)", letterSpacing: "-0.03em" }}>
+            Everything you can publish
+          </Title>
+          <Text ta="center" c="#767676" size="sm">
+            More than just links, built for comprehensive expression by your audience.
+          </Text>
+        </Stack>
 
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
+        <Stack gap={14}>
+          <SimpleGrid cols={{ base: 1, md: 2 }} spacing={14}>
+            <Card radius={14} p={16} style={{ background: "#f7f7f7", border: "1px solid #ebebeb", minHeight: 138 }}>
+              <ActionIcon variant="light" radius="xl" color="pink" size={28}><IconDots size={14} /></ActionIcon>
+              <Text fw={600} mt={12} mb={6}>Links + Social Profiles</Text>
+              <Text size="xs" c="#767676" style={{ lineHeight: 1.6 }}>Connect all your social profiles in one place, cohesive feed, stream-like card destinations.</Text>
+            </Card>
+            <Card radius={14} p={16} style={{ background: "#f7f7f7", border: "1px solid #ebebeb", minHeight: 138 }}>
+              <ActionIcon variant="light" radius="xl" color="indigo" size={28}><IconShield size={14} /></ActionIcon>
+              <Text fw={600} mt={12} mb={6}>Products</Text>
+              <Text size="xs" c="#767676" style={{ lineHeight: 1.6 }}>Send products or digital products directly from your bio link with a seamless checkout.</Text>
+            </Card>
+          </SimpleGrid>
+
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing={14}>
             {[
-              {
-                title: "Links + Social Profiles",
-                desc: "Add unlimited links and arrange them with drag & drop for the best click flow.",
-                badge: "Core",
-              },
-              {
-                title: "Products",
-                desc: "Show product cards with price, image, and buy links to drive direct sales.",
-                badge: "Commerce",
-              },
-              {
-                title: "Content Blocks",
-                desc: "Publish text, video embeds, music embeds, and image galleries beyond standard links.",
-                badge: "Content",
-              },
-              {
-                title: "Smart Scheduling",
-                desc: "Set publish and expiry times for links, products, and content for timed campaigns.",
-                badge: "Automation",
-              },
-              {
-                title: "Advanced Analytics",
-                desc: "Track clicks with date ranges, countries, and export reports to improve performance.",
-                badge: "Insights",
-              },
-              {
-                title: "Templates + Bulk Import",
-                desc: "Use ready templates and import products via CSV or JSON to launch faster.",
-                badge: "Scale",
-              },
-            ].map((feature) => (
-              <Card
-                key={feature.title}
-                shadow="sm"
-                radius="xl"
-                style={{
-                  padding: "1.5rem",
-                  background: "white",
-                  border: "1px solid #e9ecef",
-                  height: "100%",
-                }}
-              >
-                <Stack gap={10}>
-                  <Badge variant="light" radius="xl" style={{ width: "fit-content" }}>
-                    {feature.badge}
-                  </Badge>
-                  <Text fw={700} size="lg" style={{ color: "#1a1a1a" }}>
-                    {feature.title}
-                  </Text>
-                  <Text size="sm" c="dimmed" style={{ lineHeight: 1.6 }}>
-                    {feature.desc}
-                  </Text>
-                </Stack>
+              { title: "Content Blocks", desc: "Embed videos, playlists, and TikTok feeds to keep your users engaged on your page.", icon: <IconBolt size={14} /> },
+              { title: "Smart Scheduling", desc: "Enable links to appear and disappear at specific times for limited launches.", icon: <IconRocket size={14} /> },
+              { title: "Advanced Insights", desc: "Track CTR, location, and device data with granular privacy-first analytics.", icon: <IconStar size={14} /> },
+              { title: "Audience Tools", desc: "Use templates, sections, and profile-level filters for polished growth loops.", icon: <IconDots size={14} /> },
+            ].map((item) => (
+              <Card key={item.title} radius={14} p={16} style={{ background: "#f7f7f7", border: "1px solid #ebebeb", minHeight: 136 }}>
+                <ActionIcon variant="light" radius="xl" color="pink" size={28}>{item.icon}</ActionIcon>
+                <Text fw={600} mt={12} mb={6}>{item.title}</Text>
+                <Text size="xs" c="#767676" style={{ lineHeight: 1.6 }}>{item.desc}</Text>
               </Card>
             ))}
           </SimpleGrid>
         </Stack>
       </Container>
 
-      <Container size="lg" style={{ padding: "5rem 1rem" }}>
-        <Stack gap={48}>
-          <Stack align="center" gap="md">
-            <Title
-              order={2}
-              ta="center"
-              fw={700}
-              style={{
-                fontSize: "2.5rem",
-                color: "#1a1a1a",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Why Choose AxilTree?
-            </Title>
-            <Text
-              size="lg"
-              c="dimmed"
-              ta="center"
-              style={{ maxWidth: "600px" }}
-            >
-              Everything you need to manage and share your online presence
-            </Text>
-          </Stack>
-          <Why />
-        </Stack>
-      </Container>
-
-      {/* How It Works */}
-      <Box
-        style={{
-          background: "linear-gradient(to bottom, #ffffff, #f8f9fa)",
-          padding: "5rem 0",
-        }}
-      >
-        <Container size="md">
-          <Stack gap={48}>
-            <Stack align="center" gap="md">
-              <Title
-                order={2}
-                ta="center"
-                fw={700}
-                style={{
-                  fontSize: "2.5rem",
-                  color: "#1a1a1a",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                How It Works
-              </Title>
-              <Text
-                size="lg"
-                c="dimmed"
-                ta="center"
-                style={{ maxWidth: "600px" }}
-              >
-                Get started in three simple steps
-              </Text>
-            </Stack>
-
-            <Stack gap={24}>
-              {[
-                {
-                  num: "1",
-                  title: "Sign Up",
-                  desc: "Create your account using email or social login. It takes less than 30 seconds.",
-                  icon: "👤",
-                },
-                {
-                  num: "2",
-                  title: "Build Your Page",
-                  desc: "Add links, products, and content blocks, then style everything to match your brand.",
-                  icon: "🔗",
-                },
-                {
-                  num: "3",
-                  title: "Schedule & Scale",
-                  desc: "Schedule campaigns, review analytics, and keep improving your conversion over time.",
-                  icon: "🚀",
-                },
-              ].map((step, i) => (
-                <Card
-                  key={i}
-                  shadow="sm"
-                  radius="xl"
-                  style={{
-                    padding: "2rem",
-                    background: "white",
-                    border: "1px solid #e9ecef",
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  <Group gap={24} align="flex-start" wrap="nowrap">
-                    <div
-                      style={{
-                        minWidth: "64px",
-                        height: "64px",
-                        borderRadius: "50%",
-                        background: "linear-gradient(135deg, #E4405F, #C13584)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "white",
-                        fontSize: "1.75rem",
-                        fontWeight: 700,
-                        boxShadow: "0 8px 20px rgba(228, 64, 95, 0.25)",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {step.num}
-                    </div>
-                    <Stack gap={12} style={{ flex: 1 }}>
-                      <Group gap={12}>
-                        <Text size="2rem" style={{ lineHeight: 1 }}>
-                          {step.icon}
-                        </Text>
-                        <Text fw={700} size="xl" style={{ color: "#1a1a1a" }}>
-                          {step.title}
-                        </Text>
-                      </Group>
-                      <Text size="md" c="dimmed" style={{ lineHeight: 1.6 }}>
-                        {step.desc}
-                      </Text>
-                    </Stack>
-                  </Group>
-                </Card>
-              ))}
-            </Stack>
-
-            <div style={{ textAlign: "center", marginTop: "2rem" }}>
-              <Button
-                size="xl"
-                radius="xl"
-                style={{
-                  background: "linear-gradient(135deg, #E4405F, #C13584)",
-                  padding: "0 3rem",
-                  height: "56px",
-                  fontSize: "1.05rem",
-                  fontWeight: 600,
-                  boxShadow: "0 8px 24px rgba(228, 64, 95, 0.3)",
-                }}
-              >
-                Start Now - It's Free
-              </Button>
-            </div>
-          </Stack>
-        </Container>
-      </Box>
-
-      {/* Contact Us Section */}
-      <Container size="sm" style={{ padding: "5rem 1rem" }}>
-        <Stack gap={40}>
-          <Stack align="center" gap="md">
-            <Title
-              order={2}
-              ta="center"
-              fw={700}
-              style={{
-                fontSize: "2.5rem",
-                color: "#1a1a1a",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Get in Touch
-            </Title>
-            <Text
-              size="lg"
-              c="dimmed"
-              ta="center"
-              style={{ maxWidth: "540px", lineHeight: 1.7 }}
-            >
-              Have questions or feedback? We'd love to hear from you. Send us a
-              message and we'll respond as soon as possible.
-            </Text>
-          </Stack>
-
-          <Card
-            shadow="md"
-            radius="xl"
-            style={{
-              padding: "2.5rem",
-              background: "white",
-              border: "1px solid #e9ecef",
-            }}
-          >
-            <ContactForm />
-          </Card>
-        </Stack>
-      </Container>
-
-      {/* Android App Coming Soon */}
-      <Box
-        style={{
-          background: "linear-gradient(to bottom, #ffffff, #f8f9fa)",
-          padding: "2rem 1rem 5rem",
-        }}
-      >
-        <Container size="sm">
-          <Card
-            shadow="sm"
-            radius="xl"
-            style={{
-              padding: "2.25rem",
-              background: "white",
-              border: "1px solid #e9ecef",
-              textAlign: "center",
-            }}
-          >
-            <Stack align="center" gap={12}>
-              <Badge variant="light" size="lg" radius="xl">
-                Android
-              </Badge>
-              <Title order={3} fw={700} style={{ color: "#1a1a1a" }}>
-                Android App Coming Soon
-              </Title>
-              <Text c="dimmed" size="md" style={{ maxWidth: "520px", lineHeight: 1.7 }}>
-                We are building the AxilTree Android app for faster profile edits,
-                quick analytics, and on-the-go campaign updates.
-              </Text>
-              <Button variant="light" radius="xl" disabled>
-                Coming Soon on Play Store
-              </Button>
-            </Stack>
-          </Card>
-        </Container>
-      </Box>
-
-      {/* Footer */}
-      <Box
-        style={{
-          borderTop: "1px solid #e9ecef",
-          padding: "3rem 0",
-          background: "#f8f9fa",
-        }}
-      >
+      <Box id="templates" style={{ background: "#17191d", color: "white", padding: "76px 0" }}>
         <Container size="lg">
-          <Stack gap={24}>
-            <Group justify="center" gap={32}>
-              <Text
-                component="a"
-                href="/privacy"
-                size="sm"
-                style={{
-                  color: "#666",
-                  cursor: "pointer",
-                  textDecoration: "none",
-                  transition: "color 0.2s ease",
-                }}
-              >
-                Privacy Policy
+          <Group align="stretch" gap={24} wrap="wrap">
+            <Stack gap={14} style={{ flex: "1 1 300px", maxWidth: 430 }} justify="center">
+              <Title order={2} style={{ fontSize: "clamp(1.85rem, 4vw, 2.7rem)", lineHeight: 1.05, letterSpacing: "-0.03em" }}>
+                Why Choose
+                <br />
+                AxilTree?
+              </Title>
+              <Group align="flex-start" gap={9} wrap="nowrap">
+                <IconCircleCheck size={16} color="#ff4f7f" />
+                <Text size="sm" c="#d0d3d8">Unrivaled performance with better loading speed and conversion paths.</Text>
+              </Group>
+              <Group align="flex-start" gap={9} wrap="nowrap">
+                <IconCircleCheck size={16} color="#ff4f7f" />
+                <Text size="sm" c="#d0d3d8">Editorial design controls for themes, overlays, and visual order.</Text>
+              </Group>
+            </Stack>
+
+            <Box style={{ flex: "1 1 320px", minHeight: 280, borderRadius: 18, background: "linear-gradient(145deg, #ff2e74, #7f3dff 55%, #2a57ff)", position: "relative", overflow: "hidden" }}>
+              <Box style={{ position: "absolute", inset: 0, background: "radial-gradient(120% 80% at 75% 10%, rgba(255,255,255,0.26), transparent 38%), linear-gradient(170deg, rgba(255,255,255,0.12), transparent 35%)" }} />
+              <Center style={{ position: "absolute", inset: 0, padding: 20 }}>
+                <Text fw={700} ta="center" style={{ fontSize: "clamp(1.3rem, 2.8vw, 2rem)", maxWidth: 360 }}>
+                  Built for creators who value intentionality.
+                </Text>
+              </Center>
+            </Box>
+          </Group>
+        </Container>
+      </Box>
+
+      <Container size="lg" py={78} id="showcase">
+        <Stack align="center" gap={4} mb={30}>
+          <Title order={2} ta="center" style={{ letterSpacing: "-0.03em" }}>Go live in minutes</Title>
+          <Text size="sm" c="#777">The fastest way to personalize your bio.</Text>
+        </Stack>
+
+        <Divider mb={24} color="#dfdfdf" />
+        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={20}>
+          {[
+            { n: "01", title: "Claim Your Handle", desc: "Register your unique username and launch your URL in seconds." },
+            { n: "02", title: "Curate Content", desc: "Add links, videos, and products with intuitive drag-and-drop editor." },
+            { n: "03", title: "Share Everywhere", desc: "Place your new profile in all social bios and watch engagement grow." },
+          ].map((step) => (
+            <Stack key={step.n} align="center" gap={8}>
+              <Badge radius="xl" size="lg" style={{ background: "#efefef", color: "#2b2b2b", paddingInline: 12, border: "1px solid #e4e4e4" }}>{step.n}</Badge>
+              <Text fw={600} ta="center" size="sm">{step.title}</Text>
+              <Text ta="center" size="xs" c="#7a7a7a" maw={250}>{step.desc}</Text>
+            </Stack>
+          ))}
+        </SimpleGrid>
+      </Container>
+
+      <Container size="lg" pb={76} id="pricing">
+        <Card radius={16} p={{ base: 20, md: 28 }} style={{ background: "linear-gradient(135deg, #d00f45, #e13369)", color: "white", border: "1px solid rgba(255,255,255,0.22)" }}>
+          <Group justify="space-between" align="center" wrap="wrap" gap={24}>
+            <Stack gap={6} style={{ flex: "1 1 280px" }}>
+              <Title order={2} style={{ lineHeight: 1.05, letterSpacing: "-0.03em" }}>
+                Android App
+                <br />
+                Coming Soon
+              </Title>
+              <Text size="sm" c="#ffe3ea" maw={430}>
+                Manage your bio link on the go. Get early access to better edits,
+                analytics, and quick campaign updates.
               </Text>
-              <Text
-                component="a"
-                href="/terms"
-                size="sm"
-                style={{
-                  color: "#666",
-                  cursor: "pointer",
-                  textDecoration: "none",
-                  transition: "color 0.2s ease",
-                }}
-              >
-                Terms of Service
-              </Text>
-              <Text
-                size="sm"
-                style={{
-                  color: "#666",
-                  cursor: "pointer",
-                  transition: "color 0.2s ease",
-                }}
-              >
-                Contact
-              </Text>
+              <Button radius="xl" w="fit-content" size="sm" style={{ background: "white", color: "#cf1048", fontWeight: 700 }}>
+                Notify Me
+              </Button>
+            </Stack>
+            <Box style={{ width: 120, height: 140, borderRadius: 24, border: "2px solid rgba(255,255,255,0.24)", transform: "rotate(8deg)", opacity: 0.45 }} />
+          </Group>
+        </Card>
+      </Container>
+
+      <Box style={{ borderTop: "1px solid #e7e7e7", borderBottom: "1px solid #e7e7e7", padding: "54px 0" }}>
+        <Container size="lg">
+          <Stack align="center" gap={12}>
+            <Text fw={500}>Join thousands of creators worldwide</Text>
+            <Group gap={-9}>
+              {[
+                "linear-gradient(135deg, #242424, #545454)",
+                "linear-gradient(135deg, #3a0ca3, #4361ee)",
+                "linear-gradient(135deg, #f72585, #ff7d00)",
+                "linear-gradient(135deg, #118ab2, #06d6a0)",
+                "linear-gradient(135deg, #ef476f, #ffd166)",
+              ].map((bg, i) => (
+                <Avatar key={i} size={30} radius="xl" style={{ border: "2px solid #f3f3f4", background: bg }} />
+              ))}
             </Group>
-            <Text ta="center" size="sm" c="dimmed">
-              © 2026 AxilTree. All rights reserved.
+            <Text size="xs" c="#7a7a7a" ta="center" maw={500}>
+              AxilTree changed how I showcase my personal brand. It is an extension of my craft.
             </Text>
           </Stack>
         </Container>
       </Box>
-    </div>
+
+      <Container size="sm" py={82}>
+        <Stack align="center" gap={8} mb={22}>
+          <Title order={2} ta="center" style={{ letterSpacing: "-0.03em" }}>Get in Touch</Title>
+        </Stack>
+
+        <Card radius={18} p={{ base: 16, md: 24 }} style={{ background: "#f7f7f7", border: "1px solid #e7e7e7" }}>
+          <ContactForm />
+        </Card>
+      </Container>
+
+      <SiteFooter
+        links={[
+          { label: "Privacy Policy", href: "/privacy" },
+          { label: "Terms of Service", href: "/terms" },
+          { label: "Help Center", href: "/" },
+          { label: "Contact Us", href: "/" },
+        ]}
+      />
+    </Box>
   );
 }
