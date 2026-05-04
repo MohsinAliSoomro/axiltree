@@ -18,6 +18,7 @@ import {
 import SiteHeader from "./components/SiteHeader";
 import SiteFooter from "./components/SiteFooter";
 import ContactForm from "./components/ContactForm";
+import ThemePreviewGallery from "./components/ThemePreviewGallery";
 import {
   IconBolt,
   IconCircleCheck,
@@ -47,7 +48,6 @@ export default async function LandingPage() {
   
   const ctaHref = user ? "/account" : "/signup";
   const altHref = user && username ? `/${username}` : "/login";
-
   return (
     <Box style={{ background: "#f4f4f5", minHeight: "100vh", color: "#191919", fontFamily: "var(--font-poppins), var(--font-inter), sans-serif" }}>
       <SiteHeader
@@ -239,6 +239,10 @@ export default async function LandingPage() {
               </Center>
             </Box>
           </Group>
+
+          <Box mt={28}>
+            <ThemePreviewGallery />
+          </Box>
         </Container>
       </Box>
 

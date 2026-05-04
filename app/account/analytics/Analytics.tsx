@@ -18,6 +18,7 @@ import {
   Group,
   SegmentedControl,
   TextInput,
+  Container,
 } from "@mantine/core";
 import { IconLink, IconChevronDown } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
@@ -215,348 +216,481 @@ export default function Analytics({
   const sortedLinks = [...(linksData || [])].sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
   return (
     <AppShellLayout>
-      <Stack gap="xl">
-        <Paper shadow="sm" p="lg" radius="md" withBorder>
-          <Flex justify="space-between" align="center" gap="md" wrap="wrap">
-            <div>
-              <Title order={2}>Analytics Overview</Title>
-              <Text size="sm" c="dimmed">
-                View performance by time range
-              </Text>
-            </div>
-            <Group>
-              <Button
-                variant="light"
-                onClick={handleDownloadCsv}
-              >
-                Download CSV
-              </Button>
-              <SegmentedControl
-                value={selectedRange}
-                onChange={(value) => {
-                  const nextRange = value as AnalyticsRange;
-                  setSelectedRange(nextRange);
-
-                  if (nextRange === "custom") {
-                    const defaultEnd = customEndDate || toDateInputValue(new Date());
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                    const defaultStart = customStartDate || toDateInputValue(sevenDaysAgo);
-
-                    setCustomStartDate(defaultStart);
-                    setCustomEndDate(defaultEnd);
-                    applyRange("custom", defaultStart, defaultEnd);
-                    return;
-                  }
-
-                  applyRange(nextRange);
+      <Container size="xl" py={24}>
+        <Stack gap={24}>
+          <Paper
+            radius={32}
+            p={0}
+            style={{
+              overflow: "hidden",
+              background: "#fff",
+              boxShadow: "0 22px 55px rgba(43, 18, 26, 0.08)",
+              border: "1px solid rgba(0, 0, 0, 0.04)",
+            }}
+          >
+            <Group align="stretch" gap={0} wrap="wrap">
+              <Box
+                style={{
+                  flex: "1 1 420px",
+                  minHeight: 280,
+                  background: "linear-gradient(180deg, #a20b28 0%, #bf0f37 52%, #a50c2d 100%)",
+                  color: "white",
+                  padding: "42px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  position: "relative",
                 }}
-                data={[
-                  { label: "1D", value: "1d" },
-                  { label: "7D", value: "week" },
-                  { label: "30D", value: "month" },
-                  { label: "90D", value: "90d" },
-                  { label: "Custom", value: "custom" },
-                ]}
-              />
-            </Group>
-          </Flex>
-
-          {selectedRange === "custom" && (
-            <Group mt="md" align="end">
-              <TextInput
-                label="Start date"
-                type="date"
-                value={customStartDate}
-                onChange={(event) => setCustomStartDate(event.currentTarget.value)}
-              />
-              <TextInput
-                label="End date"
-                type="date"
-                value={customEndDate}
-                onChange={(event) => setCustomEndDate(event.currentTarget.value)}
-              />
-              <Button
-                onClick={() => applyRange("custom", customStartDate, customEndDate)}
-                disabled={!customRangeValid}
               >
-                Apply
-              </Button>
-            </Group>
-          )}
-        </Paper>
+                <Box
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "radial-gradient(circle at 45% 25%, rgba(255,255,255,0.08), transparent 22%), radial-gradient(circle at 10% 15%, rgba(255,255,255,0.05), transparent 18%)",
+                  }}
+                />
+                <Stack gap={14} style={{ position: "relative", zIndex: 1, maxWidth: 380 }}>
+                  <Badge
+                    radius="xl"
+                    variant="filled"
+                    style={{
+                      background: "rgba(255,255,255,0.14)",
+                      color: "white",
+                      border: "1px solid rgba(255,255,255,0.18)",
+                      alignSelf: "flex-start",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.18em",
+                    }}
+                  >
+                    Analytics
+                  </Badge>
+                  <Title
+                    order={1}
+                    style={{
+                      color: "white",
+                      fontSize: "clamp(2.2rem, 4vw, 3.7rem)",
+                      lineHeight: 0.98,
+                      letterSpacing: "-0.06em",
+                    }}
+                  >
+                    Track what your audience actually clicks.
+                  </Title>
+                  <Text size="sm" c="rgba(255,255,255,0.88)" style={{ lineHeight: 1.7 }}>
+                    Review performance by time range, export the raw data, and inspect link and country breakdowns from one place.
+                  </Text>
+                </Stack>
 
-        {/* Key Metrics */}
-        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Text size="sm" c="dimmed" fw={500}>
-              Total Clicks
-            </Text>
-            <Text size="xl" fw={700} mt="xs">
-              {totalClicks.toLocaleString()}
-            </Text>
-          </Card>
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Text size="sm" c="dimmed" fw={500}>
-              Links Count
-            </Text>
-            <Text size="xl" fw={700} mt="xs">
-              {linksData?.length || 0}
-            </Text>
-          </Card>
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Text size="sm" c="dimmed" fw={500}>
-              Avg Clicks per Link
-            </Text>
-            <Text size="xl" fw={700} mt="xs">
-              {linksData?.length > 0 ? Math.round(totalLinkClicks / linksData.length) : 0}
-            </Text>
-          </Card>
-        </SimpleGrid>
+                <Group
+                  gap={12}
+                  mt={28}
+                  style={{ position: "relative", zIndex: 1, flexWrap: "wrap" }}
+                >
+                  <Box
+                    style={{
+                      borderRadius: 18,
+                      padding: "14px 16px",
+                      background: "rgba(255,255,255,0.12)",
+                      border: "1px solid rgba(255,255,255,0.16)",
+                      minWidth: 130,
+                    }}
+                  >
+                    <Text size="xs" tt="uppercase" style={{ letterSpacing: "0.16em", opacity: 0.8 }}>
+                      Total clicks
+                    </Text>
+                    <Text fw={700} size="xl">
+                      {totalClicks.toLocaleString()}
+                    </Text>
+                  </Box>
+                  <Box
+                    style={{
+                      borderRadius: 18,
+                      padding: "14px 16px",
+                      background: "rgba(255,255,255,0.12)",
+                      border: "1px solid rgba(255,255,255,0.16)",
+                      minWidth: 130,
+                    }}
+                  >
+                    <Text size="xs" tt="uppercase" style={{ letterSpacing: "0.16em", opacity: 0.8 }}>
+                      Links
+                    </Text>
+                    <Text fw={700} size="xl">
+                      {linksData?.length || 0}
+                    </Text>
+                  </Box>
+                  <Box
+                    style={{
+                      borderRadius: 18,
+                      padding: "14px 16px",
+                      background: "rgba(255,255,255,0.12)",
+                      border: "1px solid rgba(255,255,255,0.16)",
+                      minWidth: 160,
+                    }}
+                  >
+                    <Text size="xs" tt="uppercase" style={{ letterSpacing: "0.16em", opacity: 0.8 }}>
+                      Avg / link
+                    </Text>
+                    <Text fw={700} size="xl">
+                      {linksData?.length > 0 ? Math.round(totalLinkClicks / linksData.length) : 0}
+                    </Text>
+                  </Box>
+                </Group>
+              </Box>
 
-        {/* Link Click Analytics with Bar Chart */}
-        <Paper shadow="sm" p="xl" radius="md" withBorder>
-          <Title order={2} mb="md">
-            Clicks by Link
-          </Title>
-          <Text size="sm" c="dimmed" mb="xl">
-            Performance of each of your links
-          </Text>
-
-          {barChartData.length > 0 ? (
-            <BarChart
-              h={400}
-              data={barChartData}
-              dataKey="link"
-              series={[{ name: "clicks", label: "Clicks", color: "blue.6" }]}
-              tickLine="xy"
-              yAxisProps={{ domain: [0, 'auto'] }}
-            />
-          ) : (
-            <Text c="dimmed" ta="center" py="xl">
-              No link data available yet
-            </Text>
-          )}
-        </Paper>
-
-        {/* Detailed Link Breakdown with Geographic Data */}
-        <Paper shadow="sm" p="xl" radius="md" withBorder>
-          <Title order={3} mb="lg">
-            Link Performance & Geographic Breakdown
-          </Title>
-          <Stack gap="md">
-            {sortedLinks && sortedLinks.length > 0 ? (
-              sortedLinks.map((link: any) => {
-                const percentage = totalLinkClicks > 0 
-                  ? ((link.clicks / totalLinkClicks) * 100).toFixed(1) 
-                  : "0";
-                const isExpanded = expandedLink === link.id;
-                const clicksByCountry = link.clicksByCountry || {};
-                const countryList = Object.entries(clicksByCountry)
-                  .map(([country, count]: [string, any]) => ({ country, count }))
-                  .sort((a, b) => b.count - a.count);
-
-                return (
-                  <Stack key={link.id} gap="xs">
-                    <Card
-                      shadow="xs"
-                      padding="md"
-                      radius="md"
-                      withBorder
-                      style={{
-                        background: "linear-gradient(135deg, #667eea15 0%, #764ba215 100%)",
-                      }}
+              <Box
+                style={{
+                  flex: "1 1 360px",
+                  padding: 28,
+                  background: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Stack gap={16} style={{ width: "100%" }}>
+                  <Group justify="space-between" align="flex-start" gap="md" wrap="wrap">
+                    <Box>
+                      <Title order={3} style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", letterSpacing: "-0.04em", lineHeight: 1.02 }}>
+                        Analytics Overview
+                      </Title>
+                      <Text size="sm" c="#6b5156" mt={8}>
+                        View performance by time range.
+                      </Text>
+                    </Box>
+                    <Button
+                      variant="light"
+                      onClick={handleDownloadCsv}
+                      radius="xl"
+                      style={{ background: "#f4f4f4", color: "#2b2b2b", fontWeight: 600 }}
                     >
-                      <Flex justify="space-between" align="center" gap="md">
-                        <Flex gap="sm" align="flex-start" style={{ flex: 1 }}>
-                          <Box pt={4}>
-                            <IconLink size={20} />
-                          </Box>
-                          <Stack gap={2} style={{ flex: 1 }}>
-                            <Text fw={600} size="sm">
-                              {link.title || "Untitled Link"}
-                            </Text>
-                            <Text size="xs" c="dimmed" truncate>
-                              {link.url}
-                            </Text>
-                          </Stack>
-                        </Flex>
-                        <Flex align="center" gap="md">
-                          <Box ta="right">
-                            <Text size="lg" fw={700}>
-                              {link.clicks || 0}
-                            </Text>
-                            <Text size="xs" c="dimmed">
-                              {percentage}% of total
-                            </Text>
-                          </Box>
-                          <ActionIcon
-                            variant="subtle"
-                            color="gray"
-                            onClick={() => 
-                              setExpandedLink(isExpanded ? null : link.id)
-                            }
-                          >
-                            <IconChevronDown
-                              size={20}
-                              style={{
-                                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                                transition: "transform 0.2s",
-                              }}
-                            />
-                          </ActionIcon>
-                        </Flex>
-                      </Flex>
-                    </Card>
+                      Download CSV
+                    </Button>
+                  </Group>
 
-                    {/* Geographic Breakdown for Each Link */}
-                    <Collapse in={isExpanded}>
-                      <Paper p="md" radius="md" bg="gray.0" withBorder>
-                        <Stack gap="sm">
-                          <Text size="sm" fw={600} c="dimmed">
-                            Clicks by Country
-                          </Text>
-                          {countryList.length > 0 ? (
-                            countryList.map(({ country, count }: { country: string; count: number }) => {
-                              const countryPercentage = link.clicks > 0
-                                ? ((count / link.clicks) * 100).toFixed(1)
-                                : "0";
-                              //@ts-ignore
-                              const countryFlagColors = countryMap[country]?.flag?.colors || ["#999"];
-                              const gradientBg = countryFlagColors.length > 1
-                                ? `linear-gradient(90deg, ${countryFlagColors.join(", ")})`
-                                : countryFlagColors[0];
+                  <SegmentedControl
+                    value={selectedRange}
+                    onChange={(value) => {
+                      const nextRange = value as AnalyticsRange;
+                      setSelectedRange(nextRange);
 
-                              return (
-                                <Flex
-                                  key={country}
-                                  justify="space-between"
-                                  align="center"
-                                  p="sm"
-                                  style={{
-                                    background: gradientBg,
-                                    opacity: 0.8,
-                                  }}
-                                >
-                                  <Text
-                                    size="sm"
-                                    fw={500}
-                                    c="white"
-                                  >
-                                    {country}
-                                  </Text>
-                                  <Flex gap="lg" align="center">
-                                    <Text
-                                      size="sm"
-                                      fw={700}
-                                      c="white"
-                                    >
-                                      {count}
-                                    </Text>
-                                    <Badge
-                                      size="lg"
-                                      variant="light"
-                                      c="white"
-                                    >
-                                      {countryPercentage}%
-                                    </Badge>
-                                  </Flex>
-                                </Flex>
-                              );
-                            })
-                          ) : (
-                            <Text size="sm" c="dimmed">
-                              No geographic data yet
-                            </Text>
-                          )}
-                        </Stack>
-                      </Paper>
-                    </Collapse>
-                  </Stack>
-                );
-              })
+                      if (nextRange === "custom") {
+                        const defaultEnd = customEndDate || toDateInputValue(new Date());
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                        const defaultStart = customStartDate || toDateInputValue(sevenDaysAgo);
+
+                        setCustomStartDate(defaultStart);
+                        setCustomEndDate(defaultEnd);
+                        applyRange("custom", defaultStart, defaultEnd);
+                        return;
+                      }
+
+                      applyRange(nextRange);
+                    }}
+                    data={[
+                      { label: "1D", value: "1d" },
+                      { label: "7D", value: "week" },
+                      { label: "30D", value: "month" },
+                      { label: "90D", value: "90d" },
+                      { label: "Custom", value: "custom" },
+                    ]}
+                  />
+
+                  {selectedRange === "custom" && (
+                    <Group mt="xs" align="end" gap="sm" wrap="wrap">
+                      <TextInput
+                        label="Start date"
+                        type="date"
+                        value={customStartDate}
+                        onChange={(event) => setCustomStartDate(event.currentTarget.value)}
+                      />
+                      <TextInput
+                        label="End date"
+                        type="date"
+                        value={customEndDate}
+                        onChange={(event) => setCustomEndDate(event.currentTarget.value)}
+                      />
+                      <Button
+                        onClick={() => applyRange("custom", customStartDate, customEndDate)}
+                        disabled={!customRangeValid}
+                        radius="xl"
+                        style={{
+                          background: "linear-gradient(90deg, #c51646 0%, #d62f5a 100%)",
+                          fontWeight: 700,
+                          boxShadow: "0 16px 30px rgba(197, 22, 70, 0.22)",
+                        }}
+                      >
+                        Apply
+                      </Button>
+                    </Group>
+                  )}
+                </Stack>
+              </Box>
+            </Group>
+          </Paper>
+
+          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={14}>
+            <Card radius={20} p="lg" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 14px 40px rgba(43, 18, 26, 0.06)" }}>
+              <Text size="xs" tt="uppercase" c="#8b7676" style={{ letterSpacing: "0.16em" }}>
+                Total Clicks
+              </Text>
+              <Text size="xl" fw={700} mt="xs">
+                {totalClicks.toLocaleString()}
+              </Text>
+            </Card>
+            <Card radius={20} p="lg" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 14px 40px rgba(43, 18, 26, 0.06)" }}>
+              <Text size="xs" tt="uppercase" c="#8b7676" style={{ letterSpacing: "0.16em" }}>
+                Links Count
+              </Text>
+              <Text size="xl" fw={700} mt="xs">
+                {linksData?.length || 0}
+              </Text>
+            </Card>
+            <Card radius={20} p="lg" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 14px 40px rgba(43, 18, 26, 0.06)" }}>
+              <Text size="xs" tt="uppercase" c="#8b7676" style={{ letterSpacing: "0.16em" }}>
+                Avg Clicks per Link
+              </Text>
+              <Text size="xl" fw={700} mt="xs">
+                {linksData?.length > 0 ? Math.round(totalLinkClicks / linksData.length) : 0}
+              </Text>
+            </Card>
+          </SimpleGrid>
+
+          <Paper radius={28} p="xl" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 18px 50px rgba(43, 18, 26, 0.06)" }}>
+            <Title order={2} mb="xs" style={{ letterSpacing: "-0.04em" }}>
+              Clicks by Link
+            </Title>
+            <Text size="sm" c="#6b5156" mb="xl">
+              Performance of each of your links.
+            </Text>
+
+            {barChartData.length > 0 ? (
+              <BarChart
+                h={400}
+                data={barChartData}
+                dataKey="link"
+                series={[{ name: "clicks", label: "Clicks", color: "red.6" }]}
+                tickLine="xy"
+                yAxisProps={{ domain: [0, 'auto'] }}
+              />
             ) : (
               <Text c="dimmed" ta="center" py="xl">
-                No links available
+                No link data available yet
               </Text>
             )}
-          </Stack>
-        </Paper>
-
-        {/* Pie Chart for Country Distribution */}
-        {countryData && countryData.length > 0 && (
-          <Paper shadow="sm" p="xl" radius="md" withBorder>
-            <Title order={2} mb="md">
-              Overall Clicks by Country
-            </Title>
-            <Text size="sm" c="dimmed" mb="xl">
-              Geographic distribution of all your clicks
-            </Text>
-
-            <PieChart
-              h={400}
-              data={pieData}
-              withLabelsLine
-              labelsPosition="outside"
-              labelsType="percent"
-              withLabels
-              withTooltip
-              tooltipDataSource="segment"
-              mx="auto"
-              size={280}
-            />
           </Paper>
-        )}
 
-        {/* Country Breakdown Summary */}
-        {countryData && countryData.length > 0 && (
-          <Paper shadow="sm" p="xl" radius="md" withBorder>
-            <Title order={3} mb="lg">
-              Overall Breakdown by Country
+          <Paper radius={28} p="xl" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 18px 50px rgba(43, 18, 26, 0.06)" }}>
+            <Title order={3} mb="lg" style={{ letterSpacing: "-0.03em" }}>
+              Link Performance & Geographic Breakdown
             </Title>
             <Stack gap="md">
-              {countryData
-                .sort((a: any, b: any) => b.count - a.count)
-                .map((item: any) => {
-                  const percentage = ((item.count / totalClicks) * 100).toFixed(1);
-                  //@ts-ignore
-                  const countryFlagColors = countryMap[item.country]?.flag?.colors || ["#999"];
-                  const gradientBackground = countryFlagColors.length > 1
-                    ? `linear-gradient(45deg, ${countryFlagColors.join(", ")})`
-                    : countryFlagColors[0];
+              {sortedLinks && sortedLinks.length > 0 ? (
+                sortedLinks.map((link: any) => {
+                  const percentage = totalLinkClicks > 0 
+                    ? ((link.clicks / totalLinkClicks) * 100).toFixed(1) 
+                    : "0";
+                  const isExpanded = expandedLink === link.id;
+                  const clicksByCountry = link.clicksByCountry || {};
+                  const countryList = Object.entries(clicksByCountry)
+                    .map(([country, count]: [string, any]) => ({ country, count }))
+                    .sort((a, b) => b.count - a.count);
 
                   return (
-                    <Card
-                      key={item.country}
-                      shadow="xs"
-                      padding="md"
-                      radius="md"
-                      withBorder
-                      style={{
-                        background: gradientBackground,
-                        borderColor: countryFlagColors[0],
-                      }}
-                    >
-                      <Flex justify="space-between" align="center">
-                        <Text fw={600} c="white">
-                          {item.country}
-                        </Text>
-                        <Flex gap="md" align="center">
-                          <Text size="lg" fw={700} c="white">
-                            {item.count}
-                          </Text>
-                          <Badge size="lg" variant="light" c="white">
-                            {percentage}%
-                          </Badge>
+                    <Stack key={link.id} gap="xs">
+                      <Card
+                        radius={20}
+                        p="md"
+                        style={{
+                          background: "#faf7f6",
+                          border: "1px solid #ece4e1",
+                        }}
+                      >
+                        <Flex justify="space-between" align="center" gap="md">
+                          <Flex gap="sm" align="flex-start" style={{ flex: 1 }}>
+                            <Box pt={4}>
+                              <IconLink size={20} />
+                            </Box>
+                            <Stack gap={2} style={{ flex: 1 }}>
+                              <Text fw={600} size="sm">
+                                {link.title || "Untitled Link"}
+                              </Text>
+                              <Text size="xs" c="dimmed" truncate>
+                                {link.url}
+                              </Text>
+                            </Stack>
+                          </Flex>
+                          <Flex align="center" gap="md">
+                            <Box ta="right">
+                              <Text size="lg" fw={700}>
+                                {link.clicks || 0}
+                              </Text>
+                              <Text size="xs" c="dimmed">
+                                {percentage}% of total
+                              </Text>
+                            </Box>
+                            <ActionIcon
+                              variant="subtle"
+                              color="gray"
+                              onClick={() => 
+                                setExpandedLink(isExpanded ? null : link.id)
+                              }
+                            >
+                              <IconChevronDown
+                                size={20}
+                                style={{
+                                  transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                                  transition: "transform 0.2s",
+                                }}
+                              />
+                            </ActionIcon>
+                          </Flex>
                         </Flex>
-                      </Flex>
-                    </Card>
+                      </Card>
+
+                      <Collapse in={isExpanded}>
+                        <Paper p="md" radius="md" bg="gray.0" withBorder>
+                          <Stack gap="sm">
+                            <Text size="sm" fw={600} c="dimmed">
+                              Clicks by Country
+                            </Text>
+                            {countryList.length > 0 ? (
+                              countryList.map(({ country, count }: { country: string; count: number }) => {
+                                const countryPercentage = link.clicks > 0
+                                  ? ((count / link.clicks) * 100).toFixed(1)
+                                  : "0";
+                                //@ts-ignore
+                                const countryFlagColors = countryMap[country]?.flag?.colors || ["#999"];
+                                const gradientBg = countryFlagColors.length > 1
+                                  ? `linear-gradient(90deg, ${countryFlagColors.join(", ")})`
+                                  : countryFlagColors[0];
+
+                                return (
+                                  <Flex
+                                    key={country}
+                                    justify="space-between"
+                                    align="center"
+                                    p="sm"
+                                    style={{
+                                      background: gradientBg,
+                                      opacity: 0.8,
+                                    }}
+                                  >
+                                    <Text
+                                      size="sm"
+                                      fw={500}
+                                      c="white"
+                                    >
+                                      {country}
+                                    </Text>
+                                    <Flex gap="lg" align="center">
+                                      <Text
+                                        size="sm"
+                                        fw={700}
+                                        c="white"
+                                      >
+                                        {count}
+                                      </Text>
+                                      <Badge
+                                        size="lg"
+                                        variant="light"
+                                        c="white"
+                                      >
+                                        {countryPercentage}%
+                                      </Badge>
+                                    </Flex>
+                                  </Flex>
+                                );
+                              })
+                            ) : (
+                              <Text size="sm" c="dimmed">
+                                No geographic data yet
+                              </Text>
+                            )}
+                          </Stack>
+                        </Paper>
+                      </Collapse>
+                    </Stack>
                   );
-                })}
+                })
+              ) : (
+                <Text c="dimmed" ta="center" py="xl">
+                  No links available
+                </Text>
+              )}
             </Stack>
           </Paper>
-        )}
-      </Stack>
+
+          {countryData && countryData.length > 0 && (
+            <Paper radius={28} p="xl" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 18px 50px rgba(43, 18, 26, 0.06)" }}>
+              <Title order={2} mb="xs" style={{ letterSpacing: "-0.04em" }}>
+                Overall Clicks by Country
+              </Title>
+              <Text size="sm" c="#6b5156" mb="xl">
+                Geographic distribution of all your clicks.
+              </Text>
+
+              <PieChart
+                h={400}
+                data={pieData}
+                withLabelsLine
+                labelsPosition="outside"
+                labelsType="percent"
+                withLabels
+                withTooltip
+                tooltipDataSource="segment"
+                mx="auto"
+                size={280}
+              />
+            </Paper>
+          )}
+
+          {countryData && countryData.length > 0 && (
+            <Paper radius={28} p="xl" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 18px 50px rgba(43, 18, 26, 0.06)" }}>
+              <Title order={3} mb="lg" style={{ letterSpacing: "-0.03em" }}>
+                Overall Breakdown by Country
+              </Title>
+              <Stack gap="md">
+                {countryData
+                  .sort((a: any, b: any) => b.count - a.count)
+                  .map((item: any) => {
+                    const percentage = ((item.count / totalClicks) * 100).toFixed(1);
+                    //@ts-ignore
+                    const countryFlagColors = countryMap[item.country]?.flag?.colors || ["#999"];
+                    const gradientBackground = countryFlagColors.length > 1
+                      ? `linear-gradient(45deg, ${countryFlagColors.join(", ")})`
+                      : countryFlagColors[0];
+
+                    return (
+                      <Card
+                        key={item.country}
+                        radius="md"
+                        p="md"
+                        style={{
+                          background: gradientBackground,
+                          borderColor: countryFlagColors[0],
+                        }}
+                      >
+                        <Flex justify="space-between" align="center">
+                          <Text fw={600} c="white">
+                            {item.country}
+                          </Text>
+                          <Flex gap="md" align="center">
+                            <Text size="lg" fw={700} c="white">
+                              {item.count}
+                            </Text>
+                            <Badge size="lg" variant="light" c="white">
+                              {percentage}%
+                            </Badge>
+                          </Flex>
+                        </Flex>
+                      </Card>
+                    );
+                  })}
+              </Stack>
+            </Paper>
+          )}
+        </Stack>
+      </Container>
     </AppShellLayout>
   );
 }

@@ -35,7 +35,7 @@ export default function SiteFooter({
           <Group gap={18}>
             {links.map((link) => (
               <Anchor
-                key={link.href}
+                key={link.label}
                 component={Link}
                 href={link.href}
                 size="xs"

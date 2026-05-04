@@ -533,7 +533,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     <AppShellLayout>
       <Box
         style={{
-          background: "#f3f4f6",
+          background: "white",
           height: "calc(100vh - 60px)",
           overflow: "hidden",
           padding: 12,
@@ -563,7 +563,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                   style={{
                     padding: "8px 12px",
                     borderBottom: "1px solid #e5e7eb",
-                    background: "#fafafa",
+                    background: "white",
                     gap: 8,
                     flexWrap: isMobileEditor ? "wrap" : "nowrap",
                   }}
@@ -586,7 +586,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                   style={{
                     flex: 1,
                     overflowY: "auto",
-                    background: "#f5f6f8",
+                    background: "white",
                     padding: "16px",
                   }}
                 >
@@ -871,7 +871,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
               </Modal>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, lg: 4 }} h="100%" style={{ background: "#f7f7f7" }}>
+            <Grid.Col span={{ base: 12, lg: 4 }} h="100%" style={{ background: "white" }}>
               <Box h="100%" p="md" style={{ overflowY: "auto" }}>
                 <MobilePreview
                   profile={profile}

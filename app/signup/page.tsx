@@ -234,7 +234,7 @@ export default function Signup() {
                             width: 92,
                           }}
                         >
-                          axiltree.me/
+                          axiltree.tech/
                         </Box>
                         <TextInput
                           name="username"
