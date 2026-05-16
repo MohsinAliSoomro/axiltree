@@ -1,0 +1,6 @@
+productName,buyUrl,price,imageUrl,isActive,sortOrder,publishAt,expireAt
+Wireless Earbuds Pro,https://example.com/products/wireless-earbuds-pro,79.99,https://images.unsplash.com/photo-1588423771073-b8903fbb85b5,true,0,2026-03-01T10:00:00Z,
+Smart Fitness Watch X2,https://example.com/products/smart-fitness-watch-x2,149.5,https://images.unsplash.com/photo-1523275335684-37898b6baf30,true,1,,
+Portable Bluetooth Speaker Mini,https://example.com/products/portable-bluetooth-speaker-mini,45,https://images.unsplash.com/photo-1589003077984-894e133dabab,false,2,,
+Adjustable Laptop Stand,https://example.com/products/adjustable-laptop-stand,29.99,https://images.unsplash.com/photo-1517336714739-489689fd1ca8,true,3,2026-03-05T09:30:00Z,2026-03-30T23:59:00Z
+USB-C Fast Charger 65W,https://example.com/products/usb-c-fast-charger-65w,34.75,https://images.unsplash.com/photo-1583863788434-e58a36330cf0,true,4,,

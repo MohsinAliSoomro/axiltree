@@ -14,12 +14,18 @@ import {
   getVideoEmbedUrl,
   type ContentBlock,
 } from "@/app/utils/contentBlocks";
+import { renderLucideIcon } from "@/app/utils/lucideIcons";
+import {
+  getReadableTextColor,
+  type LinkStyleConfig,
+} from "@/app/utils/linkStyle";
 
 interface MobilePreviewProps {
   profile: any;
   links: any[];
   contentBlocks: ContentBlock[];
   products: any[];
+  linkStyle: LinkStyleConfig;
   selectedTheme: string;
   selectedFont: string;
   selectedAnimation: string;
@@ -34,6 +40,7 @@ export default function MobilePreview({
   links, 
   contentBlocks,
   products,
+  linkStyle,
   selectedTheme, 
   selectedFont, 
   selectedAnimation,
@@ -175,6 +182,7 @@ export default function MobilePreview({
                       index={index}
                       selectedAnimation={selectedAnimation}
                       currentTheme={currentTheme}
+                      linkStyle={linkStyle}
                       compact
                     />
                   ))}
@@ -205,6 +213,7 @@ export default function MobilePreview({
                         index={index}
                         selectedAnimation={selectedAnimation}
                         currentTheme={currentTheme}
+                        linkStyle={linkStyle}
                         square
                       />
                     </Carousel.Slide>
@@ -219,6 +228,7 @@ export default function MobilePreview({
                       index={index}
                       selectedAnimation={selectedAnimation}
                       currentTheme={currentTheme}
+                      linkStyle={linkStyle}
                     />
                   ))}
                 </Stack>
@@ -481,6 +491,7 @@ function PreviewLinkItem({
   index,
   selectedAnimation,
   currentTheme,
+  linkStyle,
   compact = false,
   square = false,
 }: {
@@ -488,11 +499,24 @@ function PreviewLinkItem({
   index: number;
   selectedAnimation: string;
   currentTheme: any;
+  linkStyle: LinkStyleConfig;
   compact?: boolean;
   square?: boolean;
 }) {
   const animationVariants = getAnimationVariants(selectedAnimation);
   const staggerDelay = selectedAnimation !== "none" ? index * 0.1 : 0;
+  const fontSize = compact ? Math.max(12, linkStyle.fontSize - 1) : linkStyle.fontSize;
+  const borderRadius = square
+    ? `${Math.max(6, Math.min(linkStyle.borderRadius, 24))}px`
+    : `${linkStyle.borderRadius}px`;
+  const minHeight = compact
+    ? Math.max(40, linkStyle.height - 8)
+    : linkStyle.height;
+  const borderColor = linkStyle.borderWidth > 0 ? linkStyle.borderColor : "transparent";
+  const linkBg = linkStyle.linkColor || currentTheme.button;
+  const linkText = linkStyle.linkColor
+    ? getReadableTextColor(linkBg)
+    : currentTheme.buttonText;
 
   return (
     <motion.div
@@ -511,21 +535,32 @@ function PreviewLinkItem({
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           width: "100%",
           aspectRatio: square ? "1 / 1" : undefined,
-          background: currentTheme.button,
-          color: currentTheme.buttonText,
-          border: "none",
-          padding: compact ? "12px 10px" : "16px 20px",
-          borderRadius: square ? "8px" : compact ? "14px" : "50px",
+          background: linkBg,
+          color: linkText,
+          border: `${linkStyle.borderWidth}px solid ${borderColor}`,
+          boxShadow: linkStyle.shadow ? "0 10px 24px rgba(0, 0, 0, 0.18)" : "none",
+          padding: `0 ${Math.max(8, linkStyle.horizontalPadding)}px`,
+          minHeight,
+          borderRadius,
           textAlign: "center",
-          fontWeight: 500,
-          fontSize: compact ? "13px" : "16px",
+          fontWeight: linkStyle.fontWeight,
+          fontSize,
           textDecoration: "none",
+          gap: 10,
         }}
       >
-        {link?.title}
+        <Box style={{ width: 20, display: "flex", justifyContent: "flex-start", flexShrink: 0 }}>
+          {link?.left_icon_name ? renderLucideIcon(link.left_icon_name, 16) : null}
+        </Box>
+        <Box style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+          <span>{link?.title}</span>
+        </Box>
+        <Box style={{ width: 20, display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+          {link?.right_icon_name ? renderLucideIcon(link.right_icon_name, 16) : null}
+        </Box>
       </Box>
     </motion.div>
   );

@@ -14,6 +14,12 @@ import {
   getVideoEmbedUrl,
   type ContentBlock,
 } from "../utils/contentBlocks";
+import { renderLucideIcon } from "../utils/lucideIcons";
+import {
+  getLinkStyleFromProfile,
+  getReadableTextColor,
+  type LinkStyleConfig,
+} from "../utils/linkStyle";
 
 export default function ProfileView({
   profile,
@@ -42,6 +48,7 @@ export default function ProfileView({
   // Get animation variants
   const animationVariants = getAnimationVariants(profile?.animation || "none");
   const selectedLayout = profile?.layout || "stack";
+  const linkStyle = getLinkStyleFromProfile(profile);
   const [carouselApi, setCarouselApi] = useState<any>(null);
 
   useEffect(() => {
@@ -69,6 +76,11 @@ export default function ProfileView({
       console.error("Failed to open link:", error);
     }
   };
+
+  const linkBg = linkStyle.linkColor || theme.button;
+  const linkText = linkStyle.linkColor
+    ? getReadableTextColor(linkBg)
+    : theme.buttonText;
   return (
     <Box
       className="hide-scrollbar"
@@ -210,6 +222,7 @@ export default function ProfileView({
                     hasAnimation={profile?.animation !== "none"}
                     buttonBg={theme.button}
                     buttonText={theme.buttonText}
+                    linkStyle={linkStyle}
                     onTrack={handleClick}
                     compact
                   />
@@ -243,6 +256,7 @@ export default function ProfileView({
                       hasAnimation={profile?.animation !== "none"}
                       buttonBg={theme.button}
                       buttonText={theme.buttonText}
+                      linkStyle={linkStyle}
                       onTrack={handleClick}
                       square
                     />
@@ -260,6 +274,7 @@ export default function ProfileView({
                     hasAnimation={profile?.animation !== "none"}
                     buttonBg={theme.button}
                     buttonText={theme.buttonText}
+                    linkStyle={linkStyle}
                     onTrack={handleClick}
                   />
                 ))}
@@ -597,6 +612,7 @@ function ProfileLinkItem({
   hasAnimation,
   buttonBg,
   buttonText,
+  linkStyle,
   onTrack,
   compact = false,
   square = false,
@@ -607,11 +623,24 @@ function ProfileLinkItem({
   hasAnimation: boolean;
   buttonBg: string;
   buttonText: string;
+  linkStyle: LinkStyleConfig;
   onTrack: (link: any) => void;
   compact?: boolean;
   square?: boolean;
 }) {
   const staggerDelay = hasAnimation ? 0.4 + index * 0.1 : 0;
+  const fontSize = compact ? Math.max(12, linkStyle.fontSize - 1) : linkStyle.fontSize;
+  const borderRadius = square
+    ? `${Math.max(6, Math.min(linkStyle.borderRadius, 24))}px`
+    : `${linkStyle.borderRadius}px`;
+  const minHeight = compact
+    ? Math.max(40, linkStyle.height - 8)
+    : linkStyle.height;
+  const borderColor = linkStyle.borderWidth > 0 ? linkStyle.borderColor : "transparent";
+  const linkBg = linkStyle.linkColor || buttonBg;
+  const linkText = linkStyle.linkColor
+    ? getReadableTextColor(linkBg)
+    : buttonText;
 
   return (
     <motion.div
@@ -635,17 +664,20 @@ function ProfileLinkItem({
           justifyContent: "center",
           width: "100%",
           aspectRatio: square ? "1 / 1" : undefined,
-          background: buttonBg,
-          color: buttonText,
-          border: "none",
-          padding: compact ? "13px 10px" : "16px 20px",
-          borderRadius: square ? "8px" : compact ? "14px" : "50px",
+          background: linkBg,
+          color: linkText,
+          border: `${linkStyle.borderWidth}px solid ${borderColor}`,
+          boxShadow: linkStyle.shadow ? "0 10px 24px rgba(0, 0, 0, 0.18)" : "none",
+          padding: `0 ${Math.max(8, linkStyle.horizontalPadding)}px`,
+          minHeight,
+          borderRadius,
           textAlign: "center",
-          fontWeight: 500,
-          fontSize: compact ? "14px" : "16px",
+          fontWeight: linkStyle.fontWeight,
+          fontSize,
           textDecoration: "none",
           cursor: "pointer",
           transition: "transform 0.2s",
+          gap: 10,
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.transform = "scale(1.02)";
@@ -654,7 +686,15 @@ function ProfileLinkItem({
           (e.currentTarget as HTMLElement).style.transform = "scale(1)";
         }}
       >
-        {link.title}
+        <Box style={{ width: 20, display: "flex", justifyContent: "flex-start", flexShrink: 0 }}>
+          {link?.left_icon_name ? renderLucideIcon(link.left_icon_name, 16) : null}
+        </Box>
+        <Box style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+          <span>{link.title}</span>
+        </Box>
+        <Box style={{ width: 20, display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+          {link?.right_icon_name ? renderLucideIcon(link.right_icon_name, 16) : null}
+        </Box>
       </Box>
     </motion.div>
   );
