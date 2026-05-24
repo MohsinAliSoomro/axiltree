@@ -11,16 +11,28 @@ import {
   Button,
   Box,
   Switch,
-  Slider,
   Modal,
   SegmentedControl,
+  SimpleGrid,
+  Slider,
 } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
 import { Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/app/lib/supabase/client";
 import { notifications } from "@mantine/notifications";
-import { getAvatarAlignment, getAvatarSize } from "@/app/utils/avatarLayout";
+import {
+  getAvatarAlignment,
+  getAvatarSize,
+  getAvatarSizePreset,
+  getAvatarSizeValue,
+  type AvatarSizePreset,
+} from "@/app/utils/avatarLayout";
+import {
+  AvatarShapePreview,
+  avatarShapes,
+  getAvatarShape,
+} from "@/app/utils/avatarShapes";
 
 interface ProfileInfoProps {
   profile: any;
@@ -30,7 +42,9 @@ interface ProfileInfoProps {
 export default function ProfileInfo({ profile, updateProfile }: ProfileInfoProps) {
   const supabase = createClient();
   const avatarSize = getAvatarSize(profile?.avatar_size, 80);
+  const avatarSizePreset = getAvatarSizePreset(profile?.avatar_size);
   const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
+  const backgroundShape = getAvatarShape(profile?.profile_background_shape);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
@@ -221,16 +235,29 @@ export default function ProfileInfo({ profile, updateProfile }: ProfileInfoProps
           }
         />
 
+        <Switch
+          label="Show profile image on profile"
+          checked={profile?.is_profile_image_show !== false}
+          onChange={(event) =>
+            updateProfile("is_profile_image_show", event.currentTarget.checked)
+          }
+        />
+
         <Stack gap={6}>
           <Text size="sm" fw={500}>
             Profile Picture Size
           </Text>
-          <Slider
-            min={48}
-            max={160}
-            step={1}
-            value={avatarSize}
-            onChange={(value) => updateProfile("avatar_size", value)}
+          <SegmentedControl
+            fullWidth
+            value={avatarSizePreset}
+            onChange={(value) =>
+              updateProfile("avatar_size", getAvatarSizeValue(value as AvatarSizePreset))
+            }
+            data={[
+              { label: "Small", value: "small" },
+              { label: "Medium", value: "medium" },
+              { label: "Large", value: "large" },
+            ]}
           />
         </Stack>
 
@@ -244,6 +271,45 @@ export default function ProfileInfo({ profile, updateProfile }: ProfileInfoProps
             { label: "Right", value: "right" },
           ]}
         />
+
+        <Stack gap={6}>
+          <Text size="sm" fw={500}>
+            Background Shape
+          </Text>
+          <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} spacing="sm">
+            {avatarShapes.map((shape) => {
+              const selected = backgroundShape === shape.value;
+              return (
+                <Box
+                  key={shape.value}
+                  onClick={() => updateProfile("profile_background_shape", shape.value)}
+                  style={{
+                    border: selected ? "2px solid #667eea" : "1px solid #dee2e6",
+                    borderRadius: 12,
+                    padding: 10,
+                    background: selected ? "#f1f5ff" : "#fff",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 8,
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <AvatarShapePreview
+                    shape={shape.value}
+                    size={54}
+                    fill={selected ? "#667eea" : "#ced4da"}
+                    opacity={0.85}
+                  />
+                  <Text size="xs" fw={600} ta="center">
+                    {shape.label}
+                  </Text>
+                </Box>
+              );
+            })}
+          </SimpleGrid>
+        </Stack>
 
         {profile?.banner_url && !bannerFile && (
           <Box

@@ -52,8 +52,13 @@ import {
   getAvatarAlignItems,
   getAvatarAlignment,
   getAvatarSize,
+  getAvatarJustifyContent,
   getAvatarTextAlign,
 } from "@/app/utils/avatarLayout";
+import {
+  getAvatarShape,
+  ProfileBackgroundPattern,
+} from "@/app/utils/avatarShapes";
 import { Footprints } from "lucide-react";
 
 const SOCIALS = [
@@ -316,10 +321,13 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   };
 
   const currentTheme = getThemeConfig(selectedTheme);
+  const themeAccentColor = getThemePickerColor(currentTheme.bg);
 
   const currentUsernameTheme = getUsernameThemeConfig(selectedUsernameTheme);
   const avatarSize = getAvatarSize(profile?.avatar_size, 64);
   const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
+  const backgroundShape = getAvatarShape(profile?.profile_background_shape);
+  const showProfileImage = profile?.is_profile_image_show !== false;
 
   return (
     <AppShellLayout>
@@ -333,43 +341,39 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                 {/* <Grid.Col span={{ base: 12, md: 8 }}> changes by shahzad  */}
 
                       {/* Profile Tab */}
-                        <Stack gap="lg">
-                          <Group wrap="nowrap" align="flex-start">
-                            <Avatar
-                              src={profile?.avatar_url}
-                              size={80}
-                              radius="50%"
-                              style={{ border: "3px solid #667eea" }}
-                            />
-                            <Stack gap="sm" style={{ flex: 1 }}>
-                              <TextInput
-                                placeholder="Display Name"
-                                value={profile?.full_name || ""}
-                                onChange={(e) =>
-                                  updateProfile("full_name", e.target.value)
-                                }
-                                disabled
-                                size="md"
-                              />
-                              <TextInput
-                                placeholder="@username"
-                                value={profile?.username || ""}
-                                onChange={(e) =>
-                                  updateProfile("username", e.target.value)
-                                }
-                                disabled
-                                size="md"
-                              />
-                            </Stack>
-                          </Group>
-                          <Textarea
-                            placeholder="Tell your story..."
-                            value={profile?.bio || ""}
-                            onChange={(e) => updateProfile("bio", e.target.value)}
-                            minRows={4}
-                            size="md"
+                      <Stack gap="lg">
+                        <Group wrap="nowrap" align="flex-start">
+                          <Avatar
+                            src={profile?.avatar_url}
+                            size={80}
+                            radius="50%"
+                            style={{ border: "3px solid #667eea" }}
                           />
-                        </Stack>
+                          <Stack gap="sm" style={{ flex: 1 }}>
+                            <TextInput
+                              placeholder="Display Name"
+                              value={profile?.full_name || ""}
+                              onChange={(e) => updateProfile("full_name", e.target.value)}
+                              disabled
+                              size="md"
+                            />
+                            <TextInput
+                              placeholder="@username"
+                              value={profile?.username || ""}
+                              onChange={(e) => updateProfile("username", e.target.value)}
+                              disabled
+                              size="md"
+                            />
+                          </Stack>
+                        </Group>
+                        <Textarea
+                          placeholder="Tell your story..."
+                          value={profile?.bio || ""}
+                          onChange={(e) => updateProfile("bio", e.target.value)}
+                          minRows={4}
+                          size="md"
+                        />
+                      </Stack>
                   <Paper shadow="sm" p="md" withBorder mt="sm">
                     <Group mb="md">
                       <IconFileTypography size={20} />
@@ -654,45 +658,64 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                     borderRadius: 36,
                     overflow: "hidden",
                     background: currentTheme.bg,
+                    position: "relative",
+                    isolation: "isolate",
                   }}
                 >
+                  <ProfileBackgroundPattern
+                    shape={backgroundShape}
+                    seed={`${profile?.id || profile?.username || "axiltree"}`}
+                    color={currentTheme.text}
+                    opacity={0.18}
+                    minSize={120}
+                    maxSize={260}
+                    style={{ zIndex: 0 }}
+                  />
+
                   <ScrollArea h="100%">
                     <Box
                       p="md"
                       style={{
                         color: currentTheme.text,
+                        position: "relative",
+                        zIndex: 1,
                       }}
                     >
-                      <Stack align={getAvatarAlignItems(avatarAlignment)} gap="sm" style={{ width: "100%" }}>
-                        <Avatar
-                          src={profile?.avatar_url}
-                          size={avatarSize}
-                          radius="50%"
-                          mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.58) : 0}
-                          style={{
-                            background: currentUsernameTheme.color.includes("gradient")
-                              ? currentUsernameTheme.color
-                              : undefined,
-                            color: currentUsernameTheme.color.includes("gradient")
-                              ? "transparent"
-                              : currentUsernameTheme.color,
-                            WebkitBackgroundClip: currentUsernameTheme.color.includes("gradient")
-                              ? "text"
-                              : undefined,
-                            WebkitTextFillColor: currentUsernameTheme.color.includes("gradient")
-                              ? "transparent"
-                              : undefined,
-                            backgroundClip: currentUsernameTheme.color.includes("gradient")
-                              ? "text"
-                              : undefined,
-                          }}
-                        >
-                          @{profile?.username || "username"}
-                        </Avatar>
-                        <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9}>
-                          {profile?.bio || "Your bio goes here"}
-                        </Text>
-                      </Stack>
+                      <Box
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: getAvatarJustifyContent(avatarAlignment),
+                          position: "relative",
+                        }}
+                      >
+                        <Stack gap={4} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "fit-content", position: "relative", zIndex: 1 }}>
+                          {showProfileImage && (
+                            <Avatar
+                              src={profile?.avatar_url}
+                              size={avatarSize}
+                              mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.58) : 0}
+                              radius="50%"
+                              style={{ zIndex: 2, border: `3px solid ${themeAccentColor}` }}
+                            />
+                          )}
+                          <Stack gap={4} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "fit-content" }}>
+                            <Text size="xl" fw={700}>
+                              {profile?.full_name || "Your Name"}
+                            </Text>
+                            <Text
+                              size="sm"
+                              ta={getAvatarTextAlign(avatarAlignment) as any}
+                              opacity={0.9}
+                            >
+                              @{profile?.username || "username"}
+                            </Text>
+                            <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9}>
+                              {profile?.bio || "Your bio goes here"}
+                            </Text>
+                          </Stack>
+                        </Stack>
+                      </Box>
 
                       <Stack gap="sm" style={{ width: "100%" }} mt="md">
                         {links.map((link: any, index: number) => {

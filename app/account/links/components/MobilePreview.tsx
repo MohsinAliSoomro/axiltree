@@ -8,8 +8,13 @@ import {
   getAvatarAlignItems,
   getAvatarAlignment,
   getAvatarSize,
+  getAvatarJustifyContent,
   getAvatarTextAlign,
 } from "@/app/utils/avatarLayout";
+import {
+  getAvatarShape,
+  ProfileBackgroundPattern,
+} from "@/app/utils/avatarShapes";
 import { getAnimationVariants } from "@/app/utils/animations";
 import Image from "next/image";
 import { Carousel } from "@mantine/carousel";
@@ -74,6 +79,8 @@ export default function MobilePreview({
   const currentUsernameTheme = getUsernameThemeConfig(selectedUsernameTheme);
   const avatarSize = getAvatarSize(profile?.avatar_size, 80);
   const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
+  const backgroundShape = getAvatarShape(profile?.profile_background_shape);
+  const showProfileImage = profile?.is_profile_image_show !== false;
   return (
     <Paper shadow="sm" p="md" withBorder>
       <Group mb="md">
@@ -92,8 +99,20 @@ export default function MobilePreview({
           borderRadius: 36,
           overflow: "hidden",
           background: currentTheme.bg,
+          position: "relative",
+          isolation: "isolate",
         }}
       >
+        <ProfileBackgroundPattern
+          shape={backgroundShape}
+          seed={`${profile?.id || profile?.username || "axiltree"}`}
+          color={currentTheme.text}
+          opacity={0.10}
+          minSize={40}
+          maxSize={50}
+          style={{ zIndex: 0 }}
+        />
+
         <Box
           className="hide-scrollbar"
           p="xl"
@@ -104,6 +123,8 @@ export default function MobilePreview({
             scrollbarWidth: "none",
             color: currentTheme.text,
             fontFamily: `var(--font-${selectedFont || "inter"}), sans-serif`,
+            position: "relative",
+            zIndex: 1,
           }}
         >
           <Stack align={getAvatarAlignItems(avatarAlignment)} gap="md" style={{ width: "100%" }}>
@@ -133,45 +154,59 @@ export default function MobilePreview({
               </Box>
             )}
 
-            <Avatar
-              src={profile?.avatar_url}
-              size={avatarSize}
-              radius="50%"
-              mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.58) : 0}
-              style={{ zIndex: 2, border: `3px solid ${themeAccentColor}` }}
-            />
-            <Stack gap={4} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "100%" }}>
-              <Text size="xl" fw={700}>
-                {profile?.full_name || "Your Name"}
-              </Text>
-              <Text
-                size="sm"
-                opacity={0.8}
-                ta={getAvatarTextAlign(avatarAlignment) as any}
-                style={{
-                  background: currentUsernameTheme.color.includes("gradient")
-                    ? currentUsernameTheme.color
-                    : undefined,
-                  color: currentUsernameTheme.color.includes("gradient")
-                    ? "transparent"
-                    : currentUsernameTheme.color,
-                  WebkitBackgroundClip: currentUsernameTheme.color.includes("gradient")
-                    ? "text"
-                    : undefined,
-                  WebkitTextFillColor: currentUsernameTheme.color.includes("gradient")
-                    ? "transparent"
-                    : undefined,
-                  backgroundClip: currentUsernameTheme.color.includes("gradient")
-                    ? "text"
-                    : undefined,
-                }}
-              >
-                @{profile?.username || "username"}
-              </Text>
-              <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9}>
-                {profile?.bio || "Your bio goes here"}
-              </Text>
-            </Stack>
+            <Box
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: getAvatarJustifyContent(avatarAlignment),
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              <Stack gap={4} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "fit-content" }}>
+                {showProfileImage && (
+                  <Avatar
+                    src={profile?.avatar_url}
+                    size={avatarSize}
+                    mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.58) : 0}
+                    radius="50%"
+                    style={{ zIndex: 2, border: `3px solid ${themeAccentColor}` }}
+                  />
+                )}
+                <Stack gap={4} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "fit-content" }}>
+                  <Text size="xl" fw={700}>
+                    {profile?.full_name || "Your Name"}
+                  </Text>
+                  <Text
+                    size="sm"
+                    opacity={0.8}
+                    ta={getAvatarTextAlign(avatarAlignment) as any}
+                    style={{
+                      background: currentUsernameTheme.color.includes("gradient")
+                        ? currentUsernameTheme.color
+                        : undefined,
+                      color: currentUsernameTheme.color.includes("gradient")
+                        ? "transparent"
+                        : currentUsernameTheme.color,
+                      WebkitBackgroundClip: currentUsernameTheme.color.includes("gradient")
+                        ? "text"
+                        : undefined,
+                      WebkitTextFillColor: currentUsernameTheme.color.includes("gradient")
+                        ? "transparent"
+                        : undefined,
+                      backgroundClip: currentUsernameTheme.color.includes("gradient")
+                        ? "text"
+                        : undefined,
+                    }}
+                  >
+                    @{profile?.username || "username"}
+                  </Text>
+                  <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9}>
+                    {profile?.bio || "Your bio goes here"}
+                  </Text>
+                </Stack>
+              </Stack>
+            </Box>
 
             <Stack gap="sm" style={{ width: "100%" }} mt="md">
               {selectedLayout === "grid" ? (

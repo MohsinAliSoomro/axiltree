@@ -20,7 +20,7 @@ export async function generateMetadata({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, full_name, bio, avatar_url")
+    .select("username, full_name, bio, avatar_url, is_profile_image_show")
     .eq("username", username)
     .single();
 
@@ -38,7 +38,9 @@ export async function generateMetadata({
     profile.bio?.trim() ||
     `Check out ${displayName}'s links on AxilTree.`;
   const profileUrl = `${baseSiteUrl}/${profile.username}`;
-  const imageUrl = profile.avatar_url?.trim() || `${baseSiteUrl}/logo.png`;
+  const imageUrl = profile.is_profile_image_show === false
+    ? `${baseSiteUrl}/logo.png`
+    : profile.avatar_url?.trim() || `${baseSiteUrl}/logo.png`;
 
   return {
     title,

@@ -1,5 +1,5 @@
 "use client";
-import { Container, Stack, Avatar, Text, Box, Group } from "@mantine/core";
+import { Container, Stack, Text, Box, Group, Avatar } from "@mantine/core";
 import { motion } from "framer-motion";
 import { getThemeAccentColor, getThemeConfig, themesObject } from "../utils/theme";
 import { getUsernameThemeConfig } from "../utils/usernameThemes";
@@ -7,8 +7,13 @@ import {
   getAvatarAlignItems,
   getAvatarAlignment,
   getAvatarSize,
+  getAvatarJustifyContent,
   getAvatarTextAlign,
 } from "../utils/avatarLayout";
+import {
+  getAvatarShape,
+  ProfileBackgroundPattern,
+} from "../utils/avatarShapes";
 import { getAnimationVariants } from "../utils/animations";
 import { createClient } from "../lib/supabase/client";
 import { fetchLocation } from "../utils/location";
@@ -50,6 +55,8 @@ export default function ProfileView({
   const themeAccentColor = getThemeAccentColor(theme.bg);
   const avatarSize = getAvatarSize(profile?.avatar_size, 100);
   const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
+  const backgroundShape = getAvatarShape(profile?.profile_background_shape);
+  const showProfileImage = profile?.is_profile_image_show !== false;
   
   // Get username theme
   const currentUsernameTheme = getUsernameThemeConfig(profile?.username_theme);
@@ -103,11 +110,23 @@ export default function ProfileView({
         fontFamily: `var(--font-${profile?.font || "inter"}), sans-serif`,
         display: "flex",
         flexDirection: "column",
+        position: "relative",
+        isolation: "isolate",
       }}
     >
-      <Box style={{ flex: 1, padding: "40px 20px" }}>
+      <ProfileBackgroundPattern
+        shape={backgroundShape}
+        seed={`${profile?.id || profile?.username || "axiltree"}`}
+        color={theme.text}
+        opacity={0.10}
+        minSize={40}
+        maxSize={50}
+        style={{ zIndex: 0, position: "fixed", inset: 0 }}
+      />
+
+      <Box style={{ flex: 1, padding: "40px 20px", position: "relative", zIndex: 1 }}>
         <Container size="xs">
-          <Stack align="center" gap="md">
+          <Stack align={getAvatarAlignItems(avatarAlignment)} gap="md" style={{ width: "100%" }}>
             {profile?.banner_url && profile?.is_banner_show && (
               <Box
                 style={{
@@ -134,24 +153,32 @@ export default function ProfileView({
               </Box>
             )}
 
-            <motion.div
-              initial={animationVariants.initial}
-              animate={animationVariants.animate}
-              transition={{
-                ...animationVariants.transition,
-                delay: 0,
-              }}
-            >
-            <Avatar
-              src={profile?.avatar_url}
-              size={avatarSize}
-              radius="50%"
-              mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.64) : 0}
-              style={{ zIndex: 2, border: `4px solid ${themeAccentColor}` }}
-            />
-          </motion.div>
-          
-          <Stack gap={8} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "100%" }}>
+            {showProfileImage && (
+              <motion.div
+                initial={animationVariants.initial}
+                animate={animationVariants.animate}
+                transition={{
+                  ...animationVariants.transition,
+                  delay: 0,
+                }}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: getAvatarJustifyContent(avatarAlignment),
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
+                <Avatar
+                  src={profile?.avatar_url}
+                  size={avatarSize}
+                  radius="50%"
+                  mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.64) : 0}
+                  style={{ zIndex: 2, border: `4px solid ${themeAccentColor}` }}
+                />
+              </motion.div>
+            )}
+
             <motion.div
               initial={animationVariants.initial}
               animate={animationVariants.animate}
@@ -159,12 +186,13 @@ export default function ProfileView({
                 ...animationVariants.transition,
                 delay: profile?.animation !== "none" ? 0.1 : 0,
               }}
+              style={{ width: "100%" }}
             >
-              <Text size="xl" fw={700}>
+              <Text size="xl" fw={700} ta={getAvatarTextAlign(avatarAlignment) as any}>
                 {profile?.full_name || "Name"}
               </Text>
             </motion.div>
-            
+
             <motion.div
               initial={animationVariants.initial}
               animate={animationVariants.animate}
@@ -172,6 +200,7 @@ export default function ProfileView({
                 ...animationVariants.transition,
                 delay: profile?.animation !== "none" ? 0.2 : 0,
               }}
+              style={{ width: "100%" }}
             >
               <Text
                 size="md"
@@ -198,7 +227,7 @@ export default function ProfileView({
                 @{profile?.username || "username"}
               </Text>
             </motion.div>
-            
+
             <motion.div
               initial={animationVariants.initial}
               animate={animationVariants.animate}
@@ -206,12 +235,12 @@ export default function ProfileView({
                 ...animationVariants.transition,
                 delay: profile?.animation !== "none" ? 0.3 : 0,
               }}
+              style={{ width: "100%" }}
             >
               <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9} maw={400}>
                 {profile?.bio || ""}
               </Text>
             </motion.div>
-          </Stack>
 
           <Box style={{ width: "100%" }} mt="lg">
             {selectedLayout === "grid" ? (
