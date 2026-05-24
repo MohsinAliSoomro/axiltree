@@ -10,6 +10,7 @@ import {
   FileInput,
   Group,
   List,
+  Select,
   Stack,
   Table,
   Text,
@@ -31,6 +32,74 @@ type ParsedRow = {
 type ImportError = {
   row: number;
   message: string;
+};
+
+type FieldMap = {
+  title: string[];
+  buy_url: string[];
+  image_url: string[];
+  price: string[];
+  is_active: string[];
+  position: string[];
+  publish_at: string[];
+  expire_at: string[];
+};
+
+type ProductField = keyof FieldMap;
+
+type ColumnMapping = Record<ProductField, string | null>;
+
+const PRODUCT_FIELDS: Array<{ key: ProductField; label: string; required?: boolean }> = [
+  { key: "title", label: "Title", required: true },
+  { key: "buy_url", label: "Buy URL", required: true },
+  { key: "image_url", label: "Image URL" },
+  { key: "price", label: "Price" },
+  { key: "is_active", label: "Status" },
+  { key: "position", label: "Position" },
+  { key: "publish_at", label: "Publish At" },
+  { key: "expire_at", label: "Expire At" },
+];
+
+const PRODUCT_FIELD_MAP: FieldMap = {
+  title: [
+    "title",
+    "name",
+    "product_name",
+    "productName",
+    "product_title",
+    "productTitle",
+    "item_name",
+    "itemName",
+  ],
+  buy_url: [
+    "buy_url",
+    "buyUrl",
+    "url",
+    "link",
+    "product_url",
+    "productUrl",
+    "buy_link",
+    "buyLink",
+    "checkout_url",
+    "checkoutUrl",
+  ],
+  image_url: [
+    "image_url",
+    "imageUrl",
+    "image",
+    "imageurl",
+    "thumbnail",
+    "thumbnailUrl",
+    "photo",
+    "photoUrl",
+    "img",
+    "imgUrl",
+  ],
+  price: ["price", "amount", "cost", "sale_price", "salePrice", "value"],
+  is_active: ["is_active", "isActive", "active", "status", "live"],
+  position: ["position", "order", "sort", "sortOrder", "index", "rank"],
+  publish_at: ["publish_at", "publishAt", "start_at", "startAt", "startsAt"],
+  expire_at: ["expire_at", "expireAt", "end_at", "endAt", "endsAt"],
 };
 
 const parseBoolean = (value: unknown, fallback = true) => {
@@ -120,20 +189,83 @@ const pickValue = (row: Record<string, any>, keys: string[]) => {
   return undefined;
 };
 
-const normalizeRows = (rows: Record<string, any>[]) => {
+const getSourceRow = (row: Record<string, any>) => {
+  if (row.product && typeof row.product === "object") return row.product as Record<string, any>;
+  if (row.data && typeof row.data === "object") return row.data as Record<string, any>;
+  if (row.item && typeof row.item === "object") return row.item as Record<string, any>;
+  return row;
+};
+
+const resolveMappedValue = (row: Record<string, any>, fieldKeys: string[]) => {
+  const sourceRow = getSourceRow(row);
+  return pickValue(sourceRow, fieldKeys);
+};
+
+const getRowKeys = (row: Record<string, any>) => {
+  const sourceRow = getSourceRow(row);
+  return Object.keys(sourceRow);
+};
+
+const normalizeKey = (value: string) =>
+  value
+    .replace(/[_\s-]+/g, "")
+    .toLowerCase();
+
+const autoDetectColumn = (availableColumns: string[], aliases: string[]) => {
+  const normalizedColumns = availableColumns.map((column) => ({
+    column,
+    normalized: normalizeKey(column),
+  }));
+
+  for (const alias of aliases) {
+    const normalizedAlias = normalizeKey(alias);
+    const exact = normalizedColumns.find((item) => item.normalized === normalizedAlias);
+    if (exact) return exact.column;
+  }
+
+  return null;
+};
+
+const buildDefaultMapping = (availableColumns: string[]): ColumnMapping => ({
+  title: autoDetectColumn(availableColumns, PRODUCT_FIELD_MAP.title),
+  buy_url: autoDetectColumn(availableColumns, PRODUCT_FIELD_MAP.buy_url),
+  image_url: autoDetectColumn(availableColumns, PRODUCT_FIELD_MAP.image_url),
+  price: autoDetectColumn(availableColumns, PRODUCT_FIELD_MAP.price),
+  is_active: autoDetectColumn(availableColumns, PRODUCT_FIELD_MAP.is_active),
+  position: autoDetectColumn(availableColumns, PRODUCT_FIELD_MAP.position),
+  publish_at: autoDetectColumn(availableColumns, PRODUCT_FIELD_MAP.publish_at),
+  expire_at: autoDetectColumn(availableColumns, PRODUCT_FIELD_MAP.expire_at),
+});
+
+const readMappedValue = (
+  row: Record<string, any>,
+  mapping: ColumnMapping,
+  field: ProductField,
+  aliases: string[]
+) => {
+  const sourceRow = getSourceRow(row);
+  const mappedColumn = mapping[field];
+  if (mappedColumn && sourceRow[mappedColumn] !== undefined && sourceRow[mappedColumn] !== null) {
+    return sourceRow[mappedColumn];
+  }
+
+  return resolveMappedValue(row, aliases);
+};
+
+const normalizeRows = (rows: Record<string, any>[], mapping: ColumnMapping) => {
   const normalizedRows: ParsedRow[] = [];
   const errors: ImportError[] = [];
 
   rows.forEach((row, index) => {
     const rowNumber = index + 2;
-    const titleRaw = pickValue(row, ["title", "name", "product_name"]);
-    const buyUrlRaw = pickValue(row, ["buy_url", "url", "link", "product_url"]);
-    const imageUrlRaw = pickValue(row, ["image_url", "image", "imageurl"]);
-    const priceRaw = pickValue(row, ["price", "amount"]);
-    const isActiveRaw = pickValue(row, ["is_active", "active", "status"]);
-    const positionRaw = pickValue(row, ["position", "order"]);
-    const publishAtRaw = pickValue(row, ["publish_at", "publishat"]);
-    const expireAtRaw = pickValue(row, ["expire_at", "expireat"]);
+    const titleRaw = readMappedValue(row, mapping, "title", PRODUCT_FIELD_MAP.title);
+    const buyUrlRaw = readMappedValue(row, mapping, "buy_url", PRODUCT_FIELD_MAP.buy_url);
+    const imageUrlRaw = readMappedValue(row, mapping, "image_url", PRODUCT_FIELD_MAP.image_url);
+    const priceRaw = readMappedValue(row, mapping, "price", PRODUCT_FIELD_MAP.price);
+    const isActiveRaw = readMappedValue(row, mapping, "is_active", PRODUCT_FIELD_MAP.is_active);
+    const positionRaw = readMappedValue(row, mapping, "position", PRODUCT_FIELD_MAP.position);
+    const publishAtRaw = readMappedValue(row, mapping, "publish_at", PRODUCT_FIELD_MAP.publish_at);
+    const expireAtRaw = readMappedValue(row, mapping, "expire_at", PRODUCT_FIELD_MAP.expire_at);
 
     const title = typeof titleRaw === "string" ? titleRaw.trim() : "";
     const buyUrl = typeof buyUrlRaw === "string" ? buyUrlRaw.trim() : "";
@@ -212,6 +344,18 @@ interface BulkImportProductsProps {
 export default function BulkImportProducts({ profileId, onImported }: BulkImportProductsProps) {
   const supabase = createClient();
   const [file, setFile] = useState<File | null>(null);
+  const [sourceColumns, setSourceColumns] = useState<string[]>([]);
+  const [columnMapping, setColumnMapping] = useState<ColumnMapping>({
+    title: null,
+    buy_url: null,
+    image_url: null,
+    price: null,
+    is_active: null,
+    position: null,
+    publish_at: null,
+    expire_at: null,
+  });
+  const [rawRows, setRawRows] = useState<Record<string, any>[]>([]);
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [errors, setErrors] = useState<ImportError[]>([]);
   const [isParsing, setIsParsing] = useState(false);
@@ -223,12 +367,31 @@ export default function BulkImportProducts({ profileId, onImported }: BulkImport
     [profileId, rows.length, errors.length, isImporting]
   );
 
+  const mappingOptions = useMemo(
+    () => sourceColumns.map((column) => ({ value: column, label: column })),
+    [sourceColumns]
+  );
+
+  const applyMapping = () => {
+    if (!rawRows.length) return;
+
+    const { normalizedRows, errors: validationErrors } = normalizeRows(rawRows, columnMapping);
+    setRows(normalizedRows);
+    setErrors(validationErrors);
+
+    if (!validationErrors.length) {
+      setResultMessage(`Parsed ${normalizedRows.length} valid rows. Ready to import.`);
+    }
+  };
+
   const parseFile = async () => {
     if (!file) return;
     setIsParsing(true);
     setResultMessage("");
     setRows([]);
     setErrors([]);
+    setRawRows([]);
+    setSourceColumns([]);
 
     try {
       const content = await file.text();
@@ -254,7 +417,17 @@ export default function BulkImportProducts({ profileId, onImported }: BulkImport
         return;
       }
 
-      const { normalizedRows, errors: validationErrors } = normalizeRows(rawRows);
+      setRawRows(rawRows);
+
+      const columns = Array.from(
+        new Set(rawRows.flatMap((row) => getRowKeys(row)).filter(Boolean))
+      ).sort((a, b) => a.localeCompare(b));
+      setSourceColumns(columns);
+
+      const defaultMapping = buildDefaultMapping(columns);
+      setColumnMapping(defaultMapping);
+
+      const { normalizedRows, errors: validationErrors } = normalizeRows(rawRows, defaultMapping);
       setRows(normalizedRows);
       setErrors(validationErrors);
 
@@ -306,7 +479,7 @@ export default function BulkImportProducts({ profileId, onImported }: BulkImport
   return (
     <Stack gap="sm">
       <Text size="sm" c="dimmed">
-        Upload CSV or JSON with fields: title, buy_url, price, image_url, is_active, position, publish_at, expire_at.
+        Upload CSV or JSON with code fields like title/name/productName, buyUrl/url, price/amount, imageUrl/image, isActive/status, position/order, publishAt, expireAt.
       </Text>
 
       <FileInput
@@ -342,6 +515,51 @@ export default function BulkImportProducts({ profileId, onImported }: BulkImport
         <Alert color="blue" variant="light">
           {resultMessage}
         </Alert>
+      )}
+
+      {sourceColumns.length > 0 && (
+        <Box>
+          <Group justify="space-between" mb={6}>
+            <Text fw={600} size="sm">
+              Column Mapping
+            </Text>
+            <Text size="xs" c="dimmed">
+              Map your file columns to product fields
+            </Text>
+          </Group>
+
+          <Stack gap="xs">
+            {PRODUCT_FIELDS.map((field) => (
+              <Select
+                key={field.key}
+                label={field.label}
+                placeholder={field.required ? "Required field" : "Optional field"}
+                data={mappingOptions}
+                value={columnMapping[field.key]}
+                onChange={(value) =>
+                  setColumnMapping((prev) => ({
+                    ...prev,
+                    [field.key]: value,
+                  }))
+                }
+                clearable={!field.required}
+                searchable
+                nothingFoundMessage="No column found"
+                description={
+                  field.required
+                    ? "Required"
+                    : `Optional. Leave blank if your file does not include this field.`
+                }
+              />
+            ))}
+
+            <Group justify="flex-end">
+              <Button variant="light" onClick={applyMapping} disabled={!rawRows.length}>
+                Apply Mapping
+              </Button>
+            </Group>
+          </Stack>
+        </Box>
       )}
 
       {(rows.length > 0 || errors.length > 0) && <Divider />}

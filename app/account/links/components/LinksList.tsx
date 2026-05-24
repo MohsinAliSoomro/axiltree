@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { IconLink, IconGripVertical, IconTrash } from "@tabler/icons-react";
 import { formatScheduleDate } from "@/app/utils/linkSchedule";
+import { renderLucideIcon } from "@/app/utils/lucideIcons";
 
 interface LinksListProps {
   links: any[];
@@ -110,9 +111,11 @@ export default function LinksList({
                           </div>
                           <Stack gap={0} style={{ flex: 1 }}>
                             <Group gap="xs" wrap="nowrap">
+                              {renderLucideIcon(link?.left_icon_name, 14)}
                               <Text size="sm" fw={500}>
                                 {link?.title}
                               </Text>
+                              {renderLucideIcon(link?.right_icon_name, 14)}
                               <Badge
                                 size="xs"
                                 color={primaryBadge.color}

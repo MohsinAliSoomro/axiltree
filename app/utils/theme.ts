@@ -11,6 +11,65 @@ type ThemeObject = {
   [key: string]: Omit<ThemeArrayItem, "value" | "label">;
 };
 
+export const getThemeAccentColor = (background: string) => {
+  const hexMatches = background.match(/#[0-9a-fA-F]{3,8}/g);
+  if (hexMatches?.length) return hexMatches[0];
+
+  const rgbMatches = background.match(/rgba?\([^)]*\)/g);
+  if (rgbMatches?.length) return rgbMatches[0];
+
+  return background;
+};
+
+const getReadableColorForBackground = (background: string) => {
+  const hexMatches = background.match(/#[0-9a-fA-F]{3,8}/g);
+  const hex = hexMatches?.[0];
+  if (!hex) return "#ffffff";
+
+  const normalized = hex.replace("#", "");
+  const expanded =
+    normalized.length === 3
+      ? normalized
+          .split("")
+          .map((character) => character + character)
+          .join("")
+      : normalized;
+
+  if (expanded.length !== 6) return "#ffffff";
+
+  const parsed = Number.parseInt(expanded, 16);
+  if (Number.isNaN(parsed)) return "#ffffff";
+
+  const red = (parsed >> 16) & 255;
+  const green = (parsed >> 8) & 255;
+  const blue = parsed & 255;
+  const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+  return luminance > 0.6 ? "#111111" : "#ffffff";
+};
+
+export const getThemeConfig = (themeValue?: string) => {
+  const fallback = themesArray[0];
+  if (!themeValue) return fallback;
+
+  return (
+    themesArray.find((theme) => theme.value === themeValue) || {
+      value: themeValue,
+      label: "Custom",
+      bg: themeValue,
+      text: getReadableColorForBackground(themeValue),
+      button: themeValue,
+      buttonText: getReadableColorForBackground(themeValue),
+    }
+  );
+};
+
+export const getThemePickerColor = (themeValue?: string) => {
+  const theme = getThemeConfig(themeValue);
+  const accent = getThemeAccentColor(theme.bg);
+  if (theme.bg.includes("gradient")) return accent;
+  return theme.bg;
+};
+
 function convertThemesArrayToObject(
   themesArray: ThemeArrayItem[]
 ): ThemeObject {
@@ -105,6 +164,14 @@ export const themesArray = [
     text: "#ffffff",
     button: "#ffffff",
     buttonText: "#0f0c29",
+  },
+  {
+    value: "editorial-coach",
+    label: "Editorial Coach",
+    bg: "#f7efe8",
+    text: "#6f4f3e",
+    button: "#ffffff",
+    buttonText: "#6f4f3e",
   },
 
   {

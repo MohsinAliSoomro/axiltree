@@ -1,8 +1,19 @@
 "use client";
-import { Container, Stack, Avatar, Text, Box, Group } from "@mantine/core";
+import { Container, Stack, Text, Box, Group, Avatar } from "@mantine/core";
 import { motion } from "framer-motion";
-import { themesObject } from "../utils/theme";
-import { usernameThemes } from "../utils/usernameThemes";
+import { getThemeAccentColor, getThemeConfig, themesObject } from "../utils/theme";
+import { getUsernameThemeConfig } from "../utils/usernameThemes";
+import {
+  getAvatarAlignItems,
+  getAvatarAlignment,
+  getAvatarSize,
+  getAvatarJustifyContent,
+  getAvatarTextAlign,
+} from "../utils/avatarLayout";
+import {
+  getAvatarShape,
+  ProfileBackgroundPattern,
+} from "../utils/avatarShapes";
 import { getAnimationVariants } from "../utils/animations";
 import { createClient } from "../lib/supabase/client";
 import { fetchLocation } from "../utils/location";
@@ -14,6 +25,12 @@ import {
   getVideoEmbedUrl,
   type ContentBlock,
 } from "../utils/contentBlocks";
+import { renderLucideIcon } from "../utils/lucideIcons";
+import {
+  getLinkStyleFromProfile,
+  getReadableTextColor,
+  type LinkStyleConfig,
+} from "../utils/linkStyle";
 
 export default function ProfileView({
   profile,
@@ -28,20 +45,26 @@ export default function ProfileView({
 }) {
   const theme =
     themesObject[profile?.theme] ||
+    getThemeConfig(profile?.theme) ||
     themesObject.default || {
       bg: "#ffffff",
       text: "#000000",
       button: "#000000",
       buttonText: "#ffffff",
     };
+  const themeAccentColor = getThemeAccentColor(theme.bg);
+  const avatarSize = getAvatarSize(profile?.avatar_size, 100);
+  const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
+  const backgroundShape = getAvatarShape(profile?.profile_background_shape);
+  const showProfileImage = profile?.is_profile_image_show !== false;
   
   // Get username theme
-  const currentUsernameTheme =
-    usernameThemes.find((t) => t.value === profile?.username_theme) || usernameThemes[0];
+  const currentUsernameTheme = getUsernameThemeConfig(profile?.username_theme);
   
   // Get animation variants
   const animationVariants = getAnimationVariants(profile?.animation || "none");
   const selectedLayout = profile?.layout || "stack";
+  const linkStyle = getLinkStyleFromProfile(profile);
   const [carouselApi, setCarouselApi] = useState<any>(null);
 
   useEffect(() => {
@@ -69,6 +92,11 @@ export default function ProfileView({
       console.error("Failed to open link:", error);
     }
   };
+
+  const linkBg = linkStyle.linkColor || theme.button;
+  const linkText = linkStyle.linkColor
+    ? getReadableTextColor(linkBg)
+    : theme.buttonText;
   return (
     <Box
       className="hide-scrollbar"
@@ -82,11 +110,23 @@ export default function ProfileView({
         fontFamily: `var(--font-${profile?.font || "inter"}), sans-serif`,
         display: "flex",
         flexDirection: "column",
+        position: "relative",
+        isolation: "isolate",
       }}
     >
-      <Box style={{ flex: 1, padding: "40px 20px" }}>
+      <ProfileBackgroundPattern
+        shape={backgroundShape}
+        seed={`${profile?.id || profile?.username || "axiltree"}`}
+        color={theme.text}
+        opacity={0.10}
+        minSize={40}
+        maxSize={50}
+        style={{ zIndex: 0, position: "fixed", inset: 0 }}
+      />
+
+      <Box style={{ flex: 1, padding: "40px 20px", position: "relative", zIndex: 1 }}>
         <Container size="xs">
-          <Stack align="center" gap="md">
+          <Stack align={getAvatarAlignItems(avatarAlignment)} gap="md" style={{ width: "100%" }}>
             {profile?.banner_url && profile?.is_banner_show && (
               <Box
                 style={{
@@ -107,30 +147,38 @@ export default function ProfileView({
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, ${theme.bg} 100%)`,
+                    background: `linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.2) 55%, ${themeAccentColor} 100%)`,
                   }}
                 />
               </Box>
             )}
 
-            <motion.div
-            initial={animationVariants.initial}
-            animate={animationVariants.animate}
-            transition={{
-              ...animationVariants.transition,
-              delay: 0,
-            }}
-          >
-            <Avatar
-              src={profile?.avatar_url}
-              size={100}
-              radius="50%"
-              mt={profile?.banner_url && profile?.is_banner_show ? -64 : 0}
-              style={{ zIndex: 2, border: `4px solid ${theme.bg}` }}
-            />
-          </motion.div>
-          
-          <Stack gap={8} align="center">
+            {showProfileImage && (
+              <motion.div
+                initial={animationVariants.initial}
+                animate={animationVariants.animate}
+                transition={{
+                  ...animationVariants.transition,
+                  delay: 0,
+                }}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: getAvatarJustifyContent(avatarAlignment),
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              >
+                <Avatar
+                  src={profile?.avatar_url}
+                  size={avatarSize}
+                  radius="50%"
+                  mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.64) : 0}
+                  style={{ zIndex: 2, border: `4px solid ${themeAccentColor}` }}
+                />
+              </motion.div>
+            )}
+
             <motion.div
               initial={animationVariants.initial}
               animate={animationVariants.animate}
@@ -138,12 +186,13 @@ export default function ProfileView({
                 ...animationVariants.transition,
                 delay: profile?.animation !== "none" ? 0.1 : 0,
               }}
+              style={{ width: "100%" }}
             >
-              <Text size="xl" fw={700}>
+              <Text size="xl" fw={700} ta={getAvatarTextAlign(avatarAlignment) as any}>
                 {profile?.full_name || "Name"}
               </Text>
             </motion.div>
-            
+
             <motion.div
               initial={animationVariants.initial}
               animate={animationVariants.animate}
@@ -151,10 +200,12 @@ export default function ProfileView({
                 ...animationVariants.transition,
                 delay: profile?.animation !== "none" ? 0.2 : 0,
               }}
+              style={{ width: "100%" }}
             >
               <Text
                 size="md"
                 opacity={0.8}
+                ta={getAvatarTextAlign(avatarAlignment) as any}
                 style={{
                   background: currentUsernameTheme.color.includes("gradient")
                     ? currentUsernameTheme.color
@@ -176,7 +227,7 @@ export default function ProfileView({
                 @{profile?.username || "username"}
               </Text>
             </motion.div>
-            
+
             <motion.div
               initial={animationVariants.initial}
               animate={animationVariants.animate}
@@ -184,12 +235,12 @@ export default function ProfileView({
                 ...animationVariants.transition,
                 delay: profile?.animation !== "none" ? 0.3 : 0,
               }}
+              style={{ width: "100%" }}
             >
-              <Text size="sm" ta="center" opacity={0.9} maw={400}>
+              <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9} maw={400}>
                 {profile?.bio || ""}
               </Text>
             </motion.div>
-          </Stack>
 
           <Box style={{ width: "100%" }} mt="lg">
             {selectedLayout === "grid" ? (
@@ -210,6 +261,7 @@ export default function ProfileView({
                     hasAnimation={profile?.animation !== "none"}
                     buttonBg={theme.button}
                     buttonText={theme.buttonText}
+                    linkStyle={linkStyle}
                     onTrack={handleClick}
                     compact
                   />
@@ -243,6 +295,7 @@ export default function ProfileView({
                       hasAnimation={profile?.animation !== "none"}
                       buttonBg={theme.button}
                       buttonText={theme.buttonText}
+                      linkStyle={linkStyle}
                       onTrack={handleClick}
                       square
                     />
@@ -260,6 +313,7 @@ export default function ProfileView({
                     hasAnimation={profile?.animation !== "none"}
                     buttonBg={theme.button}
                     buttonText={theme.buttonText}
+                    linkStyle={linkStyle}
                     onTrack={handleClick}
                   />
                 ))}
@@ -597,6 +651,7 @@ function ProfileLinkItem({
   hasAnimation,
   buttonBg,
   buttonText,
+  linkStyle,
   onTrack,
   compact = false,
   square = false,
@@ -607,11 +662,24 @@ function ProfileLinkItem({
   hasAnimation: boolean;
   buttonBg: string;
   buttonText: string;
+  linkStyle: LinkStyleConfig;
   onTrack: (link: any) => void;
   compact?: boolean;
   square?: boolean;
 }) {
   const staggerDelay = hasAnimation ? 0.4 + index * 0.1 : 0;
+  const fontSize = compact ? Math.max(12, linkStyle.fontSize - 1) : linkStyle.fontSize;
+  const borderRadius = square
+    ? `${Math.max(6, Math.min(linkStyle.borderRadius, 24))}px`
+    : `${linkStyle.borderRadius}px`;
+  const minHeight = compact
+    ? Math.max(40, linkStyle.height - 8)
+    : linkStyle.height;
+  const borderColor = linkStyle.borderWidth > 0 ? linkStyle.borderColor : "transparent";
+  const linkBg = linkStyle.linkColor || buttonBg;
+  const linkText = linkStyle.linkColor
+    ? getReadableTextColor(linkBg)
+    : buttonText;
 
   return (
     <motion.div
@@ -635,17 +703,20 @@ function ProfileLinkItem({
           justifyContent: "center",
           width: "100%",
           aspectRatio: square ? "1 / 1" : undefined,
-          background: buttonBg,
-          color: buttonText,
-          border: "none",
-          padding: compact ? "13px 10px" : "16px 20px",
-          borderRadius: square ? "8px" : compact ? "14px" : "50px",
+          background: linkBg,
+          color: linkText,
+          border: `${linkStyle.borderWidth}px solid ${borderColor}`,
+          boxShadow: linkStyle.shadow ? "0 10px 24px rgba(0, 0, 0, 0.18)" : "none",
+          padding: `0 ${Math.max(8, linkStyle.horizontalPadding)}px`,
+          minHeight,
+          borderRadius,
           textAlign: "center",
-          fontWeight: 500,
-          fontSize: compact ? "14px" : "16px",
+          fontWeight: linkStyle.fontWeight,
+          fontSize,
           textDecoration: "none",
           cursor: "pointer",
           transition: "transform 0.2s",
+          gap: 10,
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.transform = "scale(1.02)";
@@ -654,7 +725,15 @@ function ProfileLinkItem({
           (e.currentTarget as HTMLElement).style.transform = "scale(1)";
         }}
       >
-        {link.title}
+        <Box style={{ width: 20, display: "flex", justifyContent: "flex-start", flexShrink: 0 }}>
+          {link?.left_icon_name ? renderLucideIcon(link.left_icon_name, 16) : null}
+        </Box>
+        <Box style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+          <span>{link.title}</span>
+        </Box>
+        <Box style={{ width: 20, display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+          {link?.right_icon_name ? renderLucideIcon(link.right_icon_name, 16) : null}
+        </Box>
       </Box>
     </motion.div>
   );

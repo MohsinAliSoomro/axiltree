@@ -122,3 +122,27 @@ export const usernameThemes = [
   },
 ];
 
+export const getUsernameThemeConfig = (themeValue?: string) => {
+  const fallback = usernameThemes[0];
+  if (!themeValue) return fallback;
+
+  return (
+    usernameThemes.find((theme) => theme.value === themeValue) || {
+      value: themeValue,
+      label: "Custom",
+      color: themeValue,
+      bg: themeValue,
+    }
+  );
+};
+
+export const getUsernameThemePickerColor = (themeValue?: string) => {
+  const theme = getUsernameThemeConfig(themeValue);
+  if (theme.color.includes("gradient")) {
+    const hexMatches = theme.color.match(/#[0-9a-fA-F]{3,8}/g);
+    return hexMatches?.[0] || "#1d4ed8";
+  }
+
+  return theme.color;
+};
+

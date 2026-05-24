@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Grid,
   Box,
@@ -12,6 +12,7 @@ import {
   Button,
   Modal,
   Stack,
+  ScrollArea,
 } from "@mantine/core";
 import { 
   IconUser, 
@@ -28,6 +29,7 @@ import FontSelector from "./components/FontSelector";
 import ProfileInfo from "./components/ProfileInfo";
 import ThemeSelector from "./components/ThemeSelector";
 import AnimationSelector from "./components/AnimationSelector";
+import LinkStyleSelector from "./components/LinkStyleSelector";
 import AddLinkForm from "./components/AddLinkForm";
 import LinksList from "./components/LinksList";
 import AddContentBlockForm from "./components/AddContentBlockForm";
@@ -39,6 +41,8 @@ import TemplateMarketplace from "./components/TemplateMarketplace";
 import { type ProfileTemplate } from "@/app/utils/templates";
 import LayoutSelector from "./components/LayoutSelector";
 import { type ContentBlockType } from "@/app/utils/contentBlocks";
+import { getLinkStyleFromProfile } from "@/app/utils/linkStyle";
+import { getUsernameThemePickerColor } from "@/app/utils/usernameThemes";
 
 
 export default function LinkTreeDashboard({ user }: { user: User | null }) {
@@ -49,9 +53,10 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedTheme, setSelectedTheme] = useState("default");
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
-  const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
+  const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("#1d4ed8");
   const [selectedLayout, setSelectedLayout] = useState("stack");
   const [activeTab, setActiveTab] = useState("links");
+  const panelsScrollRef = useRef<HTMLDivElement | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [createTarget, setCreateTarget] = useState<"link" | "block" | null>(null);
@@ -99,6 +104,12 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     };
   }, []);
 
+  const handleTabChange = (value: string | null) => {
+    setActiveTab(value || "links");
+    // scroll panels container to top when switching tabs
+    if (panelsScrollRef.current) panelsScrollRef.current.scrollTop = 0;
+  };
+
   const loadData = async () => {
     const { data: profileData } = await supabase
       .from("profiles")
@@ -110,7 +121,9 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setSelectedTheme(profileData.theme || "default");
       setSelectedFont(profileData.font || "inter");
       setSelectedAnimation(profileData.animation || "none");
-      setSelectedUsernameTheme(profileData.username_theme || "default");
+      setSelectedUsernameTheme(
+        getUsernameThemePickerColor(profileData.username_theme || "#1d4ed8")
+      );
       setSelectedLayout(profileData.layout || "stack");
     }
 
@@ -239,7 +252,10 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
         case "TikTok":
           return parsed.hostname.includes("tiktok.com");
         case "Twitter":
-          return parsed.hostname.includes("x.com");
+          return (
+            parsed.hostname.includes("x.com") ||
+            parsed.hostname.includes("twitter.com")
+          );
         case "Facebook":
           return parsed.hostname.includes("facebook.com");
         case "Whatsapp":
@@ -262,6 +278,39 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
             parsed.hostname.includes("telegram.me") ||
             parsed.hostname.includes("telegram.org")
           );
+        case "Threads":
+          return parsed.hostname.includes("threads.net");
+        case "Pinterest":
+          return parsed.hostname.includes("pinterest.com");
+        case "Reddit":
+          return parsed.hostname.includes("reddit.com");
+        case "Discord":
+          return (
+            parsed.hostname.includes("discord.com") ||
+            parsed.hostname.includes("discord.gg")
+          );
+        case "Twitch":
+          return parsed.hostname.includes("twitch.tv");
+        case "GitHub":
+          return parsed.hostname.includes("github.com");
+        case "GitLab":
+          return parsed.hostname.includes("gitlab.com");
+        case "Medium":
+          return parsed.hostname.includes("medium.com");
+        case "Substack":
+          return parsed.hostname.includes("substack.com");
+        case "Bluesky":
+          return (
+            parsed.hostname.includes("bsky.app") ||
+            parsed.hostname.includes("blueskyweb.xyz") ||
+            parsed.hostname.includes("bsky.social")
+          );
+        case "Mastodon":
+          return parsed.hostname.includes("mastodon");
+        case "Spotify":
+          return parsed.hostname.includes("spotify.com");
+        case "SoundCloud":
+          return parsed.hostname.includes("soundcloud.com");
         case "Website":
           return !!parsed.hostname;
         default:
@@ -275,11 +324,15 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const addLink = async ({
     title,
     url,
+    leftIconName,
+    rightIconName,
     publishAt,
     expireAt,
   }: {
     title: string;
     url: string;
+    leftIconName?: string | null;
+    rightIconName?: string | null;
     publishAt?: string | null;
     expireAt?: string | null;
   }) => {
@@ -300,6 +353,8 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       url,
       position: links.length,
       is_active: true,
+      left_icon_name: leftIconName ?? null,
+      right_icon_name: rightIconName ?? null,
       publish_at: publishAt ?? null,
       expire_at: expireAt ?? null,
     };
@@ -529,6 +584,8 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       .eq("id", user?.id);
   };
 
+  const linkStyle = getLinkStyleFromProfile(profile);
+
   return (
     <AppShellLayout>
       <Box
@@ -548,50 +605,56 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
             overflow: "hidden",
           }}
         >
-          <Grid gutter={0} h="100%">
+          <Grid gutter={0} h="100%" style={{ minHeight: 0 }}>
             <Grid.Col
               span={{ base: 12, lg: 8 }}
               h="100%"
-              style={{ borderRight: isMobileEditor ? "none" : "1px solid #e5e7eb" }}
+              style={{ borderRight: isMobileEditor ? "none" : "1px solid #e5e7eb", minHeight: 0 }}
             >
               <Tabs
                 value={activeTab}
-                onChange={(value) => setActiveTab(value as string)}
-                style={{ height: "100%", display: "flex", flexDirection: "column" }}
+                onChange={handleTabChange}
+                style={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}
               >
                 <Tabs.List
+                  // allow horizontal scroll when tabs overflow
                   style={{
                     padding: "8px 12px",
                     borderBottom: "1px solid #e5e7eb",
                     background: "white",
                     gap: 8,
-                    flexWrap: isMobileEditor ? "wrap" : "nowrap",
+                    overflowX: "auto",
+                    WebkitOverflowScrolling: "touch",
+                    whiteSpace: "nowrap",
+                    display: "flex",
                   }}
                 >
-                  <Tabs.Tab value="links" leftSection={<IconLink size={16} />}>
+                  <Tabs.Tab style={{ flex: "0 0 auto" }} value="links" leftSection={<IconLink size={16} />}>
                     Links
                   </Tabs.Tab>
-                  <Tabs.Tab value="theme" leftSection={<IconPalette size={16} />}>
+                  <Tabs.Tab style={{ flex: "0 0 auto" }} value="theme" leftSection={<IconPalette size={16} />}>
                     Appearance
                   </Tabs.Tab>
-                  <Tabs.Tab value="design" leftSection={<IconPalette size={16} />}>
+                  <Tabs.Tab style={{ flex: "0 0 auto" }} value="design" leftSection={<IconPalette size={16} />}>
                     Settings
                   </Tabs.Tab>
-                  <Tabs.Tab value="profile" leftSection={<IconUser size={16} />}>
+                  <Tabs.Tab style={{ flex: "0 0 auto" }} value="profile" leftSection={<IconUser size={16} />}>
                     Profile
                   </Tabs.Tab>
                 </Tabs.List>
 
-                <Box
+                <ScrollArea
+                  ref={panelsScrollRef}
                   style={{
                     flex: 1,
-                    overflowY: "auto",
+                    minHeight: 0,
                     background: "white",
-                    padding: "16px",
                   }}
+                  scrollbarSize={10}
+                  type="auto"
                 >
-                  <Box pb={320}>
-                      <Box
+                  <Box style={{ minHeight: 0, padding: 16, paddingBottom: 320 }}>
+                      {/* <Box
                         mb="md"
                         style={{
                           border: "1px solid #e5e7eb",
@@ -606,7 +669,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         <Text size="xs" c="dimmed">
                           {tabMeta[activeTab]?.description}
                         </Text>
-                      </Box>
+                      </Box> */}
 
                       <Tabs.Panel value="profile">
                         <ProfileInfo profile={profile} updateProfile={updateProfile} />
@@ -623,8 +686,14 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         </Box>
                       </Tabs.Panel>
 
-                      <Tabs.Panel value="design">
-                        <Box pb={140}>
+                      <Tabs.Panel value="design" style={{ height: "100%" }}>
+                        <ScrollArea
+                          h="calc(100vh - 220px)"
+                          type="auto"
+                          scrollbarSize={10}
+                          offsetScrollbars
+                        >
+                          <Box style={{ minHeight: 0, paddingBottom: 140, paddingRight: 8 }}>
                           <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
                             <LayoutSelector
                               selectedLayout={selectedLayout}
@@ -647,6 +716,13 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                           </Box>
 
                           <Box mt="md">
+                            <LinkStyleSelector
+                              linkStyle={linkStyle}
+                              updateStyleField={updateProfile}
+                            />
+                          </Box>
+
+                          <Box mt="md">
                             <UsernameThemeSelector
                               selectedTheme={selectedUsernameTheme}
                               onThemeChange={updateUsernameTheme}
@@ -659,16 +735,18 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                               updateAnimation={updateAnimation}
                             />
                           </Box>
-                        </Box>
+                          </Box>
+                        </ScrollArea>
                       </Tabs.Panel>
 
-                      <Tabs.Panel value="links">
-                        <Box
-                          style={{
-                            maxHeight: "calc(100vh - 260px)",
-                            overflowY: "auto",
-                          }}
+                      <Tabs.Panel value="links" style={{ height: "100%" }}>
+                        <ScrollArea
+                          h="calc(100vh - 220px)"
+                          type="auto"
+                          scrollbarSize={10}
+                          offsetScrollbars
                         >
+                          <Box style={{ minHeight: 0, paddingBottom: 140, paddingRight: 8 }}>
                           <Box
                             style={{
                               border: "1px solid #e5e7eb",
@@ -779,10 +857,11 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                               updateProductSchedule={updateProductSchedule}
                             />
                           </Box>
-                        </Box>
+                          </Box>
+                        </ScrollArea>
                       </Tabs.Panel>
                   </Box>
-                </Box>
+                </ScrollArea>
               </Tabs>
 
               <Modal
@@ -878,6 +957,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                   links={links}
                   contentBlocks={contentBlocks}
                   products={products}
+                  linkStyle={linkStyle}
                   selectedTheme={selectedTheme}
                   selectedFont={selectedFont}
                   selectedAnimation={selectedAnimation}

@@ -2,8 +2,19 @@
 import { motion } from "framer-motion";
 import { Box, Paper, Group, Text, Stack, Avatar } from "@mantine/core";
 import { IconDeviceMobile } from "@tabler/icons-react";
-import { themesArray } from "@/app/utils/theme";
-import { usernameThemes } from "@/app/utils/usernameThemes";
+import { getThemeAccentColor, getThemeConfig, themesArray } from "@/app/utils/theme";
+import { getUsernameThemeConfig } from "@/app/utils/usernameThemes";
+import {
+  getAvatarAlignItems,
+  getAvatarAlignment,
+  getAvatarSize,
+  getAvatarJustifyContent,
+  getAvatarTextAlign,
+} from "@/app/utils/avatarLayout";
+import {
+  getAvatarShape,
+  ProfileBackgroundPattern,
+} from "@/app/utils/avatarShapes";
 import { getAnimationVariants } from "@/app/utils/animations";
 import Image from "next/image";
 import { Carousel } from "@mantine/carousel";
@@ -14,12 +25,18 @@ import {
   getVideoEmbedUrl,
   type ContentBlock,
 } from "@/app/utils/contentBlocks";
+import { renderLucideIcon } from "@/app/utils/lucideIcons";
+import {
+  getReadableTextColor,
+  type LinkStyleConfig,
+} from "@/app/utils/linkStyle";
 
 interface MobilePreviewProps {
   profile: any;
   links: any[];
   contentBlocks: ContentBlock[];
   products: any[];
+  linkStyle: LinkStyleConfig;
   selectedTheme: string;
   selectedFont: string;
   selectedAnimation: string;
@@ -34,6 +51,7 @@ export default function MobilePreview({
   links, 
   contentBlocks,
   products,
+  linkStyle,
   selectedTheme, 
   selectedFont, 
   selectedAnimation,
@@ -55,11 +73,14 @@ export default function MobilePreview({
     return () => clearInterval(intervalId);
   }, [selectedLayout, carouselApi, displayLinks.length]);
 
-  const currentTheme =
-    themes.find((t) => t.value === selectedTheme) || themes[0];
+  const currentTheme = getThemeConfig(selectedTheme);
+  const themeAccentColor = getThemeAccentColor(currentTheme.bg);
 
-  const currentUsernameTheme =
-    usernameThemes.find((t) => t.value === selectedUsernameTheme) || usernameThemes[0];
+  const currentUsernameTheme = getUsernameThemeConfig(selectedUsernameTheme);
+  const avatarSize = getAvatarSize(profile?.avatar_size, 80);
+  const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
+  const backgroundShape = getAvatarShape(profile?.profile_background_shape);
+  const showProfileImage = profile?.is_profile_image_show !== false;
   return (
     <Paper shadow="sm" p="md" withBorder>
       <Group mb="md">
@@ -78,8 +99,20 @@ export default function MobilePreview({
           borderRadius: 36,
           overflow: "hidden",
           background: currentTheme.bg,
+          position: "relative",
+          isolation: "isolate",
         }}
       >
+        <ProfileBackgroundPattern
+          shape={backgroundShape}
+          seed={`${profile?.id || profile?.username || "axiltree"}`}
+          color={currentTheme.text}
+          opacity={0.10}
+          minSize={40}
+          maxSize={50}
+          style={{ zIndex: 0 }}
+        />
+
         <Box
           className="hide-scrollbar"
           p="xl"
@@ -90,9 +123,11 @@ export default function MobilePreview({
             scrollbarWidth: "none",
             color: currentTheme.text,
             fontFamily: `var(--font-${selectedFont || "inter"}), sans-serif`,
+            position: "relative",
+            zIndex: 1,
           }}
         >
-          <Stack align="center" gap="md">
+          <Stack align={getAvatarAlignItems(avatarAlignment)} gap="md" style={{ width: "100%" }}>
             {profile?.banner_url && profile?.is_banner_show && (
               <Box
                 style={{
@@ -113,50 +148,65 @@ export default function MobilePreview({
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: `linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, ${currentTheme.bg} 100%)`,
+                    background: `linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.16) 52%, ${themeAccentColor} 100%)`,
                   }}
                 />
               </Box>
             )}
 
-            <Avatar
-              src={profile?.avatar_url}
-              size={80}
-              radius="50%"
-              mt={profile?.banner_url && profile?.is_banner_show ? -46 : 0}
-              style={{ zIndex: 2, border: `3px solid ${currentTheme.bg}` }}
-            />
-            <Stack gap={4} align="center">
-              <Text size="xl" fw={700}>
-                {profile?.full_name || "Your Name"}
-              </Text>
-              <Text
-                size="sm"
-                opacity={0.8}
-                style={{
-                  background: currentUsernameTheme.color.includes("gradient")
-                    ? currentUsernameTheme.color
-                    : undefined,
-                  color: currentUsernameTheme.color.includes("gradient")
-                    ? "transparent"
-                    : currentUsernameTheme.color,
-                  WebkitBackgroundClip: currentUsernameTheme.color.includes("gradient")
-                    ? "text"
-                    : undefined,
-                  WebkitTextFillColor: currentUsernameTheme.color.includes("gradient")
-                    ? "transparent"
-                    : undefined,
-                  backgroundClip: currentUsernameTheme.color.includes("gradient")
-                    ? "text"
-                    : undefined,
-                }}
-              >
-                @{profile?.username || "username"}
-              </Text>
-              <Text size="sm" ta="center" opacity={0.9}>
-                {profile?.bio || "Your bio goes here"}
-              </Text>
-            </Stack>
+            <Box
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: getAvatarJustifyContent(avatarAlignment),
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
+              <Stack gap={4} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "fit-content" }}>
+                {showProfileImage && (
+                  <Avatar
+                    src={profile?.avatar_url}
+                    size={avatarSize}
+                    mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.58) : 0}
+                    radius="50%"
+                    style={{ zIndex: 2, border: `3px solid ${themeAccentColor}` }}
+                  />
+                )}
+                <Stack gap={4} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "fit-content" }}>
+                  <Text size="xl" fw={700}>
+                    {profile?.full_name || "Your Name"}
+                  </Text>
+                  <Text
+                    size="sm"
+                    opacity={0.8}
+                    ta={getAvatarTextAlign(avatarAlignment) as any}
+                    style={{
+                      background: currentUsernameTheme.color.includes("gradient")
+                        ? currentUsernameTheme.color
+                        : undefined,
+                      color: currentUsernameTheme.color.includes("gradient")
+                        ? "transparent"
+                        : currentUsernameTheme.color,
+                      WebkitBackgroundClip: currentUsernameTheme.color.includes("gradient")
+                        ? "text"
+                        : undefined,
+                      WebkitTextFillColor: currentUsernameTheme.color.includes("gradient")
+                        ? "transparent"
+                        : undefined,
+                      backgroundClip: currentUsernameTheme.color.includes("gradient")
+                        ? "text"
+                        : undefined,
+                    }}
+                  >
+                    @{profile?.username || "username"}
+                  </Text>
+                  <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9}>
+                    {profile?.bio || "Your bio goes here"}
+                  </Text>
+                </Stack>
+              </Stack>
+            </Box>
 
             <Stack gap="sm" style={{ width: "100%" }} mt="md">
               {selectedLayout === "grid" ? (
@@ -175,6 +225,7 @@ export default function MobilePreview({
                       index={index}
                       selectedAnimation={selectedAnimation}
                       currentTheme={currentTheme}
+                      linkStyle={linkStyle}
                       compact
                     />
                   ))}
@@ -205,6 +256,7 @@ export default function MobilePreview({
                         index={index}
                         selectedAnimation={selectedAnimation}
                         currentTheme={currentTheme}
+                        linkStyle={linkStyle}
                         square
                       />
                     </Carousel.Slide>
@@ -219,6 +271,7 @@ export default function MobilePreview({
                       index={index}
                       selectedAnimation={selectedAnimation}
                       currentTheme={currentTheme}
+                      linkStyle={linkStyle}
                     />
                   ))}
                 </Stack>
@@ -481,6 +534,7 @@ function PreviewLinkItem({
   index,
   selectedAnimation,
   currentTheme,
+  linkStyle,
   compact = false,
   square = false,
 }: {
@@ -488,11 +542,24 @@ function PreviewLinkItem({
   index: number;
   selectedAnimation: string;
   currentTheme: any;
+  linkStyle: LinkStyleConfig;
   compact?: boolean;
   square?: boolean;
 }) {
   const animationVariants = getAnimationVariants(selectedAnimation);
   const staggerDelay = selectedAnimation !== "none" ? index * 0.1 : 0;
+  const fontSize = compact ? Math.max(12, linkStyle.fontSize - 1) : linkStyle.fontSize;
+  const borderRadius = square
+    ? `${Math.max(6, Math.min(linkStyle.borderRadius, 24))}px`
+    : `${linkStyle.borderRadius}px`;
+  const minHeight = compact
+    ? Math.max(40, linkStyle.height - 8)
+    : linkStyle.height;
+  const borderColor = linkStyle.borderWidth > 0 ? linkStyle.borderColor : "transparent";
+  const linkBg = linkStyle.linkColor || currentTheme.button;
+  const linkText = linkStyle.linkColor
+    ? getReadableTextColor(linkBg)
+    : currentTheme.buttonText;
 
   return (
     <motion.div
@@ -511,21 +578,32 @@ function PreviewLinkItem({
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           width: "100%",
           aspectRatio: square ? "1 / 1" : undefined,
-          background: currentTheme.button,
-          color: currentTheme.buttonText,
-          border: "none",
-          padding: compact ? "12px 10px" : "16px 20px",
-          borderRadius: square ? "8px" : compact ? "14px" : "50px",
+          background: linkBg,
+          color: linkText,
+          border: `${linkStyle.borderWidth}px solid ${borderColor}`,
+          boxShadow: linkStyle.shadow ? "0 10px 24px rgba(0, 0, 0, 0.18)" : "none",
+          padding: `0 ${Math.max(8, linkStyle.horizontalPadding)}px`,
+          minHeight,
+          borderRadius,
           textAlign: "center",
-          fontWeight: 500,
-          fontSize: compact ? "13px" : "16px",
+          fontWeight: linkStyle.fontWeight,
+          fontSize,
           textDecoration: "none",
+          gap: 10,
         }}
       >
-        {link?.title}
+        <Box style={{ width: 20, display: "flex", justifyContent: "flex-start", flexShrink: 0 }}>
+          {link?.left_icon_name ? renderLucideIcon(link.left_icon_name, 16) : null}
+        </Box>
+        <Box style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
+          <span>{link?.title}</span>
+        </Box>
+        <Box style={{ width: 20, display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+          {link?.right_icon_name ? renderLucideIcon(link.right_icon_name, 16) : null}
+        </Box>
       </Box>
     </motion.div>
   );
