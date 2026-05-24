@@ -12,6 +12,7 @@ import {
   Button,
   Modal,
   Stack,
+  ScrollArea,
 } from "@mantine/core";
 import { 
   IconUser, 
@@ -41,6 +42,7 @@ import { type ProfileTemplate } from "@/app/utils/templates";
 import LayoutSelector from "./components/LayoutSelector";
 import { type ContentBlockType } from "@/app/utils/contentBlocks";
 import { getLinkStyleFromProfile } from "@/app/utils/linkStyle";
+import { getUsernameThemePickerColor } from "@/app/utils/usernameThemes";
 
 
 export default function LinkTreeDashboard({ user }: { user: User | null }) {
@@ -51,7 +53,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedTheme, setSelectedTheme] = useState("default");
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
-  const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
+  const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("#1d4ed8");
   const [selectedLayout, setSelectedLayout] = useState("stack");
   const [activeTab, setActiveTab] = useState("links");
   const panelsScrollRef = useRef<HTMLDivElement | null>(null);
@@ -119,7 +121,9 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setSelectedTheme(profileData.theme || "default");
       setSelectedFont(profileData.font || "inter");
       setSelectedAnimation(profileData.animation || "none");
-      setSelectedUsernameTheme(profileData.username_theme || "default");
+      setSelectedUsernameTheme(
+        getUsernameThemePickerColor(profileData.username_theme || "#1d4ed8")
+      );
       setSelectedLayout(profileData.layout || "stack");
     }
 
@@ -601,16 +605,16 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
             overflow: "hidden",
           }}
         >
-          <Grid gutter={0} h="100%">
+          <Grid gutter={0} h="100%" style={{ minHeight: 0 }}>
             <Grid.Col
               span={{ base: 12, lg: 8 }}
               h="100%"
-              style={{ borderRight: isMobileEditor ? "none" : "1px solid #e5e7eb" }}
+              style={{ borderRight: isMobileEditor ? "none" : "1px solid #e5e7eb", minHeight: 0 }}
             >
               <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
-                style={{ height: "100%", display: "flex", flexDirection: "column" }}
+                style={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}
               >
                 <Tabs.List
                   // allow horizontal scroll when tabs overflow
@@ -639,16 +643,17 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                   </Tabs.Tab>
                 </Tabs.List>
 
-                <Box
+                <ScrollArea
                   ref={panelsScrollRef}
                   style={{
                     flex: 1,
-                    overflowY: "auto",
+                    minHeight: 0,
                     background: "white",
-                    padding: "16px",
                   }}
+                  scrollbarSize={10}
+                  type="auto"
                 >
-                  <Box pb={320}>
+                  <Box style={{ minHeight: 0, padding: 16, paddingBottom: 320 }}>
                       {/* <Box
                         mb="md"
                         style={{
@@ -681,8 +686,14 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         </Box>
                       </Tabs.Panel>
 
-                      <Tabs.Panel value="design">
-                        <Box pb={140}>
+                      <Tabs.Panel value="design" style={{ height: "100%" }}>
+                        <ScrollArea
+                          h="calc(100vh - 220px)"
+                          type="auto"
+                          scrollbarSize={10}
+                          offsetScrollbars
+                        >
+                          <Box style={{ minHeight: 0, paddingBottom: 140, paddingRight: 8 }}>
                           <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
                             <LayoutSelector
                               selectedLayout={selectedLayout}
@@ -724,16 +735,18 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                               updateAnimation={updateAnimation}
                             />
                           </Box>
-                        </Box>
+                          </Box>
+                        </ScrollArea>
                       </Tabs.Panel>
 
-                      <Tabs.Panel value="links">
-                        <Box
-                          style={{
-                            maxHeight: "calc(100vh - 260px)",
-                            overflowY: "auto",
-                          }}
+                      <Tabs.Panel value="links" style={{ height: "100%" }}>
+                        <ScrollArea
+                          h="calc(100vh - 220px)"
+                          type="auto"
+                          scrollbarSize={10}
+                          offsetScrollbars
                         >
+                          <Box style={{ minHeight: 0, paddingBottom: 140, paddingRight: 8 }}>
                           <Box
                             style={{
                               border: "1px solid #e5e7eb",
@@ -844,10 +857,11 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                               updateProductSchedule={updateProductSchedule}
                             />
                           </Box>
-                        </Box>
+                          </Box>
+                        </ScrollArea>
                       </Tabs.Panel>
                   </Box>
-                </Box>
+                </ScrollArea>
               </Tabs>
 
               <Modal

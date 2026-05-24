@@ -1,8 +1,14 @@
 "use client";
 import { Container, Stack, Avatar, Text, Box, Group } from "@mantine/core";
 import { motion } from "framer-motion";
-import { themesObject } from "../utils/theme";
-import { usernameThemes } from "../utils/usernameThemes";
+import { getThemeAccentColor, getThemeConfig, themesObject } from "../utils/theme";
+import { getUsernameThemeConfig } from "../utils/usernameThemes";
+import {
+  getAvatarAlignItems,
+  getAvatarAlignment,
+  getAvatarSize,
+  getAvatarTextAlign,
+} from "../utils/avatarLayout";
 import { getAnimationVariants } from "../utils/animations";
 import { createClient } from "../lib/supabase/client";
 import { fetchLocation } from "../utils/location";
@@ -34,16 +40,19 @@ export default function ProfileView({
 }) {
   const theme =
     themesObject[profile?.theme] ||
+    getThemeConfig(profile?.theme) ||
     themesObject.default || {
       bg: "#ffffff",
       text: "#000000",
       button: "#000000",
       buttonText: "#ffffff",
     };
+  const themeAccentColor = getThemeAccentColor(theme.bg);
+  const avatarSize = getAvatarSize(profile?.avatar_size, 100);
+  const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
   
   // Get username theme
-  const currentUsernameTheme =
-    usernameThemes.find((t) => t.value === profile?.username_theme) || usernameThemes[0];
+  const currentUsernameTheme = getUsernameThemeConfig(profile?.username_theme);
   
   // Get animation variants
   const animationVariants = getAnimationVariants(profile?.animation || "none");
@@ -119,30 +128,30 @@ export default function ProfileView({
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, ${theme.bg} 100%)`,
+                    background: `linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.2) 55%, ${themeAccentColor} 100%)`,
                   }}
                 />
               </Box>
             )}
 
             <motion.div
-            initial={animationVariants.initial}
-            animate={animationVariants.animate}
-            transition={{
-              ...animationVariants.transition,
-              delay: 0,
-            }}
-          >
+              initial={animationVariants.initial}
+              animate={animationVariants.animate}
+              transition={{
+                ...animationVariants.transition,
+                delay: 0,
+              }}
+            >
             <Avatar
               src={profile?.avatar_url}
-              size={100}
+              size={avatarSize}
               radius="50%"
-              mt={profile?.banner_url && profile?.is_banner_show ? -64 : 0}
-              style={{ zIndex: 2, border: `4px solid ${theme.bg}` }}
+              mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.64) : 0}
+              style={{ zIndex: 2, border: `4px solid ${themeAccentColor}` }}
             />
           </motion.div>
           
-          <Stack gap={8} align="center">
+          <Stack gap={8} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "100%" }}>
             <motion.div
               initial={animationVariants.initial}
               animate={animationVariants.animate}
@@ -167,6 +176,7 @@ export default function ProfileView({
               <Text
                 size="md"
                 opacity={0.8}
+                ta={getAvatarTextAlign(avatarAlignment) as any}
                 style={{
                   background: currentUsernameTheme.color.includes("gradient")
                     ? currentUsernameTheme.color
@@ -197,7 +207,7 @@ export default function ProfileView({
                 delay: profile?.animation !== "none" ? 0.3 : 0,
               }}
             >
-              <Text size="sm" ta="center" opacity={0.9} maw={400}>
+              <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9} maw={400}>
                 {profile?.bio || ""}
               </Text>
             </motion.div>

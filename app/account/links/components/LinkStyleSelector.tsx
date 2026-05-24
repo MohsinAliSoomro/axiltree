@@ -61,6 +61,11 @@ export default function LinkStyleSelector({
   linkStyle,
   updateStyleField,
 }: LinkStyleSelectorProps) {
+  const visibleBorderColor =
+    linkStyle.borderColor && linkStyle.borderColor !== "transparent"
+      ? linkStyle.borderColor
+      : "#d1d5db";
+
   return (
     <Paper shadow="sm" p="md" withBorder>
       {/* <Group mb="md">
@@ -102,7 +107,7 @@ export default function LinkStyleSelector({
 
         <ColorInput
           label="Border Color"
-          value={linkStyle.borderColor}
+          value={visibleBorderColor}
           onChange={(value) => updateStyleField("link_border_color", value)}
           popoverProps={{ withinPortal: true }}
         />

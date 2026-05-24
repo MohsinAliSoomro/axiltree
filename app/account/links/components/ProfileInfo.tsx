@@ -13,12 +13,14 @@ import {
   Switch,
   Slider,
   Modal,
+  SegmentedControl,
 } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
 import { Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/app/lib/supabase/client";
 import { notifications } from "@mantine/notifications";
+import { getAvatarAlignment, getAvatarSize } from "@/app/utils/avatarLayout";
 
 interface ProfileInfoProps {
   profile: any;
@@ -27,6 +29,8 @@ interface ProfileInfoProps {
 
 export default function ProfileInfo({ profile, updateProfile }: ProfileInfoProps) {
   const supabase = createClient();
+  const avatarSize = getAvatarSize(profile?.avatar_size, 80);
+  const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
@@ -179,7 +183,7 @@ export default function ProfileInfo({ profile, updateProfile }: ProfileInfoProps
         <Group>
           <Avatar
             src={profile?.avatar_url}
-            size="lg"
+            size={avatarSize}
             radius="50%"
           />
           <Stack gap={4} style={{ flex: 1 }}>
@@ -215,6 +219,30 @@ export default function ProfileInfo({ profile, updateProfile }: ProfileInfoProps
           onChange={(event) =>
             updateProfile("is_banner_show", event.currentTarget.checked)
           }
+        />
+
+        <Stack gap={6}>
+          <Text size="sm" fw={500}>
+            Profile Picture Size
+          </Text>
+          <Slider
+            min={48}
+            max={160}
+            step={1}
+            value={avatarSize}
+            onChange={(value) => updateProfile("avatar_size", value)}
+          />
+        </Stack>
+
+        <SegmentedControl
+          fullWidth
+          value={avatarAlignment}
+          onChange={(value) => updateProfile("avatar_alignment", value)}
+          data={[
+            { label: "Left", value: "left" },
+            { label: "Center", value: "center" },
+            { label: "Right", value: "right" },
+          ]}
         />
 
         {profile?.banner_url && !bannerFile && (

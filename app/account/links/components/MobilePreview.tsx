@@ -2,8 +2,14 @@
 import { motion } from "framer-motion";
 import { Box, Paper, Group, Text, Stack, Avatar } from "@mantine/core";
 import { IconDeviceMobile } from "@tabler/icons-react";
-import { themesArray } from "@/app/utils/theme";
-import { usernameThemes } from "@/app/utils/usernameThemes";
+import { getThemeAccentColor, getThemeConfig, themesArray } from "@/app/utils/theme";
+import { getUsernameThemeConfig } from "@/app/utils/usernameThemes";
+import {
+  getAvatarAlignItems,
+  getAvatarAlignment,
+  getAvatarSize,
+  getAvatarTextAlign,
+} from "@/app/utils/avatarLayout";
 import { getAnimationVariants } from "@/app/utils/animations";
 import Image from "next/image";
 import { Carousel } from "@mantine/carousel";
@@ -62,11 +68,12 @@ export default function MobilePreview({
     return () => clearInterval(intervalId);
   }, [selectedLayout, carouselApi, displayLinks.length]);
 
-  const currentTheme =
-    themes.find((t) => t.value === selectedTheme) || themes[0];
+  const currentTheme = getThemeConfig(selectedTheme);
+  const themeAccentColor = getThemeAccentColor(currentTheme.bg);
 
-  const currentUsernameTheme =
-    usernameThemes.find((t) => t.value === selectedUsernameTheme) || usernameThemes[0];
+  const currentUsernameTheme = getUsernameThemeConfig(selectedUsernameTheme);
+  const avatarSize = getAvatarSize(profile?.avatar_size, 80);
+  const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
   return (
     <Paper shadow="sm" p="md" withBorder>
       <Group mb="md">
@@ -99,7 +106,7 @@ export default function MobilePreview({
             fontFamily: `var(--font-${selectedFont || "inter"}), sans-serif`,
           }}
         >
-          <Stack align="center" gap="md">
+          <Stack align={getAvatarAlignItems(avatarAlignment)} gap="md" style={{ width: "100%" }}>
             {profile?.banner_url && profile?.is_banner_show && (
               <Box
                 style={{
@@ -120,7 +127,7 @@ export default function MobilePreview({
                   style={{
                     position: "absolute",
                     inset: 0,
-                    background: `linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, ${currentTheme.bg} 100%)`,
+                    background: `linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.16) 52%, ${themeAccentColor} 100%)`,
                   }}
                 />
               </Box>
@@ -128,18 +135,19 @@ export default function MobilePreview({
 
             <Avatar
               src={profile?.avatar_url}
-              size={80}
+              size={avatarSize}
               radius="50%"
-              mt={profile?.banner_url && profile?.is_banner_show ? -46 : 0}
-              style={{ zIndex: 2, border: `3px solid ${currentTheme.bg}` }}
+              mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.58) : 0}
+              style={{ zIndex: 2, border: `3px solid ${themeAccentColor}` }}
             />
-            <Stack gap={4} align="center">
+            <Stack gap={4} align={getAvatarAlignItems(avatarAlignment)} style={{ width: "100%" }}>
               <Text size="xl" fw={700}>
                 {profile?.full_name || "Your Name"}
               </Text>
               <Text
                 size="sm"
                 opacity={0.8}
+                ta={getAvatarTextAlign(avatarAlignment) as any}
                 style={{
                   background: currentUsernameTheme.color.includes("gradient")
                     ? currentUsernameTheme.color
@@ -160,7 +168,7 @@ export default function MobilePreview({
               >
                 @{profile?.username || "username"}
               </Text>
-              <Text size="sm" ta="center" opacity={0.9}>
+              <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9}>
                 {profile?.bio || "Your bio goes here"}
               </Text>
             </Stack>

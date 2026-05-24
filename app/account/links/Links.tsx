@@ -41,9 +41,19 @@ import { createClient } from "../../lib/supabase/client";
 import AppShellLayout from "../../components/layout";
 import UsernameThemeSelector from "../../components/UsernameThemeSelector";
 import { User } from "@supabase/supabase-js";
-import { themesArray } from "@/app/utils/theme";
+import {
+  getThemeConfig,
+  getThemePickerColor,
+  themesArray,
+} from "@/app/utils/theme";
 import { animationOptions, getAnimationVariants } from "@/app/utils/animations";
-import { usernameThemes } from "@/app/utils/usernameThemes";
+import { getUsernameThemeConfig, getUsernameThemePickerColor } from "@/app/utils/usernameThemes";
+import {
+  getAvatarAlignItems,
+  getAvatarAlignment,
+  getAvatarSize,
+  getAvatarTextAlign,
+} from "@/app/utils/avatarLayout";
 import { Footprints } from "lucide-react";
 
 const SOCIALS = [
@@ -86,7 +96,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
   const [selectedTheme, setSelectedTheme] = useState("default");
   const [selectedFont, setSelectedFont] = useState("inter");
   const [selectedAnimation, setSelectedAnimation] = useState("none");
-  const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("default");
+  const [selectedUsernameTheme, setSelectedUsernameTheme] = useState("#1d4ed8");
   const supabase = createClient();
 
   useEffect(() => {
@@ -117,7 +127,9 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
       setSelectedTheme(profileData.theme || "default");
       setSelectedFont(profileData.font || "inter");
       setSelectedAnimation(profileData.animation || "none");
-      setSelectedUsernameTheme(profileData.username_theme || "default");
+      setSelectedUsernameTheme(
+        getUsernameThemePickerColor(profileData.username_theme || "#1d4ed8")
+      );
       setProfileImageLayout(profileData.profile_image_layout || "classic");
       
       // Only set profileImage if profile_image_url exists (for Hero layout)
@@ -303,12 +315,11 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
     await updateProfile("profile_image_layout", layout);
   };
 
-  const currentTheme =
-    themes.find((t) => t.value === selectedTheme) || themes[0];
+  const currentTheme = getThemeConfig(selectedTheme);
 
-  const currentUsernameTheme =
-    usernameThemes.find((t) => t.value === selectedUsernameTheme) ||
-    usernameThemes[0];
+  const currentUsernameTheme = getUsernameThemeConfig(selectedUsernameTheme);
+  const avatarSize = getAvatarSize(profile?.avatar_size, 64);
+  const avatarAlignment = getAvatarAlignment(profile?.avatar_alignment);
 
   return (
     <AppShellLayout>
@@ -652,11 +663,12 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         color: currentTheme.text,
                       }}
                     >
-                      <Stack align="center" gap="sm">
+                      <Stack align={getAvatarAlignItems(avatarAlignment)} gap="sm" style={{ width: "100%" }}>
                         <Avatar
                           src={profile?.avatar_url}
-                          size={64}
+                          size={avatarSize}
                           radius="50%"
+                          mt={profile?.banner_url && profile?.is_banner_show ? -Math.round(avatarSize * 0.58) : 0}
                           style={{
                             background: currentUsernameTheme.color.includes("gradient")
                               ? currentUsernameTheme.color
@@ -677,7 +689,7 @@ export default function LinkTreeDashboard({ user }: { user: User | null }) {
                         >
                           @{profile?.username || "username"}
                         </Avatar>
-                        <Text size="sm" ta="center" opacity={0.9}>
+                        <Text size="sm" ta={getAvatarTextAlign(avatarAlignment) as any} opacity={0.9}>
                           {profile?.bio || "Your bio goes here"}
                         </Text>
                       </Stack>
